@@ -22,11 +22,11 @@ def add_habit(habit, logs):
     habit = habit.lower().strip()
      
     if habit in logs:
-        print(f"{habit.title()} already exists.")
+        print(f"Habit: {habit.title()} already exists.")
     else:
         logs[habit] = []
         save_habits(logs)
-        print(f"{habit.title()} added.")
+        print(f"Habit: {habit.title()} has been added.")
 
 # Convert habit number input to habit
 def get_habit_dict(logs):
@@ -43,7 +43,7 @@ def delete_habit(habit_num, logs):
     
     del logs[habit]
     save_habits(logs)
-    print(f"{habit.title()} deleted.")
+    print(f"Habit: {habit.title()} has been deleted.")
 
 # Rename
 def rename_habit(habit_num, new_name, logs):
@@ -56,11 +56,11 @@ def rename_habit(habit_num, new_name, logs):
     
     new_name = new_name.lower().strip()
     if new_name in logs:
-        print(f"{new_name.title()} already exists.")
+        print(f"Habit: {new_name.title()} already exists.")
     else:
         logs[new_name] = logs.pop(old_name)
         save_habits(logs)
-        print(f"{old_name.title()} renamed to {new_name.title()}.")
+        print(f"Habit: {old_name.title()} has been renamed to {new_name.title()}.")
 
 # Mark done
 def mark_habit_done(habit_num, logs):
@@ -74,11 +74,11 @@ def mark_habit_done(habit_num, logs):
     today = date.today().isoformat()
     
     if today in logs[habit]:
-        print(f"{habit.title()} already marked as done.")
+        print(f"Habit: {habit.title()} has already been marked as done.")
     else:
         logs[habit].append(today)
         save_habits(logs)
-        print(f"{habit.title()} marked as done.")
+        print(f"Habit: {habit.title()} has been marked as done.")
 
 # Streak
 def streak(habit, logs):
@@ -151,6 +151,7 @@ def times_done(habit, days, logs):
     
     return count
 
+# Total repetitions of a habit
 def repetitions(habit, logs):
     
     if habit is None:
@@ -159,6 +160,7 @@ def repetitions(habit, logs):
     
     return len(logs[habit])
 
+# Show habits for selection
 def show_habits(logs):
     
     if logs:
@@ -168,6 +170,7 @@ def show_habits(logs):
     else:
         print("No habits found. Add one first.")
 
+# Dashboard
 def dashboard(logs):
     
     if not logs:
@@ -183,7 +186,7 @@ def dashboard(logs):
         print()
         print(f"{habit.title()}:")
 
-        status = "✔ Done" if today in logs[habit] else "✘ Pending"
+        status = "✅  Done" if today in logs[habit] else "❌  Pending"
         print(f"Today's Status: {status}")
 
         current_streak = streak(habit, logs)
@@ -202,3 +205,78 @@ def dashboard(logs):
         print(f"Total Reps: {reps}")
         print()
     print("----------------------------------------------")
+
+# Get valid input from user
+def get_valid_habit_number(logs, message):
+    habit_dict = get_habit_dict(logs)
+
+    while True:
+        try:
+            habit_num = int(input(message))
+            if habit_num in habit_dict:
+                return habit_num
+            else:
+                print("Invalid number.")
+        except ValueError:
+            print("Please enter a number.")
+
+# CLI Menu
+while True:
+    print("""
+---Habit Tracker---
+1 Add habit 
+2 Delete habit
+3 Rename habit
+4 Mark habit done
+5 View dashboard
+6 Exit
+    """)
+
+    # Ask user choice
+    while True:
+        choice = input("Enter your choice: ")
+        if choice in ["1", "2", "3", "4", "5", "6"]:
+            break
+        else:
+            print("Please enter a valid option number.")
+
+    # If add habit
+    if choice == "1":
+        habit = input("Enter a new habit to add: ")
+        add_habit(habit, logs)
+
+    # If delete habit
+    elif choice == "2":
+        if not logs:
+            print("No habits found. Add a habit first.")
+            continue
+        show_habits(logs)
+        habit_num = get_valid_habit_number(logs, "Enter number of the habit to delete: ")
+        delete_habit(habit_num, logs)
+
+    # If rename habit
+    elif choice == "3":
+        if not logs:
+            print("No habits found. Add a habit first.")
+            continue
+        show_habits(logs)
+        habit_num = get_valid_habit_number(logs, "Enter number of the habit to rename: ")
+        new_name = input("Enter a new name for the habit: ")
+        rename_habit(habit_num, new_name, logs)
+
+    # If mark habit done
+    elif choice == "4":
+        if not logs:
+            print("No habits found. Add a habit first.")
+            continue
+        show_habits(logs)
+        habit_num = get_valid_habit_number(logs, "Enter number of the habit to mark as done: ")
+        mark_habit_done(habit_num, logs)
+
+    # If view dashboard
+    elif choice == "5":
+        dashboard(logs)
+
+    # If exit
+    elif choice == "6":
+        break
