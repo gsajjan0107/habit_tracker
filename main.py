@@ -9,6 +9,7 @@ def load_habits(file_path="habits.json"):
     except (FileNotFoundError, json.JSONDecodeError):
         print("Could not load habits file. Starting fresh.")
         return {}
+
 logs = load_habits()
 
 # Save
@@ -18,9 +19,11 @@ def save_habits(logs, file_path="habits.json"):
     
 # Add
 def add_habit(habit, logs):
-     if habit in logs:
+    habit = habit.lower().strip()
+     
+    if habit in logs:
         print(f"{habit.title()} already exists.")
-     else:
+    else:
         logs[habit] = []
         save_habits(logs)
         print(f"{habit.title()} added.")
@@ -33,9 +36,11 @@ def get_habit_dict(logs):
 def delete_habit(habit_num, logs):
     habit_dict = get_habit_dict(logs)
     habit = habit_dict.get(habit_num)
+    
     if habit is None:
         print("Invalid habit number.")
         return
+    
     del logs[habit]
     save_habits(logs)
     print(f"{habit.title()} deleted.")
@@ -44,9 +49,12 @@ def delete_habit(habit_num, logs):
 def rename_habit(habit_num, new_name, logs):
     habit_dict = get_habit_dict(logs)
     old_name = habit_dict.get(habit_num)
+    
     if old_name is None:
         print("Invalid habit number.")
         return
+    
+    new_name = new_name.lower().strip()
     if new_name in logs:
         print(f"{new_name.title()} already exists.")
     else:
@@ -58,9 +66,11 @@ def rename_habit(habit_num, new_name, logs):
 def mark_habit_done(habit_num, logs):
     habit_dict = get_habit_dict(logs)
     habit = habit_dict.get(habit_num)
+    
     if habit is None:
         print("Invalid habit number.")
         return
+    
     today = date.today().isoformat()
     
     if today in logs[habit]:
@@ -71,31 +81,32 @@ def mark_habit_done(habit_num, logs):
         print(f"{habit.title()} marked as done.")
 
 # Streak
-def streak(habit_num, logs):
-    habit_dict = get_habit_dict(logs)
-    habit = habit_dict.get(habit_num)
+def streak(habit, logs):
+    
     if habit is None:
         print("Invalid habit number.")
         return 0
+    
     today = date.today()
 
     if today.isoformat() not in logs[habit]:
         today -= timedelta(days=1)
 
     streak = 0
+    days_set = set(logs[habit])
     while True:
         day = today.isoformat()
-        if day in logs[habit]:
+        if day in days_set:
             streak += 1
             today -= timedelta(days=1)
         else:
             break
+    
     return streak
 
 # Longest streak
-def longest_streak(habit_num, logs):
-    habit_dict = get_habit_dict(logs)
-    habit = habit_dict.get(habit_num)
+def longest_streak(habit, logs):
+    
     if habit is None:
         print("Invalid habit number.")
         return 0
@@ -109,7 +120,6 @@ def longest_streak(habit_num, logs):
         ]
     
     days_done.sort()
-
     longest = current = 1
 
     for i in range(1, len(days_done)):
@@ -118,16 +128,17 @@ def longest_streak(habit_num, logs):
         else:
             longest = max(longest, current)
             current = 1
+    
     longest = max(longest, current)
     return longest
 
 # Times habit done in given number of days
-def times_done(habit_num, days, logs):
-    habit_dict = get_habit_dict(logs)
-    habit = habit_dict.get(habit_num)
+def times_done(habit, days, logs):
+    
     if habit is None:
         print("Invalid habit number.")
         return 0
+    
     today = date.today()
     days_set = set(logs[habit])
 
@@ -137,20 +148,57 @@ def times_done(habit_num, days, logs):
         if day in days_set:
             count += 1
         today -= timedelta(days=1)
+    
     return count
 
-def repetitions(habit_num, logs):
-    habit_dict = get_habit_dict(logs)
-    habit = habit_dict.get(habit_num)
+def repetitions(habit, logs):
+    
     if habit is None:
         print("Invalid habit number.")
         return 0
+    
     return len(logs[habit])
 
 def show_habits(logs):
+    
     if logs:
         habit_dict = get_habit_dict(logs)
         for k, v in habit_dict.items():
             print(f"{k} {v.title()}")
     else:
         print("No habits found. Add one first.")
+
+def dashboard(logs):
+    
+    if not logs:
+        print("No habits found. Add a habit first.")
+        return
+    
+    today = date.today().isoformat()
+    
+    print()
+    for habit in logs:
+
+        print("----------------------------------------------")
+        print()
+        print(f"{habit.title()}:")
+
+        status = "✔ Done" if today in logs[habit] else "✘ Pending"
+        print(f"Today's Status: {status}")
+
+        current_streak = streak(habit, logs)
+        best_streak = longest_streak(habit, logs)
+        print(f"Current Streak: {current_streak} | Longest Streak: {best_streak}")
+
+        weekly_count = times_done(habit, 7, logs)
+        weekly_percentage = (weekly_count/7)*100
+        print(f"Consistency for 7 days: {weekly_percentage:.0f}%")
+
+        monthly_count = times_done(habit, 30, logs)
+        monthly_percentage = (monthly_count/30)*100
+        print(f"Consistency for 30 days: {monthly_percentage:.0f}%")
+
+        reps = repetitions(habit, logs)
+        print(f"Total Reps: {reps}")
+        print()
+    print("----------------------------------------------")
