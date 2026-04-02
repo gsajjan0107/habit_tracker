@@ -1,20 +1,22 @@
+from pathlib import Path
 import json
 from datetime import date, datetime, timedelta
 
+BASE_DIR = Path(__file__).resolve().parent
+FILE_PATH = BASE_DIR / "habits.json"
+
 # Load
-def load_habits(file_path="habits.json"):
+def load_habits():
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(FILE_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         print("Could not load habits file. Starting fresh.")
         return {}
 
-logs = load_habits()
-
 # Save
-def save_habits(logs, file_path="habits.json"):
-    with open(file_path, "w", encoding="utf-8") as f:
+def save_habits(logs):
+    with open(FILE_PATH, "w", encoding="utf-8") as f:
         json.dump(logs, f, indent=4)
     
 # Add
@@ -140,6 +142,10 @@ def times_done(habit, days, logs):
         return 0
     
     today = date.today()
+
+    if today.isoformat() not in logs[habit]:
+        today -= timedelta(days=1)
+        
     days_set = set(logs[habit])
 
     count = 0
@@ -220,9 +226,12 @@ def get_valid_habit_number(logs, message):
         except ValueError:
             print("Please enter a number.")
 
-# CLI Menu
-while True:
-    print("""
+def main():
+    logs = load_habits()
+
+    # CLI Menu
+    while True:
+        print("""
 ---Habit Tracker---
 1 Add habit 
 2 Delete habit
@@ -230,53 +239,73 @@ while True:
 4 Mark habit done
 5 View dashboard
 6 Exit
-    """)
+        """)
 
-    # Ask user choice
-    while True:
-        choice = input("Enter your choice: ")
-        if choice in ["1", "2", "3", "4", "5", "6"]:
+        # Ask user choice
+        while True:
+            choice = input("Enter your choice: ")
+            if choice in ["1", "2", "3", "4", "5", "6"]:
+                break
+            else:
+                print("Please enter a valid option number.")
+
+        # If add habit
+        if choice == "1":
+            habit = input("Enter a new habit to add: ")
+            add_habit(habit, logs)
+
+        # If delete habit
+        elif choice == "2":
+            if not logs:
+                print("No habits found. Add a habit first.")
+                continue
+            show_habits(logs)
+            habit_num = get_valid_habit_number(logs, "Enter number of the habit to delete: ")
+            delete_habit(habit_num, logs)
+
+        # If rename habit
+        elif choice == "3":
+            if not logs:
+                print("No habits found. Add a habit first.")
+                continue
+            show_habits(logs)
+            habit_num = get_valid_habit_number(logs, "Enter number of the habit to rename: ")
+            new_name = input("Enter a new name for the habit: ")
+            rename_habit(habit_num, new_name, logs)
+
+        # If mark habit done
+        elif choice == "4":
+            if not logs:
+                print("No habits found. Add a habit first.")
+                continue
+
+            show_habits(logs)
+            habit_dict = get_habit_dict(logs)
+
+            while True:
+                try:
+                    habit_nums = set(map(int, input(
+                        "Enter the numbers of the habits to mark as done: "
+                        ).split()))
+                    
+                    for habit_num in habit_nums:
+                        if habit_num in habit_dict:
+                            mark_habit_done(habit_num, logs)
+                        else:
+                            print(f"{habit_num} is an invalid number.")
+
+                    break
+
+                except ValueError:
+                    print("Please enter numbers separated by spaces.")
+
+        # If view dashboard
+        elif choice == "5":
+            dashboard(logs)
+
+        # If exit
+        elif choice == "6":
             break
-        else:
-            print("Please enter a valid option number.")
 
-    # If add habit
-    if choice == "1":
-        habit = input("Enter a new habit to add: ")
-        add_habit(habit, logs)
-
-    # If delete habit
-    elif choice == "2":
-        if not logs:
-            print("No habits found. Add a habit first.")
-            continue
-        show_habits(logs)
-        habit_num = get_valid_habit_number(logs, "Enter number of the habit to delete: ")
-        delete_habit(habit_num, logs)
-
-    # If rename habit
-    elif choice == "3":
-        if not logs:
-            print("No habits found. Add a habit first.")
-            continue
-        show_habits(logs)
-        habit_num = get_valid_habit_number(logs, "Enter number of the habit to rename: ")
-        new_name = input("Enter a new name for the habit: ")
-        rename_habit(habit_num, new_name, logs)
-
-    # If mark habit done
-    elif choice == "4":
-        if not logs:
-            print("No habits found. Add a habit first.")
-            continue
-        show_habits(logs)
-        habit_num = get_valid_habit_number(logs, "Enter number of the habit to mark as done: ")
-        mark_habit_done(habit_num, logs)
-
-    # If view dashboard
-    elif choice == "5":
-        dashboard(logs)
-
-    # If exit
-    elif choice == "6":
-        break
+if __name__ == "__main__":
+    main()
