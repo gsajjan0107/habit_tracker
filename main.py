@@ -1,4 +1,4 @@
-from storage import load_habits
+from storage import load_habits, save_habits
 from habits import add_habit, delete_habit, rename_habit, mark_habit_done
 from ui import show_habits, dashboard
 from utils import get_valid_habit, get_multiple_habits
@@ -10,25 +10,26 @@ def main():
 
     while True:
     
-        print("""
----Habit Tracker---
-1 Add habit 
-2 Delete habit
-3 Rename habit
-4 Mark habit done
-5 View dashboard
-6 Exit
-""")
         while True:
-            choice = input("Choice: ")
+            print("""
+---Habit Tracker---
+1. Add habit 
+2. Delete habit
+3. Rename habit
+4. Mark habit done
+5. View dashboard
+6. Exit
+""")
+            choice = input("Choice: ").strip()
             if choice in {"1","2","3","4","5","6"}:
                 break
             print("Please enter a valid option number.")
 
 
         if choice == "1":
-            habit = input("New habit: ")
+            habit = input("New habit: ").lower().strip()
             add_habit(habit, logs)
+            save_habits(logs)
 
 
         elif choice == "2":
@@ -37,8 +38,9 @@ def main():
                 continue
 
             show_habits(logs)
-            habit = get_valid_habit("Habit number: ")
+            habit = get_valid_habit(logs, "Habit number: ")
             delete_habit(habit, logs)
+            save_habits(logs)
 
 
         elif choice == "3":
@@ -47,9 +49,10 @@ def main():
                 continue
             
             show_habits(logs)
-            habit = get_valid_habit("Habit number: ")
-            new = input("New name: ")
+            habit = get_valid_habit(logs, "Habit number: ")
+            new = input("New name: ").lower().strip()
             rename_habit(habit, new, logs)
+            save_habits(logs)
 
 
         elif choice == "4":
@@ -59,9 +62,10 @@ def main():
 
             show_habits(logs)
             habits = get_multiple_habits(logs)
-            
+            print()
             for habit in habits:
                 mark_habit_done(habit, logs)
+            save_habits(logs)
 
 
         elif choice == "5":

@@ -3,6 +3,7 @@ import json
 
 FILE_PATH = Path(__file__).with_name("habits.json")
 
+
 def load_habits():
     try:
         with open(FILE_PATH, "r", encoding="utf-8") as f:
@@ -10,6 +11,7 @@ def load_habits():
     except (FileNotFoundError, json.JSONDecodeError):
         print("Could not load habits file. Starting fresh.")
         return {}
+
 
 def save_habits(logs):
     with open(FILE_PATH, "w", encoding="utf-8") as f:

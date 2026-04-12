@@ -1,12 +1,3 @@
-def get_valid_number(prompt):
-
-    while True:
-        try:
-            num = int(input(prompt))
-            return num
-        except ValueError:
-            print("Please enter a valid number.")
-
 def get_valid_habit(logs, message):
 
     habits = list(logs.keys())
@@ -19,6 +10,7 @@ def get_valid_habit(logs, message):
             print("Invalid habit number.")
         except ValueError:
             print("Please enter a number.")
+            
 
 def get_multiple_habits(logs):
 
@@ -34,9 +26,12 @@ def get_multiple_habits(logs):
                     valid.append(habits[n-1])
                 else:
                     print(f"{n} is invalid.")
+            
+            if not valid:
+                print("No valid habits selected.")
+                continue
                     
             return valid
 
         except ValueError:
             print("Enter numbers separated by spaces.")
-        
