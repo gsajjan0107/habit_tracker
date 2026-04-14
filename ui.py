@@ -1,47 +1,40 @@
 from datetime import date
+from utils import get_sorted_habits
 from stats import streak, longest_streak, times_done, repetitions
 
 
-def show_habits(logs):
-    for i, habit in enumerate(logs, start=1):
-        print(f"{i} {habit.title()}")
+def format_habits(logs):
+    lines = []
+    for i, habit in enumerate(get_sorted_habits(logs), start=1):
+        lines.append(f"{i}. {habit.title()}")
+    return "\n".join(lines)
 
 
-def dashboard(logs):
-    
+def format_dashboard(logs):
     if not logs:
-        print("No habits found.")
-        return
+        return "No habits found."
     
+    output = []
     today = date.today().isoformat()
-    
-    for habit in logs:
 
-        print()
-        print("----------------------------------------------")
-        print(habit.title())
-        print()
+    for habit in get_sorted_habits(logs):
+        output.append("\n----------------------------------------------\n")
+        output.append(f"{habit.title()}\n")
 
-        status = "Done" if today in logs[habit] else "Pending"
-        print(f"{'Today\'s Status:':<25}{status:>5}")
+        habit_logs = logs.get(habit, set())
+        status = "Done" if today in habit_logs else "Pending"
+        output.append(f"Today's Status: {status}")
 
-        s = streak(habit, logs)
-        l = longest_streak(habit, logs)
-
-        print(f"{'Current Streak:':<25}{s:>5}")
-        print(f"{'Longest Streak:':<25}{l:>5}")
+        output.append(f"Current Streak: {streak(habit, logs)}")
+        output.append(f"Longest Streak: {longest_streak(habit, logs)}")
 
         weekly = times_done(habit, 7, logs)
-        weekly_pct = (weekly/7)*100
-
         monthly = times_done(habit, 30, logs)
-        monthly_pct = (monthly/30)*100
-        print(f"{'7-day consistency:':<25}{weekly_pct:>4.0f}%")
-        print(f"{'30-day consistency:':<25}{monthly_pct:>4.0f}%")
 
-        reps = repetitions(habit, logs)
+        output.append(f"7-day consistency: {int((weekly/7)*100)}%")
+        output.append(f"30-day consistency: {int((monthly/30)*100)}%")
 
-        print(f"{'Total Reps:':<25}{reps:>5}")
-        
-    print()
-    print("----------------------------------------------")
+        output.append(f"Total Reps: {repetitions(habit, logs)}")
+
+    output.append("\n----------------------------------------------")
+    return "\n".join(output)

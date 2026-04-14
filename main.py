@@ -1,12 +1,33 @@
 from storage import load_habits, save_habits
 from habits import add_habit, delete_habit, rename_habit, mark_habit_done
-from ui import show_habits, dashboard
-from utils import get_valid_habit, get_multiple_habits
+from ui import format_habits, format_dashboard
+from utils import get_habit_by_index, get_multiple_by_indices
+
+
+def select_single_habit(logs):
+    if not logs:
+        print("No habits found. Add one first.")
+        return None
+
+    print(format_habits(logs))
+
+    while True:
+        try:
+            num = int(input("Habit number: "))
+            habit = get_habit_by_index(logs, num)
+            if habit:
+                return habit
+            print("Invalid habit number.")
+        except ValueError:
+            print("Enter a number.")
 
 
 def main():
     
-    logs = load_habits()
+    success, logs = load_habits()
+
+    if not success:
+        print("Could not load habits file. Starting fresh.")
 
     while True:
     
@@ -27,32 +48,39 @@ def main():
 
 
         if choice == "1":
-            habit = input("New habit: ").lower().strip()
-            add_habit(habit, logs)
-            save_habits(logs)
+            habit = input("New habit: ")
+            success, message = add_habit(habit, logs)
+            print(message)
+
+            if success:
+                success, message = save_habits(logs)
+                print(message)
 
 
         elif choice == "2":
-            if not logs:
-                print("No habits found. Add one first.")
+            habit = select_single_habit(logs)
+            if not habit:
                 continue
 
-            show_habits(logs)
-            habit = get_valid_habit(logs, "Habit number: ")
-            delete_habit(habit, logs)
-            save_habits(logs)
+            success, message = delete_habit(habit, logs)
+            print(message)
 
+            if success:
+                success, message = save_habits(logs)
+                print(message)
 
         elif choice == "3":
-            if not logs:
-                print("No habits found. Add one first.")
+            habit = select_single_habit(logs)
+            if not habit:
                 continue
+
+            new = input("New name: ")
+            success, message = rename_habit(habit, new, logs)
+            print(message)
             
-            show_habits(logs)
-            habit = get_valid_habit(logs, "Habit number: ")
-            new = input("New name: ").lower().strip()
-            rename_habit(habit, new, logs)
-            save_habits(logs)
+            if success:
+                success, message = save_habits(logs)
+                print(message)
 
 
         elif choice == "4":
@@ -60,16 +88,33 @@ def main():
                 print("No habits found. Add one first.")
                 continue
 
-            show_habits(logs)
-            habits = get_multiple_habits(logs)
-            print()
-            for habit in habits:
-                mark_habit_done(habit, logs)
-            save_habits(logs)
+            print(format_habits(logs))
+
+            try:
+                nums = list(map(int, input("Enter numbers: ").split()))
+            except ValueError:
+                print("Enter numbers only.")
+                continue
+
+            valid, invalid = get_multiple_by_indices(logs, nums)
+
+            for n in invalid:
+                print(f"{n} is invalid.")
+
+            for habit in valid:
+                success, message = mark_habit_done(habit, logs)
+                print(message)
+
+            if valid:
+                success, message = save_habits(logs)
+                print(message)
+            else:
+                print("No valid habits selected.")
+                continue
 
 
         elif choice == "5":
-            dashboard(logs)
+            print(format_dashboard(logs))
 
 
         elif choice == "6":

@@ -5,48 +5,48 @@ def add_habit(habit, logs):
     habit = habit.lower().strip()
 
     if not habit:
-        print("Habit cannot be empty.")
-        return
-     
+        return False, "Habit cannot be empty."
+        
     if habit in logs:
-        print(f"{habit.title()} already exists.")
-        return
+        return False, f"{habit.title()} already exists."
     
-    logs[habit] = []
-    print(f"{habit.title()} added.")
+    logs[habit] = set()
+    return True, f"{habit.title()} added."
 
 
 def delete_habit(habit, logs):
 
     if habit not in logs:
-        print("Habit does not exist.")
-        return
+        return False, "Habit does not exist."
     
     del logs[habit]
-    print(f"{habit.title()} deleted.")
+    return True, f"{habit.title()} deleted."
 
 
 def rename_habit(old, new, logs):
     new = new.lower().strip()
 
+    if old not in logs:
+        return False, "Habit does not exist."
+
     if not new:
-        print("Habit name cannot be empty.")
-        return
+        return False, "Habit name cannot be empty."
     
     if new in logs:
-        print(f"{new.title()} already exists.")
-        return
+        return False, f"{new.title()} already exists."
     
     logs[new] = logs.pop(old)
-    print(f"{old.title()} renamed to {new.title()}.")
+    return True, f"{old.title()} renamed to {new.title()}."
 
 
 def mark_habit_done(habit, logs):
+    if habit not in logs:
+        return False, "Habit does not exist."
     
     today = date.today().isoformat()
     
     if today in logs[habit]:
-        print(f"{habit.title()} already marked today.")
-    else:
-        logs[habit].append(today)
-        print(f"{habit.title()} marked done.")
+        return False, f"{habit.title()} already marked today."
+    
+    logs[habit].add(today)
+    return True, f"{habit.title()} marked done."

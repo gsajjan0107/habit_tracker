@@ -1,37 +1,26 @@
-def get_valid_habit(logs, message):
+def get_habit_by_index(logs, index):
+    habits = get_sorted_habits(logs)
 
-    habits = list(logs.keys())
+    if 1 <= index <= len(habits):
+        return habits[index - 1]
+    
+    return None
 
-    while True:
-        try:
-            num = int(input(message))
-            if 1 <= num <= len(habits):
-                return habits[num - 1]
-            print("Invalid habit number.")
-        except ValueError:
-            print("Please enter a number.")
-            
 
-def get_multiple_habits(logs):
+def get_multiple_by_indices(logs, indices):
+    habits = get_sorted_habits(logs)
 
-    habits = list(logs.keys())
+    valid = []
+    invalid = []
 
-    while True:
-        try:
-            nums = set(map(int, input("Enter habit numbers: ").split()))
+    for n in indices:
+        if 1 <= n <= len(habits):
+            valid.append(habits[n-1])
+        else:
+            invalid.append(n)
+    
+    return valid, invalid
 
-            valid = []
-            for n in nums:
-                if 1 <= n <= len(habits):
-                    valid.append(habits[n-1])
-                else:
-                    print(f"{n} is invalid.")
-            
-            if not valid:
-                print("No valid habits selected.")
-                continue
-                    
-            return valid
 
-        except ValueError:
-            print("Enter numbers separated by spaces.")
+def get_sorted_habits(logs):
+    return sorted(logs)
