@@ -1,26 +1,38 @@
-def get_habit_by_index(logs, index):
-    habits = get_sorted_habits(logs)
+from datetime import datetime
 
-    if 1 <= index <= len(habits):
-        return habits[index - 1]
+def parse_date(date_str):
+    return datetime.strptime(date_str, "%Y-%m-%d").date()
+
+def valid_date(date_str):
+    if not isinstance(date_str, str):
+        return False
+    try:
+        parse_date(date_str)
+        return True
+    except ValueError:
+        return False
     
-    return None
+def normalize_habit_name(habit_name):
+    return habit_name.strip().lower()
 
+def get_valid_habit_name(habit_name):
+    habit_name = habit_name.strip().lower()
 
-def get_multiple_by_indices(logs, indices):
-    habits = get_sorted_habits(logs)
-
-    valid = []
-    invalid = []
-
-    for n in indices:
-        if 1 <= n <= len(habits):
-            valid.append(habits[n-1])
-        else:
-            invalid.append(n)
+    if not habit_name:
+        return False, "Habit name cannot be empty."
     
-    return valid, invalid
-
-
-def get_sorted_habits(logs):
-    return sorted(logs)
+    return True, habit_name
+    
+def get_habit_exist_status(data, habit_name):
+    
+    if habit_name in data["habits"]:
+        return True, "Habit exists."
+    else:
+        return False, "Habit does not exist."
+    
+def get_habit_archive_status(data, habit_name):
+    if data["habits"][habit_name]["archived_at"] is not None:
+        return True, "Habit is acrhived."
+    else:
+        return False, "Habit is not archived."
+    

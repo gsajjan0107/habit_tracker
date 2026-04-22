@@ -1,124 +1,182 @@
-from storage import load_habits, save_habits
-from habits import add_habit, delete_habit, rename_habit, mark_habit_done
-from ui import format_habits, format_dashboard
-from utils import get_habit_by_index, get_multiple_by_indices
+import sys
+from pathlib import Path
+from datetime import datetime
+from storage import load_data, save_data
+from utils import get_valid_habit_name, parse_date
+from habits import add_habit, log_habit, delete_habit, archive_habit, unarchive_habit
+from stats import daily_stats, weekly_stats_plus_streaks
 
+file_path = Path(__file__).with_name("data.json")
 
-def select_single_habit(logs):
-    if not logs:
-        print("No habits found. Add one first.")
-        return None
+commands = {
+    "1" : "Add habit",
+    "2" : "Log habit",
+    "3" : "Delete habit",
+    "4" : "Toggle archive",
+    "5" : "Dashboard",
+    "6" : "Exit"
+}
 
-    print(format_habits(logs))
+data = load_data()
 
-    while True:
-        try:
-            num = int(input("Habit number: "))
-            habit = get_habit_by_index(logs, num)
-            if habit:
-                return habit
-            print("Invalid habit number.")
-        except ValueError:
-            print("Enter a number.")
-
-
-def main():
-    
-    success, logs = load_habits()
-
+def handle_add():
+    # VALIDATE HABIT
+    success, result = get_valid_habit_name(input("Enter habit: "))
     if not success:
-        print("Could not load habits file. Starting fresh.")
-
-    while True:
+        print(result)
+        return
     
-        while True:
-            print("""
----Habit Tracker---
-1. Add habit 
-2. Delete habit
-3. Rename habit
-4. Mark habit done
-5. View dashboard
-6. Exit
-""")
-            choice = input("Choice: ").strip()
-            if choice in {"1","2","3","4","5","6"}:
-                break
-            print("Please enter a valid option number.")
+    habit = result
 
+    if habit in data["habits"]:
+        if data["habits"][habit].get("archived_at") is not None:
+            print("Habit exists but is archived.")
+        else:
+            print("Habit already exists.")
+        return
 
-        if choice == "1":
-            habit = input("New habit: ")
-            success, message = add_habit(habit, logs)
-            print(message)
+    # VALIDATE TARGET
+    try:
+        target = int(input("Enter target per week: "))
+        if target <= 0:
+            print("Target must be at least 1.")
+            return
+    except ValueError:
+        print("Target must be a valid number.")
+        return
 
-            if success:
-                success, message = save_habits(logs)
-                print(message)
+    # ADD HABIT
+    success, msg = add_habit(data, habit, target)
+    save_data(data)
+    print(msg)
 
+def handle_log():
+    # VALIDATE HABIT
+    success, result = get_valid_habit_name(input("Enter habit: "))
+    if not success:
+        print(result)
+        return
+    
+    habit = result
 
-        elif choice == "2":
-            habit = select_single_habit(logs)
-            if not habit:
-                continue
+    if habit not in data["habits"]:
+        print("Habit does not exist.")
+        return
 
-            success, message = delete_habit(habit, logs)
-            print(message)
+    if data["habits"][habit].get("archived_at") is not None:
+        print("Cannot log as the habit is archived.")
+        return
+    
+    # VALIDATE DATE
+    log_date = input("Enter date (Press enter to log for today): ")
+    if not log_date:
+        log_date = datetime.today().date()
+    else:
+        try:
+            log_date = parse_date(log_date)
+        except ValueError:
+            print("Invalid date. Enter in (YYYY-MM-DD) format.")
+            return
 
-            if success:
-                success, message = save_habits(logs)
-                print(message)
+    # LOG HABIT
+    success, msg = log_habit(data, habit, log_date)
+    save_data(data)
+    print(msg)
 
-        elif choice == "3":
-            habit = select_single_habit(logs)
-            if not habit:
-                continue
+def handle_delete():
+    # VALIDATE HABIT
+    success, result = get_valid_habit_name(input("Enter habit: "))
+    if not success:
+        print(result)
+        return
+    
+    habit = result
 
-            new = input("New name: ")
-            success, message = rename_habit(habit, new, logs)
-            print(message)
-            
-            if success:
-                success, message = save_habits(logs)
-                print(message)
+    if habit not in data["habits"]:
+        print("Habit does not exist.")
+        return
+    
+    confirm = input("The habit will be deleted permanently along with logs. Are you sure? (y/n): ").lower()
+    if confirm != "y":
+        return
+    
+    # DELETE HABIT
+    success, msg = delete_habit(data, habit)
+    save_data(data)
+    print(msg)
+ 
+def handle_toggle_archive():
+    # VALIDATE HABIT
+    success, result = get_valid_habit_name(input("Enter habit: "))
+    if not success:
+        print(result)
+        return
+    
+    habit = result
 
+    if habit not in data["habits"]:
+        print("Habit does not exist.")
+        return
+    
+    # TOGGLE ARCHIVE
+    if data["habits"][habit].get("archived_at") is None:
+        success, msg = archive_habit(data, habit)
+    else:
+        success, msg = unarchive_habit(data, habit)
+    
+    save_data(data)
+    print(msg)
 
-        elif choice == "4":
-            if not logs:
-                print("No habits found. Add one first.")
-                continue
+def handle_dashboard():
+    success, result = daily_stats(data)
+    if not success:
+        print(result)
+        return
 
-            print(format_habits(logs))
+    print("\n📅 Date:", result["date"])
 
-            try:
-                nums = list(map(int, input("Enter numbers: ").split()))
-            except ValueError:
-                print("Enter numbers only.")
-                continue
+    completed = result["completed"]
+    if completed:
+        print("\n✅ Completed:")
+        for habit in result["completed"]:
+            print(f"- {habit}")
 
-            valid, invalid = get_multiple_by_indices(logs, nums)
+    pending = result["pending"]
+    if pending:
+        print("\n🚫 Pending:")
+        for habit in pending:
+            print(f"- {habit}")
 
-            for n in invalid:
-                print(f"{n} is invalid.")
+    print(f"\nCompleted {result['total_completed']} / {result['total_habits']} habits today.")
 
-            for habit in valid:
-                success, message = mark_habit_done(habit, logs)
-                print(message)
+    print("\n📊 Weekly Stats:")
+    
+    weekly_stats = weekly_stats_plus_streaks(data)
+    for habit, info in weekly_stats.items():
+        print(f"-> {habit}:  {info['done']} / {info['target']} ({info['percentage']:.2f}%)   🔥 {info['current_streak']} | 🎖️  {info['longest_streak']}")
 
-            if valid:
-                success, message = save_habits(logs)
-                print(message)
-            else:
-                print("No valid habits selected.")
-                continue
+def handle_exit():
+    sys.exit()
+    
+handlers = {
+    "1": handle_add,
+    "2": handle_log,
+    "3": handle_delete,
+    "4": handle_toggle_archive,
+    "5": handle_dashboard,
+    "6": handle_exit,
+}
 
+while True:
+    print("\nMAIN MENU")
+    print("--------------------")
+    for key, label in commands.items():
+        print(f"{key}. {label}")
 
-        elif choice == "5":
-            print(format_dashboard(logs))
+    choice = input("\nEnter choice: ").strip()
 
+    if choice not in handlers:
+        print("Invalid choice.")
+        continue
 
-        elif choice == "6":
-            break
-
-if __name__ == "__main__":
-    main()
+    handlers[choice]()

@@ -1,52 +1,66 @@
-from datetime import date
+from utils import normalize_habit_name, parse_date
+from datetime import datetime
 
+def add_habit(data, habit_name, target_per_week):
+    created_at = datetime.today().date().isoformat()
 
-def add_habit(habit, logs):
-    habit = habit.lower().strip()
+    habit_info = {
+        "target_per_week": target_per_week,
+        "created_at": created_at,
+        "archived_at": None
+    }
 
-    if not habit:
-        return False, "Habit cannot be empty."
+    habits = data["habits"]
+    habits[habit_name] = habit_info
+
+    return True, "Habit added."
+
+def archive_habit(data, habit_name):
+    data["habits"][habit_name]["archived_at"] = datetime.today().date().isoformat()
+    return True, "Habit archived."
+
+def unarchive_habit(data, habit_name):
+    data["habits"][habit_name]["archived_at"] = None
+    return True, "Habit unarchived."
+
+def delete_habit(data, habit_name):
+
+    data["logs"] = [
+        log for log in data["logs"]
+        if log["habit"] != habit_name
+    ]
+
+    del data["habits"][habit_name]
+
+    return True, "Habit deleted."
+
+def log_habit(data, habit_name, log_date):
         
-    if habit in logs:
-        return False, f"{habit.title()} already exists."
+    created_date = data["habits"][habit_name]["created_at"]
+    created_date = parse_date(created_date)
+        
+    if log_date < created_date:
+        return False, "Habit cannot be logged before it was created."
     
-    logs[habit] = set()
-    return True, f"{habit.title()} added."
+    if log_date > datetime.today().date():
+        return False, "Cannot log a future habit."
+        
+    log_date = log_date.isoformat()
 
+    logs = data["logs"]
 
-def delete_habit(habit, logs):
+    if any(
+        log["habit"] == habit_name and log["date"] == log_date
+        for log in logs
+    ):
+        return False, "Habit already logged for this date."
 
-    if habit not in logs:
-        return False, "Habit does not exist."
-    
-    del logs[habit]
-    return True, f"{habit.title()} deleted."
+    data["logs"].append({
+        "habit": habit_name,
+        "date": log_date
+    })
 
+    return True, "Habit logged."
 
-def rename_habit(old, new, logs):
-    new = new.lower().strip()
-
-    if old not in logs:
-        return False, "Habit does not exist."
-
-    if not new:
-        return False, "Habit name cannot be empty."
-    
-    if new in logs:
-        return False, f"{new.title()} already exists."
-    
-    logs[new] = logs.pop(old)
-    return True, f"{old.title()} renamed to {new.title()}."
-
-
-def mark_habit_done(habit, logs):
-    if habit not in logs:
-        return False, "Habit does not exist."
-    
-    today = date.today().isoformat()
-    
-    if today in logs[habit]:
-        return False, f"{habit.title()} already marked today."
-    
-    logs[habit].add(today)
-    return True, f"{habit.title()} marked done."
+# this sorts logs by date
+# data["logs"].sort(key=lambda x: x["date"])
