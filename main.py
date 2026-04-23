@@ -4,7 +4,7 @@ from datetime import datetime
 from storage import load_data, save_data
 from utils import get_valid_habit_name, parse_date
 from habits import add_habit, log_habit, delete_habit, archive_habit, unarchive_habit
-from stats import daily_stats, weekly_stats_plus_streaks
+from stats import daily_stats, habit_weekly_completion, streaks
 
 file_path = Path(__file__).with_name("data.json")
 
@@ -151,9 +151,10 @@ def handle_dashboard():
 
     print("\n📊 Weekly Stats:")
     
-    weekly_stats = weekly_stats_plus_streaks(data)
+    weekly_stats = habit_weekly_completion(data) # done, target, percentage
+    habit_streaks = streaks(data) # longest_streak, current_streak
     for habit, info in weekly_stats.items():
-        print(f"-> {habit}:  {info['done']} / {info['target']} ({info['percentage']:.2f}%)   🔥 {info['current_streak']} | 🎖️  {info['longest_streak']}")
+        print(f"{habit}:  {info['done']} / {info['target']} ({info['percentage']:.2f}%)   🔥 {habit_streaks[habit]['current_streak']} | 🎖️  {habit_streaks[habit]['longest_streak']}")
 
 def handle_exit():
     sys.exit()

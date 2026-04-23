@@ -96,47 +96,6 @@ def habit_weekly_completion(data):
 
     return results
 
-def weekly_stats_plus_streaks(data):
-    today = datetime.now().date()
-    monday = today - timedelta(days=today.weekday())
-    sunday = monday + timedelta(days=6)
-
-    habit_count = {}
-
-    logs = data["logs"]
-    for log in logs:
-        habit = log["habit"]
-        date = parse_date(log["date"])
-
-        if monday <= date <= sunday:
-            habit_count[habit] = habit_count.get(habit, 0) + 1
-
-    habit_logs = get_habits_log_dates(data)
-    results = {}
-
-    for name, info in data["habits"].items():
-        if info.get("archived_at") is not None:
-            continue
-        
-        target = info["target_per_week"]
-        count = habit_count.get(name, 0)
-
-        percentage = min((count / target) * 100, 100) if target > 0 else 0
-
-        log_dates = habit_logs.get(name, set())
-        max_streak = best_streak(log_dates)
-        current = current_streak(log_dates)        
-
-        results[name] = {
-            "done": count,
-            "target": target,
-            "percentage": percentage,
-            "longest_streak": max_streak,
-            "current_streak": current
-        }
-
-    return results
-
 def daily_stats(data, date=None):
     habits = data["habits"]
 

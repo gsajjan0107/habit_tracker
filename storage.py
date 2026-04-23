@@ -39,16 +39,17 @@ def load_data():
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         
-        if not validate_data_structure(data):
-            return backup_and_reset()
+        is_valid, msg = validate_data_structure(data) 
+        if not is_valid:
+            return backup_and_reset(), f"{msg} Creating backup..."
         
-        return data
+        return data, "Data loaded successfully."
 
     except FileNotFoundError:
-        return create_data_file()
+        return create_data_file(), "Created new data file."
     
     except json.JSONDecodeError:
-        return backup_and_reset()
+        return backup_and_reset(), "Invalid data file. Creating backup..."
 
 def save_data(data):
     temp_path = file_path.with_suffix(".tmp")
