@@ -2,15 +2,6 @@ from datetime import datetime
 
 def parse_date(date_str):
     return datetime.strptime(date_str, "%Y-%m-%d").date()
-
-def valid_date(date_str):
-    if not isinstance(date_str, str):
-        return False
-    try:
-        parse_date(date_str)
-        return True
-    except ValueError:
-        return False
     
 def normalize_habit_name(habit_name):
     return habit_name.strip().lower()

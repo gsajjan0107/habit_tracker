@@ -106,15 +106,24 @@ def daily_stats(data, date=None):
         date = datetime.now().date().isoformat()
     
     try:
-        target_date = parse_date(date)
+        parsed_date = parse_date(date)
     except ValueError:
         return False, "Invalid date. Enter in (YYYY-MM-DD) format."
 
-    valid_habits = {
-        name for name, info in habits.items()
-        if (parse_date(info["created_at"]) <= target_date) 
-        and ((info.get("archived_at") is None) or (parse_date(info["archived_at"]) >= target_date))
-    }
+    valid_habits = set()
+
+    for name, info in habits.items():
+        created_at = parse_date(info["created_at"])
+        archived_at = info.get("archived_at")
+
+        is_created = created_at <= parsed_date
+        is_not_archived = (
+            archived_at is None or parse_date(archived_at) >= parsed_date
+        )
+
+        if is_created and is_not_archived:
+            valid_habits.add(name)
+                
 
     completed_today = {
         log["habit"]

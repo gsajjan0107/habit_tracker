@@ -1,8 +1,8 @@
-from utils import normalize_habit_name, parse_date
+from utils import parse_date
 from datetime import datetime
 
 def add_habit(data, habit_name, target_per_week):
-    created_at = datetime.today().date().isoformat()
+    created_at = datetime.now().date().isoformat()
 
     habit_info = {
         "target_per_week": target_per_week,
@@ -16,7 +16,8 @@ def add_habit(data, habit_name, target_per_week):
     return True, "Habit added."
 
 def archive_habit(data, habit_name):
-    data["habits"][habit_name]["archived_at"] = datetime.today().date().isoformat()
+    today = datetime.now().date().isoformat()
+    data["habits"][habit_name]["archived_at"] = today
     return True, "Habit archived."
 
 def unarchive_habit(data, habit_name):
@@ -42,7 +43,8 @@ def log_habit(data, habit_name, log_date):
     if log_date < created_date:
         return False, "Habit cannot be logged before it was created."
     
-    if log_date > datetime.today().date():
+    today = datetime.now().date()
+    if log_date > today:
         return False, "Cannot log a future habit."
         
     log_date = log_date.isoformat()

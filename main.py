@@ -70,7 +70,7 @@ def handle_log():
     # VALIDATE DATE
     log_date = input("Enter date (Press enter to log for today): ")
     if not log_date:
-        log_date = datetime.today().date()
+        log_date = datetime.now().date()
     else:
         try:
             log_date = parse_date(log_date)
