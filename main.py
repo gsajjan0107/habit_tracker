@@ -1,4 +1,5 @@
 import sys
+from validators import *
 from pathlib import Path
 from datetime import datetime
 from storage import load_data, save_data
@@ -17,16 +18,11 @@ commands = {
     "6" : "Exit"
 }
 
-data = load_data()
+data, result = load_data()
 
 def handle_add():
     # VALIDATE HABIT
-    success, result = get_valid_habit_name(input("Enter habit: "))
-    if not success:
-        print(result)
-        return
-    
-    habit = result
+    habit = get_valid_input("Enter habit name: ", lambda v: validate_string(v, 3, 20))
 
     if habit in data["habits"]:
         if data["habits"][habit].get("archived_at") is not None:
@@ -36,14 +32,7 @@ def handle_add():
         return
 
     # VALIDATE TARGET
-    try:
-        target = int(input("Enter target per week: "))
-        if target <= 0:
-            print("Target must be at least 1.")
-            return
-    except ValueError:
-        print("Target must be a valid number.")
-        return
+    target = get_valid_input("Enter target per week: ", lambda v: validate_int(v, 1))
 
     # ADD HABIT
     success, msg = add_habit(data, habit, target)
@@ -52,12 +41,7 @@ def handle_add():
 
 def handle_log():
     # VALIDATE HABIT
-    success, result = get_valid_habit_name(input("Enter habit: "))
-    if not success:
-        print(result)
-        return
-    
-    habit = result
+    habit = get_valid_input("Enter habit name: ", lambda v: validate_string(v, 3, 20))
 
     if habit not in data["habits"]:
         print("Habit does not exist.")
@@ -69,15 +53,15 @@ def handle_log():
     
     # VALIDATE DATE
     log_date = input("Enter date (Press enter to log for today): ")
+    
     if not log_date:
         log_date = datetime.now().date()
     else:
-        try:
-            log_date = parse_date(log_date)
-        except ValueError:
-            print("Invalid date. Enter in (YYYY-MM-DD) format.")
-            return
-
+        log_date = get_valid_input(
+            "Enter date (Press enter to log for today): ",
+            validate_date
+            )
+        
     # LOG HABIT
     success, msg = log_habit(data, habit, log_date)
     save_data(data)
@@ -85,18 +69,15 @@ def handle_log():
 
 def handle_delete():
     # VALIDATE HABIT
-    success, result = get_valid_habit_name(input("Enter habit: "))
-    if not success:
-        print(result)
-        return
-    
-    habit = result
+    habit = get_valid_input("Enter habit name: ", lambda v: validate_string(v, 3, 20))
 
     if habit not in data["habits"]:
         print("Habit does not exist.")
         return
     
-    confirm = input("The habit will be deleted permanently along with logs. Are you sure? (y/n): ").lower()
+    confirm = get_valid_input(
+        "The habit will be deleted permanently along with logs. Confirm? ",
+        lambda v: validate_choice(v, ["y", "n"]))
     if confirm != "y":
         return
     
@@ -107,12 +88,7 @@ def handle_delete():
  
 def handle_toggle_archive():
     # VALIDATE HABIT
-    success, result = get_valid_habit_name(input("Enter habit: "))
-    if not success:
-        print(result)
-        return
-    
-    habit = result
+    habit = get_valid_input("Enter habit name: ", lambda v: validate_string(v, 3, 20))
 
     if habit not in data["habits"]:
         print("Habit does not exist.")
@@ -174,10 +150,8 @@ while True:
     for key, label in commands.items():
         print(f"{key}. {label}")
 
-    choice = input("\nEnter choice: ").strip()
-
-    if choice not in handlers:
-        print("Invalid choice.")
-        continue
+    choice = get_valid_input(
+        "\nEnter your choice: ",
+        lambda v: validate_choice(v, [n for n in commands]))
 
     handlers[choice]()
