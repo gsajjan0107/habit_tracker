@@ -42,7 +42,7 @@ def load_data():
         is_valid, msg = validate_data_structure(data) 
         if not is_valid:
             return backup_and_reset(), f"{msg} Creating backup..."
-        
+             
         return data, "Data loaded successfully."
 
     except FileNotFoundError:

@@ -38,7 +38,7 @@ def validate_string(value, min_len=1, max_len=None):
     if not re.match(r"^[A-Za-z \-]+$", value):
         raise ValueError("Only letters and spaces allowed")
     
-    return value
+    return value.title()
 
 def validate_choice(value, choices):
     value = value.strip().lower()
@@ -52,6 +52,6 @@ def validate_date(value):
     value = value.strip()
 
     try:
-        return datetime.strptime(value, "%Y-%m-%d")
+        return datetime.strptime(value, "%Y-%m-%d").date()
     except ValueError:
         raise ValueError("Use format YYYY-MM-DD (e.g., 2026-04-25)")

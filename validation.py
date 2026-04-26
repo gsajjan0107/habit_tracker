@@ -1,5 +1,5 @@
-from utils import parse_date
 from datetime import datetime
+from validators import *
 
 def validate_data_structure(data):
 
@@ -43,7 +43,7 @@ def validate_habits_data_structure(data):
 
         created_at = habit_data.get("created_at")
         try:
-            created = parse_date(created_at)
+            created = validate_date(created_at)
         except ValueError:
             return False, f"habits['{habit}'].created_at → invalid date format (YYYY-MM-DD)." 
 
@@ -51,7 +51,7 @@ def validate_habits_data_structure(data):
         if archived_at is not None:
             
             try:
-                archived = parse_date(archived_at)
+                archived = validate_date(archived_at)
             except ValueError:
                 return False, f"habits['{habit}'].archived_at → must be None or valid date."
             
@@ -80,14 +80,14 @@ def validate_logs_data_structure(data):
 
         date = log.get("date")
         try:
-            date = parse_date(date)
+            date = validate_date(date)
         except ValueError:
             return False, f"logs[{i}].date → invalid date format (YYYY-MM-DD)."
         
         if date > today:
             return False, f"logs[{i}].date → cannot be in the future."
         
-        created = parse_date(habits[habit]["created_at"])        
+        created = validate_date(habits[habit]["created_at"])        
         if date < created:
             return False, f"logs[{i}] → date before habit creation."
 

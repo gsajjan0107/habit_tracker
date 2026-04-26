@@ -1,5 +1,5 @@
-from utils import parse_date
 from datetime import datetime, timedelta
+from validators import *
 
 def get_habits_log_dates(data):
     logs = data["logs"]
@@ -7,7 +7,7 @@ def get_habits_log_dates(data):
     habit_log_dates = {}
     for log in logs:
         habit_name = log["habit"]
-        log_date = parse_date(log["date"])
+        log_date = validate_date(log["date"])
         
         habit_log_dates.setdefault(habit_name, set()).add(log_date)
 
@@ -72,7 +72,7 @@ def habit_weekly_completion(data):
     logs = data["logs"]
     for log in logs:
         habit = log["habit"]
-        date = parse_date(log["date"])
+        date = validate_date(log["date"])
 
         if monday <= date <= sunday:
             habit_count[habit] = habit_count.get(habit, 0) + 1
@@ -101,30 +101,22 @@ def daily_stats(data, date=None):
 
     if not habits:
         return False, "No habits created."
-
-    if not date:
-        date = datetime.now().date().isoformat()
     
-    try:
-        parsed_date = parse_date(date)
-    except ValueError:
-        return False, "Invalid date. Enter in (YYYY-MM-DD) format."
-
     valid_habits = set()
 
     for name, info in habits.items():
-        created_at = parse_date(info["created_at"])
+        created_at = validate_date(info["created_at"])
         archived_at = info.get("archived_at")
 
-        is_created = created_at <= parsed_date
+        is_created = created_at <= date
         is_not_archived = (
-            archived_at is None or parse_date(archived_at) >= parsed_date
+            archived_at is None or validate_date(archived_at) >= date
         )
 
         if is_created and is_not_archived:
             valid_habits.add(name)
                 
-
+    date = date.isoformat()
     completed_today = {
         log["habit"]
         for log in data["logs"]

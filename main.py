@@ -3,7 +3,6 @@ from validators import *
 from pathlib import Path
 from datetime import datetime
 from storage import load_data, save_data
-from utils import get_valid_habit_name, parse_date
 from habits import add_habit, log_habit, delete_habit, archive_habit, unarchive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
 
@@ -19,6 +18,12 @@ commands = {
 }
 
 data, result = load_data()
+
+def show_habits(data):
+    print("\nHabits:")
+    for i, habit in enumerate(data["habits"], start=1):
+        print(f"{i}. {habit}")
+    print()
 
 def handle_add():
     # VALIDATE HABIT
@@ -40,8 +45,44 @@ def handle_add():
     print(msg)
 
 def handle_log():
-    # VALIDATE HABIT
-    habit = get_valid_input("Enter habit name: ", lambda v: validate_string(v, 3, 20))
+    # VALIDATE DATE
+    while True:
+        log_date = input("Enter date to log (Press enter for today): ")
+    
+        if not log_date:
+            log_date = datetime.now().date()
+            break
+        else:
+            log_date = validate_date(log_date)
+            break
+
+    success, result = daily_stats(data, log_date)
+    if not success:
+        print(result)
+        return
+
+    print("\n📅 Date:", result["date"])
+
+    completed = result["completed"]
+    if completed:
+        print("\n✅ Completed:")
+        for i, habit in enumerate(completed, start=1):
+            print(f"{i}. {habit}")
+
+    pending = result["pending"]
+    if pending:
+        print("\n🚫 Pending:")
+        for i, habit in enumerate(pending, start=1):
+            print(f"{i}. {habit}")
+    else:
+        print("\nNo habits left to log.")
+        return
+    
+    choice = get_valid_input(
+        "\nSelect a habit (enter number): ",
+        lambda n: validate_int(n, 1, len(pending)))
+    
+    habit = pending[choice - 1]
 
     if habit not in data["habits"]:
         print("Habit does not exist.")
@@ -51,25 +92,21 @@ def handle_log():
         print("Cannot log as the habit is archived.")
         return
     
-    # VALIDATE DATE
-    log_date = input("Enter date (Press enter to log for today): ")
-    
-    if not log_date:
-        log_date = datetime.now().date()
-    else:
-        log_date = get_valid_input(
-            "Enter date (Press enter to log for today): ",
-            validate_date
-            )
-        
     # LOG HABIT
     success, msg = log_habit(data, habit, log_date)
     save_data(data)
     print(msg)
 
 def handle_delete():
-    # VALIDATE HABIT
-    habit = get_valid_input("Enter habit name: ", lambda v: validate_string(v, 3, 20))
+    habits = [habit for habit in data["habits"]]
+    for i, habit in enumerate(habits, start=1):
+        print(f"{i}. {habit}")
+
+    choice = get_valid_input(
+        "\nSelect a habit (enter number): ",
+        lambda n: validate_int(n, 1, len(habits)))
+    
+    habit = habits[choice - 1]
 
     if habit not in data["habits"]:
         print("Habit does not exist.")
@@ -87,8 +124,15 @@ def handle_delete():
     print(msg)
  
 def handle_toggle_archive():
-    # VALIDATE HABIT
-    habit = get_valid_input("Enter habit name: ", lambda v: validate_string(v, 3, 20))
+    habits = [habit for habit in data["habits"]]
+    for i, habit in enumerate(habits, start=1):
+        print(f"{i}. {habit}")
+
+    choice = get_valid_input(
+        "\nSelect a habit (enter number): ",
+        lambda n: validate_int(n, 1, len(habits)))
+    
+    habit = habits[choice - 1]
 
     if habit not in data["habits"]:
         print("Habit does not exist.")
