@@ -39,6 +39,20 @@ def test_validate_string_empty():
     with pytest.raises(ValueError):
         validate_string("")
 
+def test_validate_string_min_length():
+    assert validate_string("Hi", min_len=2) == "Hi"
+
+def test_validate_string_below_min():
+    with pytest.raises(ValueError):
+        validate_string("A", min_len=2)
+
+def test_validate_string_max_length():
+    assert validate_string("Cat", max_len=3) == "Cat"
+
+def test_validate_string_above_max():
+    with pytest.raises(ValueError):
+        validate_string("Hello", max_len=3)
+
 # validate_choice tests
 
 def test_validate_choice():
