@@ -1,7 +1,8 @@
 import pytest
+from unittest.mock import patch
 from datetime import date
 
-from validators import validate_int, validate_string, validate_choice, validate_date
+from validators import get_valid_input, validate_int, validate_string, validate_choice, validate_date
 
 # validate_int tests
 
@@ -25,6 +26,11 @@ def test_validate_int_below_min():
 def test_validate_int_above_max():
     with pytest.raises(ValueError):
         validate_int("11", max_val=10)
+
+def test_get_valid_input_returns_validated_value():
+    with patch("builtins.input", return_value="5"):
+        result = get_valid_input("Enter number: ", validate_int)
+        assert result == 5
 
 # validate_string tests
 
