@@ -37,6 +37,14 @@ def test_get_valid_input_retries_until_valid():
         result = get_valid_input("Enter number: ", validate_int)
         assert result == 5
 
+def test_get_valid_input_prints_error():
+    with patch("builtins.input", side_effect=["abc", "5"]), \
+         patch("builtins.print") as mock_print:
+
+        get_valid_input("Enter number: ", validate_int)
+
+        mock_print.assert_called_with("Error: Must be a number.")
+
 # validate_string tests
 
 def test_validate_string():
