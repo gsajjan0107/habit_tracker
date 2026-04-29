@@ -68,6 +68,10 @@ def test_validate_string_above_max():
     with pytest.raises(ValueError):
         validate_string("Hello", max_len=3)
 
+def test_validate_string_invalid_characters():
+    with pytest.raises(ValueError):
+        validate_string("Girish123")
+
 # validate_choice tests
 
 def test_validate_choice():
@@ -111,3 +115,7 @@ def test_validate_date_invalid_day():
 def test_validate_date_empty():
     with pytest.raises(ValueError):
         validate_date("")
+
+def test_validate_date_non_string_input():
+    with pytest.raises(ValueError):
+        validate_date(123)
