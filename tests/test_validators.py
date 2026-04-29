@@ -1,9 +1,5 @@
-import sys
-import os
 import pytest
 from datetime import date
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from validators import validate_int, validate_string, validate_choice, validate_date
 
