@@ -220,14 +220,18 @@ handlers = {
     "6": handle_exit,
 }
 
-while True:
-    print("\nMAIN MENU")
-    print("--------------------")
-    for key, label in commands.items():
-        print(f"{key}. {label}")
+def main():
+    while True:
+        print("\nMAIN MENU")
+        print("--------------------")
+        for key, label in commands.items():
+            print(f"{key}. {label}")
 
-    choice = get_valid_input(
-        "\nEnter your choice: ",
-        lambda v: validate_choice(v, [n for n in commands]))
+        choice = get_valid_input(
+            "\nEnter your choice: ",
+            lambda v: validate_choice(v, [n for n in commands]))
 
-    handlers[choice]()
+        handlers[choice]()
+
+if __name__ == "__main__":
+    main()
