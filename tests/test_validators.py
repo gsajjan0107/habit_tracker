@@ -34,3 +34,18 @@ def test_validate_choice_invalid():
 def test_validate_date_invalid():
     with pytest.raises(ValueError):
         validate_date("29-04-2026")
+
+def test_validate_int_min_limit():
+    assert validate_int("5", min_val=5) == 5
+
+def test_validate_int_max_limit():
+    assert validate_int("10", max_val=10) == 10
+
+def test_validate_int_below_min():
+    with pytest.raises(ValueError):
+        validate_int("4", min_val=5)
+
+def test_validate_int_above_max():
+    with pytest.raises(ValueError):
+        validate_int("11", max_val=10)
+
