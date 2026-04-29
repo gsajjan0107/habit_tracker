@@ -2,6 +2,7 @@ from datetime import datetime, date
 import re
 
 def get_valid_input(prompt: str, validator):
+    """Prompt user until valid input is entered and return validated result."""
     while True:
         value = input(prompt).strip()
         try:
@@ -9,7 +10,8 @@ def get_valid_input(prompt: str, validator):
         except ValueError as e:
             print(f"Error: {e}")
 
-def validate_int(value: str, min_val: int | None = None, max_val: int | None = None) -> int:
+def validate_int(value: str, min_val=None, max_val=None) -> int:
+    """Convert input to int and enforce optional minimum and maximum limits."""
     try:
         num = int(value)
     except ValueError:
@@ -23,7 +25,8 @@ def validate_int(value: str, min_val: int | None = None, max_val: int | None = N
     
     return num
 
-def validate_string(value: str, min_len: int = 1, max_len: int | None = None) -> str:
+def validate_string(value: str, min_len=1, max_len=None) -> str:
+    """Validate text length and allow only letters and spaces."""
     value = value.strip()
 
     if not value:
@@ -41,6 +44,7 @@ def validate_string(value: str, min_len: int = 1, max_len: int | None = None) ->
     return value.title()
 
 def validate_choice(value: str, choices: list[str]) -> str:
+    """Validate input against allowed choices and return normalized value."""
     value = value.strip().lower()
 
     if value not in choices:
@@ -49,6 +53,7 @@ def validate_choice(value: str, choices: list[str]) -> str:
     return value
 
 def validate_date(value: str) -> date:
+    """Validate YYYY-MM-DD input and return a date object."""
     if isinstance(value, date):
         return value
 
