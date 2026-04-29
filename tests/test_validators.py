@@ -70,3 +70,19 @@ def test_validate_date():
 def test_validate_date_invalid():
     with pytest.raises(ValueError):
         validate_date("29-04-2026")
+
+def test_validate_date_existing_date_object():
+    d = date(2026, 4, 29)
+    assert validate_date(d) == d
+
+def test_validate_date_invalid_month():
+    with pytest.raises(ValueError):
+        validate_date("2026-13-01")
+
+def test_validate_date_invalid_day():
+    with pytest.raises(ValueError):
+        validate_date("2026-04-32")
+
+def test_validate_date_empty():
+    with pytest.raises(ValueError):
+        validate_date("")
