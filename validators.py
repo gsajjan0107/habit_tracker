@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import re
 
 def get_valid_input(prompt, validator):
@@ -35,7 +35,7 @@ def validate_string(value, min_len=1, max_len=None):
     if max_len is not None and len(value) > max_len:
         raise ValueError(f"Maximum {max_len} characters allowed.")
     
-    if not re.match(r"^[A-Za-z \-]+$", value):
+    if not re.match(r"^[A-Za-z ]+$", value):
         raise ValueError("Only letters and spaces allowed")
     
     return value.title()
@@ -49,6 +49,12 @@ def validate_choice(value, choices):
     return value
 
 def validate_date(value):
+    if isinstance(value, date):
+        return value
+
+    if not isinstance(value, str):
+        raise ValueError("Date must be a string in format YYYY-MM-DD.")
+
     value = value.strip()
 
     try:
