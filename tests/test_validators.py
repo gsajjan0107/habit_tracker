@@ -32,6 +32,11 @@ def test_get_valid_input_returns_validated_value():
         result = get_valid_input("Enter number: ", validate_int)
         assert result == 5
 
+def test_get_valid_input_retries_until_valid():
+    with patch("builtins.input", side_effect=["abc", "5"]):
+        result = get_valid_input("Enter number: ", validate_int)
+        assert result == 5
+
 # validate_string tests
 
 def test_validate_string():
