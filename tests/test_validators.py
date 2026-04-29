@@ -62,6 +62,16 @@ def test_validate_choice_invalid():
     with pytest.raises(ValueError):
         validate_choice("maybe", ["yes", "no"])
 
+def test_validate_choice_strips_spaces():
+    assert validate_choice(" yes ", ["yes", "no"]) == "yes"
+
+def test_validate_choice_case_insensitive():
+    assert validate_choice("YES", ["yes", "no"]) == "yes"
+
+def test_validate_choice_empty():
+    with pytest.raises(ValueError):
+        validate_choice("", ["yes", "no"])
+
 # validate_date tests
 
 def test_validate_date():

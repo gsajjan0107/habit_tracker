@@ -39,7 +39,7 @@ def validate_string(value: str, min_len=1, max_len=None) -> str:
         raise ValueError(f"Maximum {max_len} characters allowed.")
     
     if not re.match(r"^[A-Za-z ]+$", value):
-        raise ValueError("Only letters and spaces allowed")
+        raise ValueError("Only letters and spaces allowed.")
     
     return value.title()
 
