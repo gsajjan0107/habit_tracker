@@ -1,7 +1,7 @@
 import sys
 from validators import *
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from storage import load_data, save_data
 from habits import add_habit, log_habit, delete_habit, archive_habit, unarchive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
@@ -177,26 +177,35 @@ def handle_dashboard():
     
     if not selected_date:
         selected_date = today # Default
+        yesterday = today - timedelta(days=1)
     else:
         selected_date = validate_date(selected_date) # Validate
 
     if selected_date > today:
         raise ValueError("Cannot show future data.")
     
+
+    yesterday_result = daily_stats(data, yesterday)
     result = daily_stats(data, selected_date)
 
     print("\n==== DASHBOARD ====")
     print("📅 Date:", result["date"])
 
+    missed = yesterday_result["pending"]
+    if missed:
+        print("\n⚠️  Missed Yesterday:")
+        for habit in missed:
+            print(f"- {habit}")
+
     completed = result["completed"]
     if completed:
-        print("\n✅ Completed:")
+        print("\n✅ Completed today:")
         for habit in result["completed"]:
             print(f"- {habit}")
 
     pending = result["pending"]
     if pending:
-        print("\n🚫 Pending:")
+        print("\n🚫 Pending today:")
         for habit in pending:
             print(f"- {habit}")
 
