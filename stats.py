@@ -156,7 +156,7 @@ def daily_stats(data, date=None):
 
     today = datetime.now().date()
 
-    if date is None:
+    if not date:
         date = today
     else:
         date = validate_date(date)

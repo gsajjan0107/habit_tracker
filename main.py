@@ -53,17 +53,16 @@ def handle_log():
             print("\nNo habits to log.")
             return
         
-        choice = get_valid_input(
-            "\nSelect a habit (enter number): ",
-            lambda n: validate_int(n, 1, len(pending)))
+        choices = set(input("\nEnter completed habit numbers: ").split())
         
-        habit_name = pending[choice - 1]
+        for choice in choices:
+            choice = validate_int(choice, 1, len(pending))
+            habit_name = pending[choice - 1]
 
-        # LOG HABIT
-        result = log_habit(data, habit_name, log_date)
-        save_data(data)
-        print(result)
+            result = log_habit(data, habit_name, log_date)
+            print(result)
         
+        save_data(data)
         break
 
 def handle_delete():

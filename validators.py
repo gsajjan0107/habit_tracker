@@ -52,8 +52,11 @@ def validate_choice(value: str, choices: list[str]) -> str:
     
     return value
 
-def validate_date(value: str) -> date:
+def validate_date(value: str | date) -> date:
     """Validate YYYY-MM-DD input and return a date object."""
+    if isinstance(value, datetime):
+        return value.date()
+    
     if isinstance(value, date):
         return value
 
