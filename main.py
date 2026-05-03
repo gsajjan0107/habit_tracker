@@ -104,9 +104,14 @@ def handle_log():
 
                 continue
 
+            logged = []
             for habit_name in selected_habits:
-                result = log_habit(data, habit_name, log_date)
-                print(result)
+                log_habit(data, habit_name, log_date)
+                logged.append(habit_name)
+
+            print(f"\n✅ Logged {len(logged)} habits:")
+            for habit in logged:
+                print(f"- {habit}")
             
             save_data(data)
             break
