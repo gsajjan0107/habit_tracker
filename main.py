@@ -78,7 +78,15 @@ def handle_log():
                 print("\nNo habits to log.")
                 return
                 
-            choices = set(input("\nEnter completed habit numbers: ").split())
+            raw_choices = input("\nEnter completed habit numbers: ").split()
+            choices = []
+            seen = set()
+
+            for item in raw_choices:
+                if item not in seen:
+                    choices.append(item)
+                    seen.add(item)
+            
             selected_habits = []
             errors = []
             
@@ -92,7 +100,7 @@ def handle_log():
 
             if errors:
                 for error in errors:
-                    print(error)
+                    print(f"Error: {error}")
 
                 continue
 
