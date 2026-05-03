@@ -173,19 +173,20 @@ def handle_dashboard():
         raise ValueError("No habits created.")
     
     today = datetime.now().date()
-    log_date = input("Enter date to log (Press enter for today): ")
+    selected_date = input("Enter date to log (Press enter for today): ")
     
-    if not log_date:
-        log_date = today # Default
+    if not selected_date:
+        selected_date = today # Default
     else:
-        log_date = validate_date(log_date) # Validate
+        selected_date = validate_date(selected_date) # Validate
 
-    if log_date > today:
+    if selected_date > today:
         raise ValueError("Cannot show future data.")
     
-    result = daily_stats(data, log_date)
+    result = daily_stats(data, selected_date)
 
-    print("\n📅 Date:", result["date"])
+    print("\n==== DASHBOARD ====")
+    print("📅 Date:", result["date"])
 
     completed = result["completed"]
     if completed:
@@ -203,10 +204,14 @@ def handle_dashboard():
 
     print("\n📊 Weekly Stats:")
 
-    weekly_stats = habit_weekly_completion(data, log_date) # done, target, percentage
-    habit_streaks = streaks(data, log_date) # longest_streak, current_streak
+    weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage
+    habit_streaks = streaks(data, selected_date) # longest_streak, current_streak
     for habit, info in weekly_stats.items():
-        print(f"{habit:<15}:  {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)   🔥 {habit_streaks[habit]['current_streak']} | 🎖️  {habit_streaks[habit]['longest_streak']}")
+        # print(f"{habit:<15}:  {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)   🔥 {habit_streaks[habit]['current_streak']} | 🎖️  {habit_streaks[habit]['longest_streak']}")
+        print(f"\n{habit:<15}")
+        print(f"  Weekly : {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)")
+        print(f"  Streak : 🔥 {habit_streaks[habit]['current_streak']}")
+        print(f"  Best   : 🏆 {habit_streaks[habit]['longest_streak']}")
 
 def handle_exit():
     sys.exit()
