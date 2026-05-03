@@ -15,13 +15,13 @@ def validate_int(value: str, min_val=None, max_val=None) -> int:
     try:
         num = int(value)
     except ValueError:
-        raise ValueError("Must be a number.")
+        raise ValueError(f"Input ({value}) must be an integer.")
     
     if min_val is not None and num < min_val:
-        raise ValueError(f"Must be >= {min_val}")
+        raise ValueError(f"Number ({num}) must be >= {min_val}")
     
     if max_val is not None and num > max_val:
-        raise ValueError(f"Must be <= {max_val}")
+        raise ValueError(f"Number ({num}) must be <= {max_val}")
     
     return num
 

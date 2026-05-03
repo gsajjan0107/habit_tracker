@@ -36,34 +36,75 @@ def handle_add():
     save_data(data)
     print(result)
 
-def handle_log():
+def get_valid_log_date():
     while True:
-        
-        log_date = input("Enter date to log (Press enter for today): ")
-        result = daily_stats(data, log_date)
+        try:
+            log_date = input("\nEnter date to log (Press enter for today): ")
+            today = datetime.now().date()
 
-        print("\n📅 Date:", result["date"])
+            if not log_date:
+                log_date = today
+            else:
+                log_date = validate_date(log_date)
 
-        pending = result["pending"]
-        if pending:
-            print("\n🚫 Pending:")
-            for i, habit in enumerate(pending, start=1):
-                print(f"{i}. {habit}")
-        else:
-            print("\nNo habits to log.")
-            return
-        
-        choices = set(input("\nEnter completed habit numbers: ").split())
-        
-        for choice in choices:
-            choice = validate_int(choice, 1, len(pending))
-            habit_name = pending[choice - 1]
+            if log_date > today:
+                raise ValueError("Cannot log a future habit.")
+            
+            return log_date
+            
+        except ValueError as e:
+            print(e)
 
-            result = log_habit(data, habit_name, log_date)
-            print(result)
+
+def handle_log():
+    if not data["habits"]:
+        raise ValueError("No habits created.")
+    
+    while True: 
+        try:
+            
+            log_date = get_valid_log_date()
         
-        save_data(data)
-        break
+            result = daily_stats(data, log_date)
+            pending = result["pending"]
+
+            print("\n📅 Date:", result["date"])
+
+            if pending:
+                print("\n🚫 Pending:")
+                for i, habit in enumerate(pending, start=1):
+                    print(f"{i}. {habit}")
+            else:
+                print("\nNo habits to log.")
+                return
+                
+            choices = set(input("\nEnter completed habit numbers: ").split())
+            selected_habits = []
+            errors = []
+            
+            for choice in choices:
+                try: 
+                    habit_num = validate_int(choice, 1, len(pending))
+                    habit_name = pending[habit_num - 1]
+                    selected_habits.append(habit_name)
+                except ValueError as e:
+                    errors.append(str(e))
+
+            if errors:
+                for error in errors:
+                    print(error)
+
+                continue
+
+            for habit_name in selected_habits:
+                result = log_habit(data, habit_name, log_date)
+                print(result)
+            
+            save_data(data)
+            break
+
+        except ValueError as e:
+            print(e)
 
 def handle_delete():
     if not data["habits"]:
