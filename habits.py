@@ -25,6 +25,9 @@ def add_habit(data, habit_name, target):
     return f"{habit_name} added."
 
 def log_habit(data, habit_name, log_date):
+    if not data["habits"]:
+        raise ValueError("No habits created.")
+    
     today = datetime.now().date()
 
     if not log_date:

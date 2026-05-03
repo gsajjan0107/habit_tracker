@@ -37,30 +37,12 @@ def handle_add():
     print(result)
 
 def handle_log():
-    if not data["habits"]:
-        raise ValueError("No habits created.")
-
-    today = datetime.now().date()
     while True:
+        
         log_date = input("Enter date to log (Press enter for today): ")
-        
-        if not log_date:
-            log_date = today # Default
-        else:
-            log_date = validate_date(log_date) # Validate
-
-        if log_date > today:
-            raise ValueError("Cannot log a future habit.")
-        
         result = daily_stats(data, log_date)
 
         print("\n📅 Date:", result["date"])
-
-        completed = result["completed"]
-        if completed:
-            print("\n✅ Completed:")
-            for i, habit in enumerate(completed, start=1):
-                print(f"{i}. {habit}")
 
         pending = result["pending"]
         if pending:
@@ -75,38 +57,14 @@ def handle_log():
             "\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(pending)))
         
-        habit = pending[choice - 1]
+        habit_name = pending[choice - 1]
 
-        habit_name = validate_string(habit_name, 3, 20)
-
-        if habit_name not in data["habits"]:
-            raise ValueError("Habit does not exist.")
-        
-        if data["habits"][habit_name].get("archived_at") is not None:
-            raise ValueError("Cannot log as the habit is archived.")
-        
-        created_date = data["habits"][habit_name]["created_at"]
-        created_date = validate_date(created_date)
-        
-        if log_date < created_date:
-            raise ValueError("Habit cannot be logged before it was created.")
-        
-        # Check duplicates
-        log_date = log_date.isoformat()
-        logs = data["logs"]
-
-        if any(
-            log["habit"] == habit_name and log["date"] == log_date
-            for log in logs
-        ):
-            raise ValueError("Habit already logged for this date.")
+        # LOG HABIT
+        result = log_habit(data, habit_name, log_date)
+        save_data(data)
+        print(result)
         
         break
-    
-    # LOG HABIT
-    result = log_habit(data, habit, log_date)
-    save_data(data)
-    print(result)
 
 def handle_delete():
     if not data["habits"]:
@@ -191,12 +149,6 @@ def handle_dashboard():
     print("\n==== DASHBOARD ====")
     print("📅 Date:", result["date"])
 
-    missed = yesterday_result["pending"]
-    if missed:
-        print("\n⚠️  Missed Yesterday:")
-        for habit in missed:
-            print(f"- {habit}")
-
     completed = result["completed"]
     if completed:
         print("\n✅ Completed today:")
@@ -207,6 +159,12 @@ def handle_dashboard():
     if pending:
         print("\n🚫 Pending today:")
         for habit in pending:
+            print(f"- {habit}")
+
+    missed = yesterday_result["pending"]
+    if missed:
+        print("\n⚠️  Missed Yesterday:")
+        for habit in missed:
             print(f"- {habit}")
 
     print(f"\nCompleted {result['total_completed']} / {result['total_habits']} ({result['completion_rate']:.2f}%) habits today.")
