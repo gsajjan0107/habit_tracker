@@ -98,6 +98,25 @@ def get_selected_habits(pending):
         
         return selected_habits
     
+def show_habits_status(result):
+    date = result["date"]
+    pending = result["pending"]
+    completed = result["completed"]
+
+    print(f"\n📅 Date: {date}")
+
+    if pending:
+        print("\n🚫 Pending:")
+        for i, habit in enumerate(pending, start=1):
+            print(f"{i}. {habit}")
+    else:
+        print("\nNo habits to log.")
+
+    if completed:
+        print("\n✅ Completed:")
+        for habit in completed:
+            print(f"- {habit}")
+
 def handle_log():
     if not data["habits"]:
         raise ValueError("No habits created.")
@@ -110,21 +129,10 @@ def handle_log():
             result = daily_stats(data, log_date)
             pending = result["pending"]
             completed = result["completed"]
-
-            print("\n📅 Date:", result["date"])
-
-            if pending:
-                print("\n🚫 Pending:")
-                for i, habit in enumerate(pending, start=1):
-                    print(f"{i}. {habit}")
-            else:
-                print("\nNo habits to log.")
-                return
+            show_habits_status(result)
             
-            if completed:
-                print("\n✅ Completed:")
-                for habit in completed:
-                    print(f"- {habit}")
+            if not pending:
+                return
 
             selected_habits = get_selected_habits(pending)
 
