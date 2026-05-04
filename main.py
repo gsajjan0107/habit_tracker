@@ -109,9 +109,28 @@ def handle_log():
                         print(f"Error: {error}")
 
                     continue
+            
+            completed = result["completed"]
+            to_log = []
+            skipped = []
+
+            for habit in selected_habits:
+                if habit in completed:
+                    skipped.append(habit)
+                else:
+                    to_log.append(habit)
+
+            if skipped:
+                print("⚠️ Already logged:")
+                for habit_name in skipped:
+                    print(f"- {habit_name}")
+
+            if not to_log:
+                print("Nothing new to log.")
+                continue
 
             logged = []
-            for habit_name in selected_habits:
+            for habit_name in to_log:
                 log_habit(data, habit_name, log_date)
                 logged.append(habit_name)
 
