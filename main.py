@@ -47,6 +47,7 @@ def get_valid_log_date():
             today = datetime.now().date()
 
             if not log_date:
+                print(f"No date entered. Using today: {today}")
                 log_date = today
             else:
                 log_date = validate_date(log_date)
@@ -244,6 +245,7 @@ def handle_dashboard():
     selected_date = input("Enter date to log (Press enter for today): ")
     
     if not selected_date:
+        print(f"No date entered. Using today: {today}")
         selected_date = today # Default
         yesterday = today - timedelta(days=1)
     else:
