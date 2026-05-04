@@ -180,6 +180,16 @@ def handle_log():
             if not to_log:
                 print("Nothing new to log.")
                 continue
+            
+            print("\nYou are about to log:")
+            for habit in to_log:
+                print(f"- {habit}")
+
+            confirm = input("\nProceed? (y/n): ").strip().lower()
+
+            if confirm != 'y':
+                print("Logging cancelled.")
+                continue
 
             logged = []
             for habit_name in to_log:
