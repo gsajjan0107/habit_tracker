@@ -55,7 +55,6 @@ def get_valid_log_date():
         except ValueError as e:
             print(e)
 
-
 def handle_log():
     if not data["habits"]:
         raise ValueError("No habits created.")
@@ -78,31 +77,38 @@ def handle_log():
                 print("\nNo habits to log.")
                 return
                 
-            raw_choices = input("\nEnter completed habit numbers: ").split()
-            choices = []
-            seen = set()
-
-            for item in raw_choices:
-                if item not in seen:
-                    choices.append(item)
-                    seen.add(item)
+            raw = input("\nEnter completed habit numbers (or 'all'): ")
             
             selected_habits = []
-            errors = []
             
-            for choice in choices:
-                try: 
-                    habit_num = validate_int(choice, 1, len(pending))
-                    habit_name = pending[habit_num - 1]
-                    selected_habits.append(habit_name)
-                except ValueError as e:
-                    errors.append(str(e))
+            if raw.strip().lower() == "all":
+                selected_habits = pending[:]
+            else: 
+                raw_choices = raw.split()
 
-            if errors:
-                for error in errors:
-                    print(f"Error: {error}")
+                choices = []
+                seen = set()
 
-                continue
+                for item in raw_choices:
+                    if item not in seen:
+                        choices.append(item)
+                        seen.add(item)
+            
+                errors = []
+            
+                for choice in choices:
+                    try: 
+                        habit_num = validate_int(choice, 1, len(pending))
+                        habit_name = pending[habit_num - 1]
+                        selected_habits.append(habit_name)
+                    except ValueError as e:
+                        errors.append(str(e))
+
+                if errors:
+                    for error in errors:
+                        print(f"Error: {error}")
+
+                    continue
 
             logged = []
             for habit_name in selected_habits:
