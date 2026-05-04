@@ -1,5 +1,7 @@
 from validators import *
 from datetime import datetime
+from main import get_valid_log_date
+from stats import daily_stats
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)
@@ -24,7 +26,7 @@ def add_habit(data, habit_name, target):
 
     return f"{habit_name} added."
 
-def log_habit(data, habit_name, log_date):
+def log_habit(data, log_date, habit_name):
     if not data["habits"]:
         print("No habits found. Add a habit first.")
         return
@@ -68,6 +70,28 @@ def log_habit(data, habit_name, log_date):
     })
 
     return f"{habit_name} logged for {log_date}."
+
+def delete_log(data, log_date, habit_name):
+    if not data["habits"]:
+        return "No habits found. Add a habit first."
+        
+    if not data["logs"]:
+        return "No logs found. Log a habit first."        
+
+    before = len(data["logs"])
+    
+    log_date = log_date.isoformat()
+    data["logs"] = [
+        log for log in data["logs"]
+        if not (log["habit"] == habit_name and log["date"] == log_date)
+    ]
+
+    after = len(data["logs"])
+        
+    if before == after:
+        return "No matching log found."
+    else:
+        return f"Log of {habit_name} for {log_date} deleted."
 
 def archive_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)

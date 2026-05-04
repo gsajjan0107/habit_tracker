@@ -3,7 +3,7 @@ from validators import *
 from pathlib import Path
 from datetime import datetime, timedelta
 from storage import load_data, save_data
-from habits import add_habit, log_habit, delete_habit, archive_habit, unarchive_habit
+from habits import *
 from stats import daily_stats, habit_weekly_completion, streaks
 
 file_path = Path(__file__).with_name("data.json")
@@ -11,10 +11,11 @@ file_path = Path(__file__).with_name("data.json")
 commands = {
     "1" : "Add habit",
     "2" : "Log habit",
-    "3" : "Delete habit",
-    "4" : "Toggle archive",
-    "5" : "Dashboard",
-    "6" : "Exit"
+    "3" : "Delete Log",
+    "4" : "Delete habit",
+    "5" : "Toggle archive",
+    "6" : "Dashboard",
+    "7" : "Exit"
 }
 
 data, result = load_data()
@@ -39,7 +40,7 @@ def handle_add():
 def get_valid_log_date():
     while True:
         try:
-            log_date = input("\nEnter date to log (Press enter for today): ")
+            log_date = input("\nEnter log date (Press enter for today): ")
 
             if log_date.strip().lower() == 'q':
                 handle_exit()
@@ -53,7 +54,7 @@ def get_valid_log_date():
                 log_date = validate_date(log_date)
 
             if log_date > today:
-                raise ValueError("Cannot log a future habit.")
+                raise ValueError("Cannot accept future date.")
             
             return log_date
             
@@ -193,7 +194,7 @@ def handle_log():
 
             logged = []
             for habit_name in to_log:
-                log_habit(data, habit_name, log_date)
+                log_habit(data, log_date, habit_name)
                 logged.append(habit_name)
 
             print(f"\n✅ Logged {len(logged)} habits:")
@@ -205,6 +206,40 @@ def handle_log():
 
         except ValueError as e:
             print(e)
+
+def handle_delete_log():
+    if not data["habits"]:
+        print("No habits found. Add a habit first.")
+        return
+    
+    if not data["logs"]:
+        print("No logs found. Log a habit first.")
+        return
+    
+    log_date = get_valid_log_date()
+
+    result = daily_stats(data, log_date)
+    date = result["date"]
+    completed = result["completed"]
+
+    if not completed:
+        print("No logs for this date.")
+        return
+    
+    print(f"\n📅 Date: {date}")
+    print("\n✅ Logged:")
+    for i, habit in enumerate(completed, start=1):
+        print(f"{i}. {habit}")
+
+    choice = get_valid_input(
+        "\nSelect a habit (enter number): ",
+        lambda n: validate_int(n, 1, len(completed)))
+    
+    habit_name = completed[choice - 1]
+
+    result = delete_log(data, log_date, habit_name)
+    save_data(data)
+    print(result)
 
 def handle_delete():
     if not data["habits"]:
@@ -220,7 +255,6 @@ def handle_delete():
         lambda n: validate_int(n, 1, len(habits)))
     
     habit = habits[choice - 1]
-    habit = validate_string(habit, 3, 20)
 
     if habit not in data["habits"]:
         raise ValueError("Habit does not exist.")
@@ -318,10 +352,11 @@ def handle_exit():
 handlers = {
     "1": handle_add,
     "2": handle_log,
-    "3": handle_delete,
-    "4": handle_toggle_archive,
-    "5": handle_dashboard,
-    "6": handle_exit,
+    "3": handle_delete_log,
+    "4": handle_delete,
+    "5": handle_toggle_archive,
+    "6": handle_dashboard,
+    "7": handle_exit,
 }
 
 def main():
