@@ -132,7 +132,7 @@ def handle_log():
             show_habits_status(result)
             
             if not pending:
-                print("\nNo habits to log.")
+                print("🎉 All habits completed for this day!")
                 return
 
             selected_habits = get_selected_habits(pending)
