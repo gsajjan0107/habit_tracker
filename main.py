@@ -66,6 +66,7 @@ def handle_log():
         
             result = daily_stats(data, log_date)
             pending = result["pending"]
+            completed = result["completed"]
 
             print("\n📅 Date:", result["date"])
 
@@ -76,6 +77,11 @@ def handle_log():
             else:
                 print("\nNo habits to log.")
                 return
+            
+            if completed:
+                print("\n✅ Completed:")
+                for habit in completed:
+                    print(f"- {habit}")
                 
             raw = input("\nEnter completed habit numbers (or 'all'): ")
             
@@ -110,7 +116,6 @@ def handle_log():
 
                     continue
             
-            completed = result["completed"]
             to_log = []
             skipped = []
 
