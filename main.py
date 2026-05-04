@@ -123,7 +123,6 @@ def handle_log():
     
     while True: 
         try:
-            
             log_date = get_valid_log_date()
         
             result = daily_stats(data, log_date)
@@ -140,11 +139,34 @@ def handle_log():
             if selected_habits is None:
                 print("Logging cancelled.")
                 return
-                
+            
+            # Filter habits by creation date before logging
+            valid_habits = []
+            invalid_habits = []
+
+            for habit in selected_habits:
+                created_date = data["habits"][habit]["created_at"]
+                created_date = validate_date(created_date)
+
+                if log_date < created_date:
+                    invalid_habits.append(habit)
+                else:
+                    valid_habits.append(habit)
+
+            if invalid_habits:
+                print("⚠️ Cannot log before creation date:")
+                for habit in invalid_habits:
+                    print(f"- {habit}")
+
+            if not valid_habits:
+                print("No valid habits to log.")
+                continue
+            
+            # Check if already logged
             to_log = []
             skipped = []
 
-            for habit in selected_habits:
+            for habit in valid_habits:
                 if habit in completed:
                     skipped.append(habit)
                 else:
