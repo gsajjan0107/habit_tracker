@@ -40,6 +40,10 @@ def get_valid_log_date():
     while True:
         try:
             log_date = input("\nEnter date to log (Press enter for today): ")
+
+            if log_date.strip().lower() == 'q':
+                handle_exit()
+
             today = datetime.now().date()
 
             if not log_date:
@@ -84,6 +88,9 @@ def handle_log():
                     print(f"- {habit}")
                 
             raw = input("\nEnter completed habit numbers (or 'all'): ")
+
+            if raw.strip().lower() == 'q':
+                handle_exit()
             
             selected_habits = []
             
