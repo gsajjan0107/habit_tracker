@@ -103,14 +103,12 @@ def show_habits_status(result):
     pending = result["pending"]
     completed = result["completed"]
 
-    print(f"\n📅 Date: {date}")
+    print(f"📅 Date: {date}")
 
     if pending:
         print("\n🚫 Pending:")
         for i, habit in enumerate(pending, start=1):
             print(f"{i}. {habit}")
-    else:
-        print("\nNo habits to log.")
 
     if completed:
         print("\n✅ Completed:")
@@ -119,7 +117,8 @@ def show_habits_status(result):
 
 def handle_log():
     if not data["habits"]:
-        raise ValueError("No habits created.")
+        print("No habits found. Add a habit first.")
+        return
     
     while True: 
         try:
@@ -132,6 +131,7 @@ def handle_log():
             show_habits_status(result)
             
             if not pending:
+                print("\nNo habits to log.")
                 return
 
             selected_habits = get_selected_habits(pending)
@@ -175,7 +175,8 @@ def handle_log():
 
 def handle_delete():
     if not data["habits"]:
-        raise ValueError("No habits created.")
+        print("No habits found. Add a habit first.")
+        return
     
     habits = [habit for habit in data["habits"]]
     for i, habit in enumerate(habits, start=1):
@@ -204,7 +205,8 @@ def handle_delete():
  
 def handle_toggle_archive():
     if not data["habits"]:
-        raise ValueError("No habits created.")
+        print("No habits found. Add a habit first.")
+        return
     
     habits = [habit for habit in data["habits"]]
 
@@ -235,7 +237,8 @@ def handle_toggle_archive():
 
 def handle_dashboard():
     if not data["habits"]:
-        raise ValueError("No habits created.")
+        print("No habits found. Add a habit first.")
+        return
     
     today = datetime.now().date()
     selected_date = input("Enter date to log (Press enter for today): ")
@@ -254,19 +257,7 @@ def handle_dashboard():
     result = daily_stats(data, selected_date)
 
     print("\n==== DASHBOARD ====")
-    print("📅 Date:", result["date"])
-
-    completed = result["completed"]
-    if completed:
-        print("\n✅ Completed today:")
-        for habit in result["completed"]:
-            print(f"- {habit}")
-
-    pending = result["pending"]
-    if pending:
-        print("\n🚫 Pending today:")
-        for habit in pending:
-            print(f"- {habit}")
+    show_habits_status(result)
 
     missed = yesterday_result["pending"]
     if missed:
