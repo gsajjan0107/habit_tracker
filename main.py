@@ -59,6 +59,45 @@ def get_valid_log_date():
         except ValueError as e:
             print(e)
 
+def get_selected_habits(pending):
+    while True:
+        raw = input("\nEnter completed habit numbers (or 'all'): ").strip().lower()
+
+        if raw == 'q':
+            return None
+
+        if raw == "all":
+            return pending[:]
+    
+        raw_choices = raw.split()
+
+        # Remove Duplicates while preserving order
+        choices = []
+        seen = set()
+        for item in raw_choices:
+            if item not in seen:
+                choices.append(item)
+                seen.add(item)
+            
+        # Validate inputs
+        selected_habits = []
+        errors = []
+
+        for choice in choices:
+            try: 
+                habit_num = validate_int(choice, 1, len(pending))
+                habit_name = pending[habit_num - 1]
+                selected_habits.append(habit_name)
+            except ValueError as e:
+                errors.append(str(e))
+
+        if errors:
+            for error in errors:
+                print(f"Error: {error}")
+            continue
+        
+        return selected_habits
+    
 def handle_log():
     if not data["habits"]:
         raise ValueError("No habits created.")
@@ -86,43 +125,13 @@ def handle_log():
                 print("\n✅ Completed:")
                 for habit in completed:
                     print(f"- {habit}")
+
+            selected_habits = get_selected_habits(pending)
+
+            if selected_habits is None:
+                print("Logging cancelled.")
+                return
                 
-            raw = input("\nEnter completed habit numbers (or 'all'): ")
-
-            if raw.strip().lower() == 'q':
-                handle_exit()
-            
-            selected_habits = []
-            
-            if raw.strip().lower() == "all":
-                selected_habits = pending[:]
-            else: 
-                raw_choices = raw.split()
-
-                choices = []
-                seen = set()
-
-                for item in raw_choices:
-                    if item not in seen:
-                        choices.append(item)
-                        seen.add(item)
-            
-                errors = []
-            
-                for choice in choices:
-                    try: 
-                        habit_num = validate_int(choice, 1, len(pending))
-                        habit_name = pending[habit_num - 1]
-                        selected_habits.append(habit_name)
-                    except ValueError as e:
-                        errors.append(str(e))
-
-                if errors:
-                    for error in errors:
-                        print(f"Error: {error}")
-
-                    continue
-            
             to_log = []
             skipped = []
 
