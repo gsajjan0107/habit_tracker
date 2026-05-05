@@ -231,11 +231,18 @@ def handle_delete_log():
     for i, habit in enumerate(completed, start=1):
         print(f"{i}. {habit}")
 
-    selected_habits = get_selected_habits(completed)
+    while True:
+        selected_habits = get_selected_habits(completed)
 
-    if selected_habits is None:
-        print("Log deletion cancelled.")
-        return
+        if selected_habits is None:
+            print("Log deletion cancelled.")
+            return
+
+        if not selected_habits:
+            print("No habits selected.")
+            continue
+
+        break
     
     print("\nYou are about to delete logs for:")
     for habit in selected_habits:
