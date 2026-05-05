@@ -237,6 +237,12 @@ def handle_delete_log():
     
     habit_name = completed[choice - 1]
 
+    print(f"\nYou are about to delete log of {habit_name} for {log_date}.")
+    confirm = input("\nProceed? (y/n): ").strip().lower()
+    if confirm != 'y':
+        print("Deletion cancelled.")
+        return
+
     result = delete_log(data, log_date, habit_name)
     save_data(data)
     print(result)
