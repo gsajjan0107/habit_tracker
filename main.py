@@ -257,7 +257,10 @@ def handle_delete_log():
     for habit_name in selected_habits:
         delete_log(data, log_date, habit_name)
         
-    print(f"Deleted {len(selected_habits)} logs.")
+    print(f"\n🗑️ Deleted {len(selected_habits)} logs:")
+    for habit in selected_habits:
+        print(f"- {habit}")
+        
     save_data(data)
 
 def handle_delete():
