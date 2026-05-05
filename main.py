@@ -254,13 +254,20 @@ def handle_delete_log():
         print("Log deletion cancelled.")
         return
 
+    deleted = []
     for habit_name in selected_habits:
-        delete_log(data, log_date, habit_name)
+        result = delete_log(data, log_date, habit_name)
+        if "deleted" in result.lower():
+            deleted.append(habit_name)
+
+    if not deleted:
+        print("No logs were deleted.")
+        return
         
-    print(f"\n🗑️ Deleted {len(selected_habits)} logs:")
-    for habit in selected_habits:
+    print(f"\n🗑️ Deleted {len(deleted)} logs:")
+    for habit in deleted:
         print(f"- {habit}")
-        
+
     save_data(data)
 
 def handle_delete():
