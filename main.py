@@ -125,6 +125,9 @@ def handle_log():
     while True: 
         try:
             log_date = get_valid_log_date()
+            previous_date = log_date - timedelta(days=1)
+
+            old_streaks = streaks(data, previous_date)
         
             result = daily_stats(data, log_date)
             pending = result["pending"]
@@ -197,18 +200,35 @@ def handle_log():
                 log_habit(data, log_date, habit_name)
                 logged.append(habit_name)
 
+            save_data(data)
+            
+            reset = []
+            new_streaks = streaks(data, log_date)
             print(f"\n✅ Logged {len(logged)} habits:")
             for habit in logged:
                 print(f"- {habit}")
-            
-            save_data(data)
+                old = old_streaks[habit]["current_streak"]
+                new = new_streaks[habit]["current_streak"]
 
-            habit_streaks = streaks(data, log_date)
-            print("\n🔥 Streaks:")
+                if new == 1 and old > 1:
+                    reset.append(habit)
+            
+            if reset:
+                print("\n⚠️ Streak reset:")
+                for habit in reset:
+                    print(f"- {habit}")
+
+            printed = False
+
             for habit in logged:
-                current = habit_streaks[habit]["current_streak"]
-                print(f"- {habit}: {current} days")
-                
+                if habit not in reset:
+                    current = new_streaks[habit]["current_streak"]
+                    print(f"- {habit}: {current} days")
+                    printed = True
+
+            if not printed:
+                print("No active streaks.")
+
             break
 
         except ValueError as e:
