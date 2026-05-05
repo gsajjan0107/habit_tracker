@@ -63,7 +63,7 @@ def get_valid_log_date():
 
 def get_selected_habits(pending):
     while True:
-        raw = input("\nEnter completed habit numbers (or 'all'): ").strip().lower()
+        raw = input("\nEnter habit numbers (or 'all'): ").strip().lower()
 
         if raw == 'q':
             return None
@@ -231,21 +231,27 @@ def handle_delete_log():
     for i, habit in enumerate(completed, start=1):
         print(f"{i}. {habit}")
 
-    choice = get_valid_input(
-        "\nSelect a habit (enter number): ",
-        lambda n: validate_int(n, 1, len(completed)))
-    
-    habit_name = completed[choice - 1]
+    selected_habits = get_selected_habits(completed)
 
-    print(f"\nYou are about to delete log of {habit_name} for {log_date}.")
+    if selected_habits is None:
+        print("Log deletion cancelled.")
+        return
+    
+    print("\nYou are about to delete logs for:")
+    for habit in selected_habits:
+        print(f"- {habit}")
+
     confirm = input("\nProceed? (y/n): ").strip().lower()
+
     if confirm != 'y':
-        print("Deletion cancelled.")
+        print("Log deletion cancelled.")
         return
 
-    result = delete_log(data, log_date, habit_name)
+    for habit_name in selected_habits:
+        delete_log(data, log_date, habit_name)
+        
+    print(f"Deleted {len(selected_habits)} logs.")
     save_data(data)
-    print(result)
 
 def handle_delete():
     if not data["habits"]:
