@@ -202,6 +202,13 @@ def handle_log():
                 print(f"- {habit}")
             
             save_data(data)
+
+            habit_streaks = streaks(data, log_date)
+            print("\n🔥 Streaks:")
+            for habit in logged:
+                current = habit_streaks[habit]["current_streak"]
+                print(f"- {habit}: {current} days")
+                
             break
 
         except ValueError as e:
