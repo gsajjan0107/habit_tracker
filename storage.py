@@ -1,6 +1,7 @@
 import json
 import shutil
 from datetime import datetime
+from typing import Dict, Any
 from validation import validate_data_structure
 from config import DATA_FILE
 
@@ -52,8 +53,7 @@ def load_data():
     except json.JSONDecodeError:
         return backup_and_reset(), "Invalid data file. Creating backup..."
     
-
-def create_backup():
+def create_backup() -> None:
     
     if DATA_FILE.exists():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -67,7 +67,7 @@ def create_backup():
             for old_file in backups[:-MAX_BACKUPS]:
                 old_file.unlink()
 
-def save_data(data):
+def save_data(data: Dict[str, Any]) -> None:
 
     is_valid, msg = validate_data_structure(data)
 
