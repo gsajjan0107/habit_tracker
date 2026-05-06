@@ -132,6 +132,7 @@ def handle_log():
             result = daily_stats(data, log_date)
             pending = result["pending"]
             completed = result["completed"]
+            print()
             show_habits_status(result)
             
             if not pending:
@@ -206,10 +207,8 @@ def handle_log():
             new_streaks = streaks(data, log_date)
             print(f"\n✅ Logged {len(logged)} habits:")
             for habit in logged:
-                print(f"- {habit}")
                 old = old_streaks[habit]["current_streak"]
                 new = new_streaks[habit]["current_streak"]
-
                 if new == 1 and old > 1:
                     reset.append(habit)
             

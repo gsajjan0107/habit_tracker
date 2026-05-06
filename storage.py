@@ -52,6 +52,12 @@ def load_data():
         return backup_and_reset(), "Invalid data file. Creating backup..."
 
 def save_data(data):
+    from validation import validate_data_structure
+    is_valid, msg = validate_data_structure(data)
+
+    if not is_valid:
+        raise ValueError(f"Cannot save invalid data: {msg}")
+    
     temp_path = file_path.with_suffix(".tmp")
 
     with open(temp_path, "w", encoding="utf-8") as f:
