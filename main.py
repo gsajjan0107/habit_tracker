@@ -1,12 +1,10 @@
 import sys
 from validators import *
-from pathlib import Path
 from datetime import datetime, timedelta
 from storage import load_data, save_data
 from habits import *
 from stats import daily_stats, habit_weekly_completion, streaks
 
-file_path = Path(__file__).with_name("data.json")
 
 commands = {
     "1" : "Add habit",

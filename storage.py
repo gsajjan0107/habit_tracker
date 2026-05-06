@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 from datetime import datetime
 from validation import validate_data_structure
+from config import DATA_FILE
 
-file_path = Path(__file__).with_name("data.json")
+
 
 def get_default_data():
     return {"habits": {}, "logs": []}
@@ -11,7 +12,7 @@ def get_default_data():
 def create_data_file():
     data = get_default_data()
 
-    with open(file_path, "w", encoding="utf-8") as f:
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
     return data
@@ -21,22 +22,22 @@ def backup_and_reset():
     formatted_now = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     base = f"data_backup_{formatted_now}"
-    backup_file_path = file_path.with_name(f"{base}.json")
+    backup_file_path = DATA_FILE.with_name(f"{base}.json")
 
     n = 1
     while backup_file_path.exists():
-        backup_file_path = file_path.with_name(f"{base}_{n}.json")
+        backup_file_path = DATA_FILE.with_name(f"{base}_{n}.json")
         n += 1
 
-    if file_path.exists():
-        file_path.rename(backup_file_path)
+    if DATA_FILE.exists():
+        DATA_FILE.rename(backup_file_path)
 
     return create_data_file()
 
 def load_data():
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
         
         is_valid, msg = validate_data_structure(data) 
@@ -58,9 +59,9 @@ def save_data(data):
     if not is_valid:
         raise ValueError(f"Cannot save invalid data: {msg}")
     
-    temp_path = file_path.with_suffix(".tmp")
+    temp_path = DATA_FILE.with_suffix(".tmp")
 
     with open(temp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
-    temp_path.replace(file_path)
+    temp_path.replace(DATA_FILE)
