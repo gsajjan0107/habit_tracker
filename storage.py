@@ -74,11 +74,19 @@ def save_data(data):
     if not is_valid:
         raise ValueError(f"Cannot save invalid data: {msg}")
     
-    create_backup()
-
     temp_path = DATA_FILE.with_suffix(".tmp")
+    
+    try:
+        create_backup()
 
-    with open(temp_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
 
-    temp_path.replace(DATA_FILE)
+        temp_path.replace(DATA_FILE)
+
+    except Exception as e:
+
+        if temp_path.exists():
+            temp_path.unlink()
+
+        raise RuntimeError(f"Failed to save data: {e}")
