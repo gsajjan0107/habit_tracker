@@ -56,7 +56,7 @@ def load_data():
 def create_backup() -> None:
     
     if DATA_FILE.exists():
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         backup_file = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
         shutil.copy(DATA_FILE, backup_file)
 
