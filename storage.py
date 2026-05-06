@@ -51,6 +51,21 @@ def load_data():
     
     except json.JSONDecodeError:
         return backup_and_reset(), "Invalid data file. Creating backup..."
+    
+
+def create_backup():
+    
+    if DATA_FILE.exists():
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_file = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
+        shutil.copy(DATA_FILE, backup_file)
+
+        backups = sorted(DATA_FILE.parent.glob("data_backup_*.json"))
+        MAX_BACKUPS = 5
+
+        if len(backups) > MAX_BACKUPS:
+            for old_file in backups[:-MAX_BACKUPS]:
+                old_file.unlink()
 
 def save_data(data):
 
@@ -59,10 +74,7 @@ def save_data(data):
     if not is_valid:
         raise ValueError(f"Cannot save invalid data: {msg}")
     
-    if DATA_FILE.exists():
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_file = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
-        shutil.copy(DATA_FILE, backup_file)
+    create_backup()
 
     temp_path = DATA_FILE.with_suffix(".tmp")
 
