@@ -60,10 +60,11 @@ def create_backup() -> None:
         backup_file = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
         shutil.copy(DATA_FILE, backup_file)
 
-        backups = sorted(DATA_FILE.parent.glob("data_backup_*.json"))
+        backups = list(DATA_FILE.parent.glob("data_backup_*.json"))
         MAX_BACKUPS = 5
 
         if len(backups) > MAX_BACKUPS:
+            backups.sort()
             for old_file in backups[:-MAX_BACKUPS]:
                 old_file.unlink()
 
