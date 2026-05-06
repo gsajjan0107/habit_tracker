@@ -1,5 +1,5 @@
 import json
-from pathlib import Path
+import shutil
 from datetime import datetime
 from validation import validate_data_structure
 from config import DATA_FILE
@@ -53,9 +53,6 @@ def load_data():
         return backup_and_reset(), "Invalid data file. Creating backup..."
 
 def save_data(data):
-    from validation import validate_data_structure
-    import shutil
-    from datetime import datetime
 
     is_valid, msg = validate_data_structure(data)
 
