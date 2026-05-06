@@ -43,15 +43,15 @@ def load_data():
         
         is_valid, msg = validate_data_structure(data) 
         if not is_valid:
-            return backup_and_reset(), f"{msg} Creating backup..."
+            return backup_and_reset()
              
-        return data, "Data loaded successfully."
+        return data
 
     except FileNotFoundError:
-        return create_data_file(), "Created new data file."
+        return create_data_file()
     
     except json.JSONDecodeError:
-        return backup_and_reset(), "Invalid data file. Creating backup..."
+        return backup_and_reset()
     
 def create_backup() -> None:
     
