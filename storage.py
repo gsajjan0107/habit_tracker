@@ -54,11 +54,19 @@ def load_data():
 
 def save_data(data):
     from validation import validate_data_structure
+    import shutil
+    from datetime import datetime
+
     is_valid, msg = validate_data_structure(data)
 
     if not is_valid:
         raise ValueError(f"Cannot save invalid data: {msg}")
     
+    if DATA_FILE.exists():
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_file = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
+        shutil.copy(DATA_FILE, backup_file)
+
     temp_path = DATA_FILE.with_suffix(".tmp")
 
     with open(temp_path, "w", encoding="utf-8") as f:
