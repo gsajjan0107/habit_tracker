@@ -6,15 +6,16 @@ import logging
 from validation import validate_data_structure
 from config import DATA_FILE
 
-DEFAULT_DATA = {
-    "habits": {},
-    "logs": []
-}
+def create_default_data():
+    return {
+        "habits": [],
+        "logs": {}
+    }
 
 HabitData = dict[str, Any]
 
 def create_data_file() -> HabitData:
-    data = DEFAULT_DATA.copy()
+    data = create_default_data()
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
