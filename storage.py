@@ -2,14 +2,13 @@ import json
 import shutil
 from datetime import datetime
 from typing import Dict, Any
-import logging
 from validators import validate_data_structure
 from config import DATA_FILE
 
 def create_default_data():
     return {
-        "habits": [],
-        "logs": {}
+        "habits": {},
+        "logs": []
     }
 
 HabitData = dict[str, Any]
