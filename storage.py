@@ -23,15 +23,12 @@ def create_data_file() -> HabitData:
     return data
 
 def backup_and_reset() -> HabitData:
-    now = datetime.now()
-    formatted_now = now.strftime("%Y-%m-%d_%H-%M-%S")
-
-    base = f"data_backup_{formatted_now}"
-    backup_file_path = DATA_FILE.with_name(f"{base}.json")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    backup_file_path = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
 
     n = 1
     while backup_file_path.exists():
-        backup_file_path = DATA_FILE.with_name(f"{base}_{n}.json")
+        backup_file_path = DATA_FILE.with_name(f"data_backup_{timestamp}_{n}.json")
         n += 1
 
     if DATA_FILE.exists():
@@ -61,8 +58,8 @@ def create_backup() -> None:
     
     if DATA_FILE.exists():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        backup_file = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
-        shutil.copy(DATA_FILE, backup_file)
+        backup_file_path = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
+        shutil.copy(DATA_FILE, backup_file_path)
 
         backups = list(DATA_FILE.parent.glob("data_backup_*.json"))
         MAX_BACKUPS = 5
