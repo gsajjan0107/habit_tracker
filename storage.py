@@ -2,23 +2,26 @@ import json
 import shutil
 from datetime import datetime
 from typing import Dict, Any
+import logging
 from validation import validate_data_structure
 from config import DATA_FILE
 
+DEFAULT_DATA = {
+    "habits": {},
+    "logs": []
+}
 
+HabitData = dict[str, Any]
 
-def get_default_data():
-    return {"habits": {}, "logs": []}
-
-def create_data_file():
-    data = get_default_data()
+def create_data_file() -> HabitData:
+    data = DEFAULT_DATA.copy()
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
     return data
 
-def backup_and_reset():
+def backup_and_reset() -> HabitData:
     now = datetime.now()
     formatted_now = now.strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -35,7 +38,7 @@ def backup_and_reset():
 
     return create_data_file()
 
-def load_data():
+def load_data() -> HabitData:
 
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
