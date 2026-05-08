@@ -452,4 +452,4 @@ def main(data):
         handlers[choice](data)
 
 if __name__ == "__main__":
-    main()
+    main(data)

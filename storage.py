@@ -84,7 +84,7 @@ def save_data(data: Dict[str, Any]) -> None:
         create_backup()
 
         with open(temp_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+            json.dump(data, f, indent=4, ensure_ascii=False)
 
         temp_path.replace(DATA_FILE)
 
