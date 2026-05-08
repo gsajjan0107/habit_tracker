@@ -9,7 +9,7 @@ def test_load_data_creates_file_if_missing(tmp_path, monkeypatch):
     # Ensure file does NOT exist
     assert not test_file.exists()
 
-    data, msg = storage.load_data()
+    data = storage.load_data()
 
     # file must now exist
     assert test_file.exists()
@@ -20,9 +20,6 @@ def test_load_data_creates_file_if_missing(tmp_path, monkeypatch):
     assert isinstance(data["habits"], dict)
     assert isinstance(data["logs"], list)
 
-    # sanity check message
-    assert "Created new data file" in msg
-
 def test_load_data_handles_invalid_json_creates_backup(tmp_path, monkeypatch):
     test_file = tmp_path / "data.json"
     monkeypatch.setattr(storage, "file_path", test_file)
@@ -30,7 +27,7 @@ def test_load_data_handles_invalid_json_creates_backup(tmp_path, monkeypatch):
     # create corrupted JSON
     test_file.write_text("{ broken json }")
 
-    data, msg = storage.load_data()
+    data = storage.load_data()
 
     # original file should be replaced by backup system
     assert test_file.exists()
@@ -38,7 +35,6 @@ def test_load_data_handles_invalid_json_creates_backup(tmp_path, monkeypatch):
     # verify system recovered structure
     assert "habits" in data
     assert "logs" in data
-    assert "Invalid data file" in msg
 
     # now the important part → backup must exist
     backup_files = list(tmp_path.glob("data_backup_*.json"))
