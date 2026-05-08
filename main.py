@@ -49,30 +49,6 @@ def handle_add(data):
         print(result)
         break
 
-def get_valid_log_date():
-    while True:
-        try:
-            log_date = input("\nEnter log date (Press enter for today): ")
-
-            if log_date.strip().lower() == 'q':
-                handle_exit(None)
-
-            today = datetime.now().date()
-
-            if not log_date:
-                print(f"No date entered. Using today: {today}")
-                log_date = today
-            else:
-                log_date = validate_date(log_date)
-
-            if log_date > today:
-                raise ValueError("Cannot accept future date.")
-            
-            return log_date
-            
-        except ValueError as e:
-            print(e)
-
 def get_selected_habits(pending):
     while True:
         raw = input("\nEnter habit numbers (or 'all'): ").strip().lower()
@@ -136,7 +112,7 @@ def handle_log(data):
     
     while True: 
         try:
-            log_date = get_valid_log_date()
+            log_date = get_valid_date()
             previous_date = log_date - timedelta(days=1)
 
             old_streaks = streaks(data, previous_date)
@@ -264,7 +240,7 @@ def handle_delete_log(data):
         print("No logs found. Log a habit first.")
         return
     
-    log_date = get_valid_log_date()
+    log_date = get_valid_date()
 
     result = daily_stats(data, log_date)
     formatted_date = format_display_date(result["date"])
@@ -385,30 +361,19 @@ def handle_dashboard(data):
         print("No habits found. Add a habit first.")
         return
     
-    today = datetime.now().date()
-    selected_date = input("Enter date to log (Press enter for today): ")
+    selected_date = get_valid_date()
     
-    if not selected_date:
-        print(f"No date entered. Using today: {today}")
-        selected_date = today # Default
-        yesterday = today - timedelta(days=1)
-    else:
-        selected_date = validate_date(selected_date) # Validate
-        yesterday = selected_date - timedelta(days=1)
+    previous_day = selected_date - timedelta(days=1)
 
-    if selected_date > today:
-        raise ValueError("Cannot show future data.")
-    
-
-    yesterday_result = daily_stats(data, yesterday)
+    previous_day_result = daily_stats(data, previous_day)
     result = daily_stats(data, selected_date)
 
     print("\n==== DASHBOARD ====")
     show_habits_status(result)
 
-    missed = yesterday_result["pending"]
+    missed = previous_day_result["pending"]
     if missed:
-        print("\n⚠️  Missed Yesterday:")
+        print("\n⚠️  Missed previous day:")
         for habit in missed:
             print(f"- {habit}")
 

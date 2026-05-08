@@ -1,7 +1,5 @@
 from validators import *
 from datetime import datetime
-from main import get_valid_log_date
-from stats import daily_stats
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)

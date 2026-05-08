@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime
 from typing import Dict, Any
 import logging
-from validation import validate_data_structure
+from validators import validate_data_structure
 from config import DATA_FILE
 
 def create_default_data():

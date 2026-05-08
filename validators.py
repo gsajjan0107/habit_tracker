@@ -166,3 +166,24 @@ def validate_date(value: str | date) -> date:
         return datetime.strptime(value, "%Y-%m-%d").date()
     except ValueError:
         raise ValueError("Use format YYYY-MM-DD (e.g., 2026-04-25)")
+    
+def get_valid_date():
+    while True:
+        try:
+            log_date = input("\nEnter date (Press enter for today): ")
+
+            today = datetime.now().date()
+
+            if not log_date:
+                print(f"No date entered. Using today: {today}")
+                log_date = today
+            else:
+                log_date = validate_date(log_date)
+
+            if log_date > today:
+                raise ValueError("Cannot accept future date.")
+            
+            return log_date
+            
+        except ValueError as e:
+            print(e)
