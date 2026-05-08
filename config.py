@@ -1,3 +1,4 @@
 from pathlib import Path
 
-DATA_FILE = Path("data.json")
+BASE_DIR = Path(__file__).resolve().parent
+DATA_FILE = BASE_DIR / "data.json"
