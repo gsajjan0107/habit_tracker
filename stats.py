@@ -2,14 +2,7 @@ from datetime import datetime, timedelta
 from validators import *
 
 def logs_by_habit(data, date=None):
-    today = datetime.now().date()
-    if date is None:
-        date = today
-    else:
-        date = validate_date(date)
-
-    if date > today:
-        raise ValueError("Cannot show future data.")
+    date = validate_date(date)
 
     logs = data["logs"]
 
@@ -63,20 +56,15 @@ def current_streak(log_dates, end_date):
 
 def streaks(data, date=None):
     habits = data["habits"]
+    logs = data["logs"]
 
     if not habits:
         raise ValueError("No habits created.")
     
-    today = datetime.now().date()
-
-    if date is None:
-        date = today # Default
-    else:
-        date = validate_date(date) # Validate
-
-    if date > today:
-        raise ValueError("Cannot show future data.")
-
+    if not logs:
+        raise ValueError("No logs found.")
+    
+    date = validate_date(date)
     habit_logs = logs_by_habit(data, date)
 
     result = {}
@@ -97,15 +85,7 @@ def habit_weekly_completion(data, date=None):
     if not habits:
         raise ValueError("No habits created.")
 
-    today = datetime.now().date()
-
-    if date is None:
-        date = today
-    else:
-        date = validate_date(date)
-
-    if date > today:
-        raise ValueError("Cannot show future data.")
+    date = validate_date(date)
 
     monday = date - timedelta(days=date.weekday())
     sunday = monday + timedelta(days=6)
@@ -154,14 +134,7 @@ def daily_stats(data, date=None):
     if not habits:
         raise ValueError("No habits created.")
 
-    today = datetime.now().date()
-
-    if not date:
-        date = today
-    else:
-        date = validate_date(date)
-        if date > today:
-            raise ValueError("Cannot show future data.")
+    date = validate_date(date)
 
     valid_habits = set()
 

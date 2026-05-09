@@ -149,41 +149,29 @@ def validate_choice(value: str, choices: list[str]) -> str:
     
     return value
 
-def validate_date(value: str | date) -> date:
-    """Validate YYYY-MM-DD input and return a date object."""
-    if isinstance(value, datetime):
-        return value.date()
-    
-    if isinstance(value, date):
-        return value
+def validate_date(value):
+    today = datetime.now().date()
 
-    if not isinstance(value, str):
+    if not value:
+        return today
+
+    if isinstance(value, datetime):
+        value = value.date()
+
+    elif isinstance(value, date):
+        pass
+
+    elif isinstance(value, str):
+        value = value.strip()
+
+        try:
+            value = datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            raise ValueError("Use format YYYY-MM-DD (e.g., 2026-04-25)")
+    else:
         raise ValueError("Date must be a string in format YYYY-MM-DD.")
 
-    value = value.strip()
+    if value > today:
+        raise ValueError("Cannot accept future date.")
 
-    try:
-        return datetime.strptime(value, "%Y-%m-%d").date()
-    except ValueError:
-        raise ValueError("Use format YYYY-MM-DD (e.g., 2026-04-25)")
-    
-def get_valid_date():
-    while True:
-        try:
-            log_date = input("\nEnter date (Press enter for today): ")
-
-            today = datetime.now().date()
-
-            if not log_date:
-                print(f"No date entered. Using today: {today}")
-                log_date = today
-            else:
-                log_date = validate_date(log_date)
-
-            if log_date > today:
-                raise ValueError("Cannot accept future date.")
-            
-            return log_date
-            
-        except ValueError as e:
-            print(e)
+    return value

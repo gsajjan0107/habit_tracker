@@ -1,6 +1,6 @@
 import sys
 from validators import *
-from datetime import datetime, timedelta
+from datetime import timedelta
 from storage import load_data, save_data
 from habits import *
 from stats import daily_stats, habit_weekly_completion, streaks
@@ -18,36 +18,6 @@ commands = {
 }
 
 data = load_data()
-
-def handle_add(data):
-    while True:
-        habit = get_valid_input(
-            "Enter habit name: ",
-            lambda v: validate_string(v, 3, 20)
-            )
-
-        existing_habit = data["habits"].get(habit)
-
-        if existing_habit:
-            
-            if existing_habit.get("archived_at") is not None:
-                print("Habit exists but is archived.")
-            else:
-                print("Habit already exists.")
-            
-            continue
-
-        # VALIDATE TARGET
-        target = get_valid_input(
-            "Enter target per week: ",
-            lambda v: validate_int(v, 1)
-            )
-
-        # ADD HABIT
-        result = add_habit(data, habit, target)
-        save_data(data)
-        print(result)
-        break
 
 def get_selected_habits(pending):
     while True:
@@ -105,6 +75,36 @@ def show_habits_status(result):
         for habit in completed:
             print(f"- {habit}")
 
+def handle_add(data):
+    while True:
+        habit = get_valid_input(
+            "Enter habit name: ",
+            lambda v: validate_string(v, 3, 20)
+            )
+
+        existing_habit = data["habits"].get(habit)
+
+        if existing_habit:
+            
+            if existing_habit.get("archived_at") is not None:
+                print("Habit exists but is archived.")
+            else:
+                print("Habit already exists.")
+            
+            continue
+
+        # VALIDATE TARGET
+        target = get_valid_input(
+            "Enter target per week: ",
+            lambda v: validate_int(v, 1)
+            )
+
+        # ADD HABIT
+        result = add_habit(data, habit, target)
+        save_data(data)
+        print(result)
+        break
+
 def handle_log(data):
     if not data["habits"]:
         print("No habits found. Add a habit first.")
@@ -112,23 +112,26 @@ def handle_log(data):
     
     while True: 
         try:
-            log_date = get_valid_date()
-            previous_date = log_date - timedelta(days=1)
+            log_date = input("\nEnter date (Press enter for today): ")
+            log_date = validate_date(log_date)
 
-            old_streaks = streaks(data, previous_date)
+            previous_date = log_date - timedelta(days=1)
+            old_streaks = streaks(data, previous_date) # to notify streak reset
         
             result = daily_stats(data, log_date)
-            pending = result["pending"]
-            completed = result["completed"]
             print()
-            show_habits_status(result)
+            show_habits_status(result) # show pending and completed habits
             
+            completed = result["completed"]
+            pending = result["pending"]
+
             if not pending:
                 print("\n🎉 All habits completed for this day!")
                 return
 
             selected_habits = get_selected_habits(pending)
 
+            # User enters 'q'
             if selected_habits is None:
                 print("Logging cancelled.")
                 return
@@ -174,6 +177,7 @@ def handle_log(data):
                 print("Nothing new to log.")
                 continue
             
+            # Confirm logging
             print("\nYou are about to log:")
             for habit in to_log:
                 print(f"- {habit}")
@@ -240,22 +244,27 @@ def handle_delete_log(data):
         print("No logs found. Log a habit first.")
         return
     
-    log_date = get_valid_date()
-
-    result = daily_stats(data, log_date)
-    formatted_date = format_display_date(result["date"])
-    completed = result["completed"]
-
-    if not completed:
-        print("No logs for this date.")
-        return
-    
-    print(f"\n📅 Date: {formatted_date}")
-    print("\n✅ Logged:")
-    for i, habit in enumerate(completed, start=1):
-        print(f"{i}. {habit}")
-
     while True:
+        try: # get valid date
+            log_date = input("\nEnter date (Press enter for today): ")
+            log_date = validate_date(log_date)
+        except ValueError as e:
+            print(e)
+            continue
+
+        result = daily_stats(data, log_date)
+        formatted_date = format_display_date(result["date"])
+        completed = result["completed"]
+
+        if not completed:
+            print("No logs for this date.")
+            return
+        
+        print(f"\n📅 Date: {formatted_date}")
+        print("\n✅ Logged:")
+        for i, habit in enumerate(completed, start=1):
+            print(f"{i}. {habit}")
+
         selected_habits = get_selected_habits(completed)
 
         if selected_habits is None:
@@ -361,7 +370,13 @@ def handle_dashboard(data):
         print("No habits found. Add a habit first.")
         return
     
-    selected_date = get_valid_date()
+    while True:
+        try:
+            date = input("\nEnter date (Press enter for today): ")
+            selected_date = validate_date(date)
+            break
+        except ValueError as e:
+            print(e)
     
     previous_day = selected_date - timedelta(days=1)
 

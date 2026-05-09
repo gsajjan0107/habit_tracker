@@ -29,15 +29,7 @@ def log_habit(data, log_date, habit_name):
         print("No habits found. Add a habit first.")
         return
     
-    today = datetime.now().date()
-
-    if not log_date:
-        log_date = today
-    else:
-        log_date = validate_date(log_date)
-
-    if log_date > today:
-        raise ValueError("Cannot log a future habit.")
+    log_date = validate_date(log_date)
     
     habit_name = validate_string(habit_name, 3, 20)
 
@@ -78,7 +70,9 @@ def delete_log(data, log_date, habit_name):
 
     before = len(data["logs"])
     
+    log_date = validate_date(log_date)
     log_date = log_date.isoformat()
+    
     data["logs"] = [
         log for log in data["logs"]
         if not (log["habit"] == habit_name and log["date"] == log_date)
