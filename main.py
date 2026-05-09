@@ -4,8 +4,7 @@ from datetime import timedelta
 from storage import load_data, save_data
 from habits import *
 from stats import daily_stats, habit_weekly_completion, streaks
-from utils import format_display_date
-
+from utils import format_display_date, get_selected_habits, show_habits_status, filter_habits_by_creation_date
 
 commands = {
     "1" : "Add habit",
@@ -18,63 +17,7 @@ commands = {
 }
 
 data = load_data()
-
-def get_selected_habits(pending):
-    while True:
-        raw = input("\nEnter habit numbers (or 'all'): ").strip().lower()
-
-        if raw == 'q':
-            return None
-
-        if raw == "all":
-            return pending[:]
-    
-        raw_choices = raw.split()
-
-        # Remove Duplicates while preserving order
-        choices = []
-        seen = set()
-        for item in raw_choices:
-            if item not in seen:
-                choices.append(item)
-                seen.add(item)
-            
-        # Validate inputs
-        selected_habits = []
-        errors = []
-
-        for choice in choices:
-            try: 
-                habit_num = validate_int(choice, 1, len(pending))
-                habit_name = pending[habit_num - 1]
-                selected_habits.append(habit_name)
-            except ValueError as e:
-                errors.append(str(e))
-
-        if errors:
-            for error in errors:
-                print(f"Error: {error}")
-            continue
-        
-        return selected_habits
-    
-def show_habits_status(result):
-    formatted_date = format_display_date(result["date"])
-    pending = result["pending"]
-    completed = result["completed"]
-
-    print(f"📅 Date: {formatted_date}")
-
-    if pending:
-        print("\n🚫 Pending:")
-        for i, habit in enumerate(pending, start=1):
-            print(f"{i}. {habit}")
-
-    if completed:
-        print("\n✅ Completed:")
-        for habit in completed:
-            print(f"- {habit}")
-
+ 
 def handle_add(data):
     while True:
         habit = get_valid_input(
@@ -137,17 +80,13 @@ def handle_log(data):
                 return
             
             # Filter habits by creation date before logging
-            valid_habits = []
-            invalid_habits = []
-
-            for habit in selected_habits:
-                created_date = data["habits"][habit]["created_at"]
-                created_date = validate_date(created_date)
-
-                if log_date < created_date:
-                    invalid_habits.append(habit)
-                else:
-                    valid_habits.append(habit)
+            valid_habits, invalid_habits = (
+                filter_habits_by_creation_date(
+                    data,
+                    selected_habits,
+                    log_date
+                )
+            )
 
             if invalid_habits:
                 print("⚠️ Cannot log before creation date:")
