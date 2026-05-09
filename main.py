@@ -158,13 +158,6 @@ def handle_log(data):
             if not printed:
                 print("No active streaks.")
 
-            updated = daily_stats(data, log_date)
-            done = updated["total_completed"]
-            total = updated["total_habits"]
-            rate = updated["completion_rate"]
-
-            print(f"\n📊 Today: {done} / {total} habits completed ({rate:.2f}%)")
-
             break
 
         except ValueError as e:
