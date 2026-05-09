@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from validators import *
 
 def logs_by_habit(data, date=None):

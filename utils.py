@@ -1,5 +1,6 @@
 from datetime import datetime
 from validators import validate_int, validate_date
+from habits import log_habit
 
 def format_display_date(date_str):
     """
@@ -93,3 +94,11 @@ def separate_logged_habits(valid_habits, completed):
             to_log.append(habit)
 
     return to_log, skipped
+
+def log_multiple_habits(data, log_date, habits):
+    logged = []
+    for habit_name in habits:
+        log_habit(data, log_date, habit_name)
+        logged.append(habit_name)
+
+    return logged

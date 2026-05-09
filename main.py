@@ -4,7 +4,7 @@ from datetime import timedelta
 from storage import load_data, save_data
 from habits import *
 from stats import daily_stats, habit_weekly_completion, streaks
-from utils import format_display_date, get_selected_habits, show_habits_status, filter_habits_by_creation_date, separate_logged_habits
+from utils import *
 
 commands = {
     "1" : "Add habit",
@@ -58,9 +58,6 @@ def handle_log(data):
             log_date = input("\nEnter date (Press enter for today): ")
             log_date = validate_date(log_date)
 
-            previous_date = log_date - timedelta(days=1)
-            old_streaks = streaks(data, previous_date) # to notify streak reset
-        
             result = daily_stats(data, log_date)
             print()
             show_habits_status(result) # show pending and completed habits
@@ -123,32 +120,29 @@ def handle_log(data):
                 print("Logging cancelled.")
                 continue
 
-            logged = []
-            for habit_name in to_log:
-                log_habit(data, log_date, habit_name)
-                logged.append(habit_name)
+            logged = log_multiple_habits(
+                data,
+                log_date,
+                to_log
+            )
 
             save_data(data)
             
             reset = []
-            new_streaks = streaks(data, log_date)
+            habit_streaks = streaks(data, log_date)
             print(f"\n✅ Logged {len(logged)} habits:")
             for habit in logged:
-                old = old_streaks[habit]["current_streak"]
-                new = new_streaks[habit]["current_streak"]
-                if new == 1 and old > 1:
+                habit_streak = habit_streaks[habit]["current_streak"]
+                if habit_streak == 1:
                     reset.append(habit)
             
-            if reset:
-                print("\n⚠️ Streak reset:")
-                for habit in reset:
-                    print(f"- {habit}")
-
             printed = False
 
             for habit in logged:
-                if habit not in reset:
-                    current = new_streaks[habit]["current_streak"]
+                if habit in reset:
+                    print(f"\n⚠️ Streak reset: {habit}")
+                else:
+                    current = habit_streaks[habit]["current_streak"]
                     if current <= 1:
                         print(f"- {habit}: {current} day streak")
                     else:
