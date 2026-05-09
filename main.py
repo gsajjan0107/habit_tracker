@@ -130,27 +130,16 @@ def handle_log(data):
             
             reset = []
             habit_streaks = streaks(data, log_date)
+            
             print(f"\n✅ Logged {len(logged)} habits:")
             for habit in logged:
-                habit_streak = habit_streaks[habit]["current_streak"]
-                if habit_streak == 1:
+                current_habit_streak = habit_streaks[habit]["current_streak"]
+
+                if current_habit_streak == 1:
+                    print(f"\n⚠️ Streak reset: {habit} - 1 day streak")
                     reset.append(habit)
-            
-            printed = False
-
-            for habit in logged:
-                if habit in reset:
-                    print(f"\n⚠️ Streak reset: {habit}")
                 else:
-                    current = habit_streaks[habit]["current_streak"]
-                    if current <= 1:
-                        print(f"- {habit}: {current} day streak")
-                    else:
-                        print(f"- {habit}: {current} days streak")
-                    printed = True
-
-            if not printed:
-                print("No active streaks.")
+                    print(f"- {habit}: {current_habit_streak} days streak")
 
             break
 

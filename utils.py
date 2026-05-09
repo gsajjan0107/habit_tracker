@@ -102,3 +102,4 @@ def log_multiple_habits(data, log_date, habits):
         logged.append(habit_name)
 
     return logged
+
