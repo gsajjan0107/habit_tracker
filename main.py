@@ -86,7 +86,7 @@ def handle_log(data):
             )
 
             if invalid_habits:
-                print("⚠️ Cannot log before creation date:")
+                print("⚠️  Cannot log before creation date:")
                 for habit in invalid_habits:
                     print(f"- {habit}")
 
@@ -101,7 +101,7 @@ def handle_log(data):
             )
 
             if skipped:
-                print("⚠️ Already logged:")
+                print("⚠️  Already logged:")
                 for habit_name in skipped:
                     print(f"- {habit_name}")
 
@@ -114,9 +114,9 @@ def handle_log(data):
             for habit in to_log:
                 print(f"- {habit}")
 
-            confirm = input("\nProceed? (y/n): ").strip().lower()
+            confirmed = get_confirmation("\nProceed? (y/n): ")
 
-            if confirm != 'y':
+            if not confirmed:
                 print("Logging cancelled.")
                 continue
 
@@ -130,13 +130,13 @@ def handle_log(data):
             
             reset = []
             habit_streaks = streaks(data, log_date)
-            
+
             print(f"\n✅ Logged {len(logged)} habits:")
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
 
                 if current_habit_streak == 1:
-                    print(f"\n⚠️ Streak reset: {habit} - 1 day streak")
+                    print(f"\n⚠️  Streak reset: {habit} - 1 day streak")
                     reset.append(habit)
                 else:
                     print(f"- {habit}: {current_habit_streak} days streak")
@@ -192,9 +192,9 @@ def handle_delete_log(data):
     for habit in selected_habits:
         print(f"- {habit}")
 
-    confirm = input("\nProceed? (y/n): ").strip().lower()
+    confirmed = get_confirmation("\nProceed? (y/n): ")
 
-    if confirm != 'y':
+    if not confirmed:
         print("Log deletion cancelled.")
         return
 
@@ -232,13 +232,12 @@ def handle_delete(data):
     if habit not in data["habits"]:
         raise ValueError("Habit does not exist.")
     
-    confirm = get_valid_input(
-        f"The habit [{habit}] will be deleted permanently along with logs. Confirm? (y/n): ",
-        lambda v: validate_choice(v, ["y", "n"]))
-    if confirm != "y":
+    confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with logs. Confirm? (y/n): ")
+
+    if not confirmed:
         print("Deletion cancelled.")
         return
-    
+
     # DELETE HABIT
     result = delete_habit(data, habit)
     save_data(data)

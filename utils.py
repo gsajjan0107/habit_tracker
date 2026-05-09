@@ -103,3 +103,14 @@ def log_multiple_habits(data, log_date, habits):
 
     return logged
 
+def get_confirmation(message):
+    while True:
+        confirm = input(message).strip().lower()
+
+        if confirm in ["y", "yes"]:
+            return True
+
+        if confirm in ["n", "no"]:
+            return False
+
+        print("Please enter y/n.")
