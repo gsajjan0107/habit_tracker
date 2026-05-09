@@ -82,3 +82,14 @@ def filter_habits_by_creation_date(data, habits, log_date):
 
     return valid_habits, invalid_habits
 
+def separate_logged_habits(valid_habits, completed):
+    to_log = []
+    skipped = []
+
+    for habit in valid_habits:
+        if habit in completed:
+            skipped.append(habit)
+        else:
+            to_log.append(habit)
+
+    return to_log, skipped

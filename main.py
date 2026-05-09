@@ -4,7 +4,7 @@ from datetime import timedelta
 from storage import load_data, save_data
 from habits import *
 from stats import daily_stats, habit_weekly_completion, streaks
-from utils import format_display_date, get_selected_habits, show_habits_status, filter_habits_by_creation_date
+from utils import format_display_date, get_selected_habits, show_habits_status, filter_habits_by_creation_date, separate_logged_habits
 
 commands = {
     "1" : "Add habit",
@@ -98,14 +98,10 @@ def handle_log(data):
                 continue
             
             # Check if already logged
-            to_log = []
-            skipped = []
-
-            for habit in valid_habits:
-                if habit in completed:
-                    skipped.append(habit)
-                else:
-                    to_log.append(habit)
+            to_log, skipped = separate_logged_habits(
+                valid_habits,
+                completed
+            )
 
             if skipped:
                 print("⚠️ Already logged:")
