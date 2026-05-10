@@ -144,9 +144,7 @@ def daily_stats(data, date=None):
         archived_at = info.get("archived_at")
         archived_at = validate_date(archived_at) if archived_at else None
 
-        if created_at <= date and (
-            archived_at is None or archived_at >= date
-        ):
+        if created_at <= date and (archived_at is None or archived_at >= date):
             valid_habits.add(name)
 
     if not valid_habits:
