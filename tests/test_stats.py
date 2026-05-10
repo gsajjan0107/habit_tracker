@@ -1,6 +1,6 @@
 import pytest
 from stats import daily_stats
-from habits import add_habit, log_habit, archive_habit
+from habits import add_habit, log_habit
 
 
 def test_daily_stats_no_habits(sample_data):

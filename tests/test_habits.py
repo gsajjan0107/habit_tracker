@@ -2,14 +2,6 @@ import pytest
 from habits import (add_habit, log_habit, archive_habit, unarchive_habit, delete_log, delete_habit)
 
 
-@pytest.fixture
-def sample_data():
-    return {
-        "habits": {},
-        "logs": []
-    }
-
-
 def test_add_habit_success(sample_data):
 
     result = add_habit(sample_data, "Workout", 5)
