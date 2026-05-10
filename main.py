@@ -229,9 +229,6 @@ def handle_delete(data):
     
     habit = habits[choice - 1]
 
-    if habit not in data["habits"]:
-        raise ValueError("Habit does not exist.")
-    
     confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with logs. Confirm? (y/n): ")
 
     if not confirmed:
@@ -251,7 +248,7 @@ def handle_toggle_archive(data):
     habits = [habit for habit in data["habits"]]
 
     for i, habit in enumerate(habits, start=1):
-        if data["habits"][habit]["archived_at"] == None:
+        if data["habits"][habit]["archived_at"] is None:
             print(f"{i}. {habit} (active)")
         else:
             print(f"{i}. {habit} (archived)")

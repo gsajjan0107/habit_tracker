@@ -1,10 +1,9 @@
-from pathlib import Path
 import storage
 
 def test_load_data_creates_file_if_missing(tmp_path, monkeypatch):
     # Redirect file path to isolated temp location
     test_file = tmp_path / "data.json"
-    monkeypatch.setattr(storage, "file_path", test_file)
+    monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     # Ensure file does NOT exist
     assert not test_file.exists()
@@ -22,7 +21,7 @@ def test_load_data_creates_file_if_missing(tmp_path, monkeypatch):
 
 def test_load_data_handles_invalid_json_creates_backup(tmp_path, monkeypatch):
     test_file = tmp_path / "data.json"
-    monkeypatch.setattr(storage, "file_path", test_file)
+    monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     # create corrupted JSON
     test_file.write_text("{ broken json }")

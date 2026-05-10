@@ -152,7 +152,7 @@ def validate_choice(value: str, choices: list[str]) -> str:
 def validate_date(value):
     today = datetime.now().date()
 
-    if not value:
+    if value is None:
         return today
 
     if isinstance(value, datetime):
@@ -164,10 +164,15 @@ def validate_date(value):
     elif isinstance(value, str):
         value = value.strip()
 
+        if value == "":
+            return today
+
         try:
             value = datetime.strptime(value, "%Y-%m-%d").date()
+
         except ValueError:
             raise ValueError("Use format YYYY-MM-DD (e.g., 2026-04-25)")
+
     else:
         raise ValueError("Date must be a string in format YYYY-MM-DD.")
 

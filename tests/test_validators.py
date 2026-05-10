@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from datetime import date
+from datetime import datetime, date
 
 from validators import get_valid_input, validate_int, validate_string, validate_choice, validate_date
 
@@ -43,7 +43,7 @@ def test_get_valid_input_prints_error():
 
         get_valid_input("Enter number: ", validate_int)
 
-        mock_print.assert_called_with("Error: Must be a number.")
+        mock_print.assert_called_with("Error: Input (abc) must be an integer.")
 
 # validate_string tests
 
@@ -113,9 +113,13 @@ def test_validate_date_invalid_day():
         validate_date("2026-04-32")
 
 def test_validate_date_empty():
-    with pytest.raises(ValueError):
-        validate_date("")
+    result = validate_date("")
+    assert result == datetime.now().date()
 
 def test_validate_date_non_string_input():
     with pytest.raises(ValueError):
         validate_date(123)
+
+def test_validate_date_false_input():
+    with pytest.raises(ValueError):
+        validate_date(False)
