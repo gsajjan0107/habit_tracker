@@ -1,12 +1,18 @@
 from validators import *
 from datetime import datetime
 
+def habit_exists(data, habit_name):
+    return data["habits"].get(habit_name)
+
+def is_habit_archived(data, habit_name):
+    return (data["habits"][habit_name].get("archived_at") is not None)
+
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)
     created_at = datetime.now().date().isoformat()
 
-    if habit_name in data["habits"]:
-        if data["habits"][habit_name].get("archived_at") is not None:
+    if habit_exists(data, habit_name):
+        if is_habit_archived(data, habit_name):
             raise ValueError("Habit exists but is archived.")
         else:
             raise ValueError("Habit already exists.")
@@ -33,10 +39,10 @@ def log_habit(data, log_date, habit_name):
     
     habit_name = validate_string(habit_name, 3, 20)
 
-    if habit_name not in data["habits"]:
+    if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
     
-    if data["habits"][habit_name].get("archived_at") is not None:
+    if is_habit_archived(data, habit_name):
         raise ValueError("Cannot log as the habit is archived.")
     
     created_date = data["habits"][habit_name]["created_at"]
@@ -88,10 +94,10 @@ def delete_log(data, log_date, habit_name):
 def archive_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)
 
-    if habit_name not in data["habits"]:
+    if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
     
-    if data["habits"][habit_name].get("archived_at") is not None:
+    if is_habit_archived(data, habit_name):
         raise ValueError("Habit already archived.")
     
     today = datetime.now().date().isoformat()
@@ -101,10 +107,10 @@ def archive_habit(data, habit_name):
 def unarchive_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)
 
-    if habit_name not in data["habits"]:
+    if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
     
-    if data["habits"][habit_name].get("archived_at") is None:
+    if not is_habit_archived(data, habit_name):
         raise ValueError("Habit already active.")
     
     data["habits"][habit_name]["archived_at"] = None
@@ -113,7 +119,7 @@ def unarchive_habit(data, habit_name):
 def delete_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)
 
-    if habit_name not in data["habits"]:
+    if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
 
     data["logs"] = [

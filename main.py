@@ -20,16 +20,12 @@ data = load_data()
  
 def handle_add(data):
     while True:
-        habit = get_valid_input(
-            "Enter habit name: ",
-            lambda v: validate_string(v, 3, 20)
-            )
+        habit_name = get_valid_input("Enter habit name: ",
+                lambda v: validate_string(v, 3, 20))
 
-        existing_habit = data["habits"].get(habit)
-
-        if existing_habit:
+        if habit_exists(data, habit_name):
             
-            if existing_habit.get("archived_at") is not None:
+            if is_habit_archived(data, habit_name):
                 print("Habit exists but is archived.")
             else:
                 print("Habit already exists.")
@@ -37,13 +33,11 @@ def handle_add(data):
             continue
 
         # VALIDATE TARGET
-        target = get_valid_input(
-            "Enter target per week: ",
-            lambda v: validate_int(v, 1)
-            )
+        target = get_valid_input("Enter target per week: ",
+                lambda v: validate_int(v, 1))
 
         # ADD HABIT
-        result = add_habit(data, habit, target)
+        result = add_habit(data, habit_name, target)
         save_data(data)
         print(result)
         break
@@ -120,12 +114,7 @@ def handle_log(data):
                 print("Logging cancelled.")
                 continue
 
-            logged = log_multiple_habits(
-                data,
-                log_date,
-                to_log
-            )
-
+            logged = log_multiple_habits(data, log_date, to_log)
             save_data(data)
             
             reset = []
@@ -223,9 +212,8 @@ def handle_delete(data):
     for i, habit in enumerate(habits, start=1):
         print(f"{i}. {habit}")
 
-    choice = get_valid_input(
-        "\nSelect a habit (enter number): ",
-        lambda n: validate_int(n, 1, len(habits)))
+    choice = get_valid_input("\nSelect a habit (enter number): ",
+            lambda n: validate_int(n, 1, len(habits)))
     
     habit = habits[choice - 1]
 
@@ -248,26 +236,25 @@ def handle_toggle_archive(data):
     habits = [habit for habit in data["habits"]]
 
     for i, habit in enumerate(habits, start=1):
-        if data["habits"][habit]["archived_at"] is None:
+        if is_habit_archived(data, habit):
             print(f"{i}. {habit} (active)")
         else:
             print(f"{i}. {habit} (archived)")
 
-    choice = get_valid_input(
-        "\nSelect a habit (enter number): ",
-        lambda n: validate_int(n, 1, len(habits)))
+    choice = get_valid_input("\nSelect a habit (enter number): ",
+            lambda n: validate_int(n, 1, len(habits)))
     
     habit = habits[choice - 1]
     habit_name = validate_string(habit, 3, 20)
 
-    if habit_name not in data["habits"]:
+    if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
     
     # TOGGLE ARCHIVE
-    if data["habits"][habit].get("archived_at") is None:
-        result = archive_habit(data, habit)
+    if not is_habit_archived(data, habit_name):
+        result = archive_habit(data, habit_name)
     else:
-        result = unarchive_habit(data, habit)
+        result = unarchive_habit(data, habit_name)
     
     save_data(data)
     print(result)
@@ -282,6 +269,7 @@ def handle_dashboard(data):
             date = input("\nEnter date (Press enter for today): ")
             selected_date = validate_date(date)
             break
+
         except ValueError as e:
             print(e)
     
@@ -306,7 +294,6 @@ def handle_dashboard(data):
     weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage
     habit_streaks = streaks(data, selected_date) # longest_streak, current_streak
     for habit, info in weekly_stats.items():
-        # print(f"{habit:<15}:  {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)   🔥 {habit_streaks[habit]['current_streak']} | 🎖️  {habit_streaks[habit]['longest_streak']}")
         print(f"\n{habit:<15}")
         print(f"  Weekly : {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)")
         print(f"  Streak : 🔥 {habit_streaks[habit]['current_streak']}")
