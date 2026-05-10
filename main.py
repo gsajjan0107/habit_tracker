@@ -273,15 +273,20 @@ def handle_dashboard(data):
         except ValueError as e:
             print(e)
     
-    previous_day = selected_date - timedelta(days=1)
 
-    previous_day_result = daily_stats(data, previous_day)
     result = daily_stats(data, selected_date)
 
     print("\n==== DASHBOARD ====")
     show_habits_status(result)
 
-    missed = previous_day_result["pending"]
+    previous_day = selected_date - timedelta(days=1)
+
+    try:
+        previous_day_result = daily_stats(data, previous_day)
+        missed = previous_day_result["pending"]
+    except ValueError:
+        missed = []
+
     if missed:
         print("\n⚠️  Missed previous day:")
         for habit in missed:
