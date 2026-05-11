@@ -114,3 +114,6 @@ def get_confirmation(message):
             return False
 
         print("Invalid input. Please enter y/n.")
+
+def get_today():
+    return datetime.now().date()

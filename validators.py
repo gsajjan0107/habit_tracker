@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from utils import get_today
 import re
 
 def validate_data_structure(data):
@@ -65,7 +66,7 @@ def validate_logs_data_structure(data):
     habits = data["habits"]
 
     seen = set()  # Track (habit, date) pairs to prevent duplicates
-    today = datetime.now().date()
+    today = get_today()
     for i, log in enumerate(logs):
 
         if not isinstance(log, dict):
@@ -150,7 +151,7 @@ def validate_choice(value: str, choices: list[str]) -> str:
     return value
 
 def validate_date(value):
-    today = datetime.now().date()
+    today = get_today()
 
     if value is None:
         return today

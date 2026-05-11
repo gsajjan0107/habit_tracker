@@ -1,5 +1,6 @@
 from validators import *
 from datetime import datetime
+from utils import get_today
 
 def habit_exists(data, habit_name):
     return data["habits"].get(habit_name)
@@ -9,7 +10,7 @@ def is_habit_archived(data, habit_name):
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)
-    created_at = datetime.now().date().isoformat()
+    created_at = get_today().isoformat()
 
     if habit_exists(data, habit_name):
         if is_habit_archived(data, habit_name):
@@ -96,7 +97,7 @@ def archive_habit(data, habit_name):
     if is_habit_archived(data, habit_name):
         return False, "Habit already archived."
     
-    today = datetime.now().date().isoformat()
+    today = get_today().isoformat()
     data["habits"][habit_name]["archived_at"] = today
     return True, f"{habit_name} archived."
 
@@ -107,6 +108,13 @@ def unarchive_habit(data, habit_name):
     
     data["habits"][habit_name]["archived_at"] = None
     return True, f"{habit_name} successfully unarchived."
+
+def toggle_archive_habit(data, habit_name):
+
+    if is_habit_archived(data, habit_name):
+        return unarchive_habit(data, habit_name)
+
+    return archive_habit(data, habit_name)
 
 def delete_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)

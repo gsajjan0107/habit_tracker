@@ -247,10 +247,7 @@ def handle_toggle_archive(data):
     habit_name = habits[choice - 1]
     
     # TOGGLE ARCHIVE
-    if not is_habit_archived(data, habit_name):
-        success, result = archive_habit(data, habit_name)
-    else:
-        success, result = unarchive_habit(data, habit_name)
+    success, result = toggle_archive_habit(data, habit_name)
     
     if success:
         save_data(data)
