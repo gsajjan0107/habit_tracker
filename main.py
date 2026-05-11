@@ -162,8 +162,7 @@ def handle_delete_log(data):
         
         print(f"\n📅 Date: {formatted_date}")
         print("\n✅ Logged:")
-        for i, habit in enumerate(completed, start=1):
-            print(f"{i}. {habit}")
+        display_numbered_list(completed)
 
         selected_habits = get_selected_habits(completed)
 
@@ -209,8 +208,7 @@ def handle_delete(data):
         return
     
     habits = list(data["habits"])
-    for i, habit in enumerate(habits, start=1):
-        print(f"{i}. {habit}")
+    display_numbered_list(habits)
 
     choice = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))

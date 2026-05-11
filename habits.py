@@ -1,5 +1,4 @@
 from validators import *
-from datetime import datetime
 from utils import get_today
 
 def habit_exists(data, habit_name):

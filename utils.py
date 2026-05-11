@@ -60,8 +60,7 @@ def show_habits_status(result):
 
     if pending:
         print("\n🚫 Pending:")
-        for i, habit in enumerate(pending, start=1):
-            print(f"{i}. {habit}")
+        display_numbered_list(pending)
 
     if completed:
         print("\n✅ Completed:")
@@ -117,3 +116,7 @@ def get_confirmation(message):
 
 def get_today():
     return datetime.now().date()
+
+def display_numbered_list(items):
+    for i, item in enumerate(items, start=1):
+        print(f"{i}. {item}")
