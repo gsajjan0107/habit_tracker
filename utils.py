@@ -113,4 +113,4 @@ def get_confirmation(message):
         if confirm in ["n", "no"]:
             return False
 
-        print("Please enter y/n.")
+        print("Invalid input. Please enter y/n.")
