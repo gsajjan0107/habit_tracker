@@ -237,11 +237,13 @@ def handle_toggle_archive(data):
     
     # TOGGLE ARCHIVE
     result = toggle_archive_habit(data, habit_name)
+    success = result["success"]
+    message = result["message"]
     
-    if result["success"]:
+    if success:
         save_data(data)
         
-    print(result["message"])
+    print(message)
 
 def handle_dashboard(data):
     if not data["habits"]:
