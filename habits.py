@@ -92,11 +92,7 @@ def delete_log(data, log_date, habit_name):
         return f"Log of {habit_name} for {log_date} deleted."
 
 def archive_habit(data, habit_name):
-    habit_name = validate_string(habit_name, 3, 20)
 
-    if not habit_exists(data, habit_name):
-        return "Habit does not exist."
-    
     if is_habit_archived(data, habit_name):
         return "Habit already archived."
     
@@ -105,10 +101,6 @@ def archive_habit(data, habit_name):
     return f"{habit_name} successfully archived."
 
 def unarchive_habit(data, habit_name):
-    habit_name = validate_string(habit_name, 3, 20)
-
-    if not habit_exists(data, habit_name):
-        return "Habit does not exist."
     
     if not is_habit_archived(data, habit_name):
         return "Habit already active."

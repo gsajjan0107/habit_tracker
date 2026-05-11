@@ -244,11 +244,7 @@ def handle_toggle_archive(data):
     choice = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))
     
-    habit = habits[choice - 1]
-    habit_name = validate_string(habit, 3, 20)
-
-    if not habit_exists(data, habit_name):
-        raise ValueError("Habit does not exist.")
+    habit_name = habits[choice - 1]
     
     # TOGGLE ARCHIVE
     if not is_habit_archived(data, habit_name):
