@@ -72,20 +72,24 @@ def format_habit_label(habit, archived):
     return f"{habit} ({'archived' if archived else 'unarchived'})"
 
 def build_archive_menu_entries(data, habits):
-    unarchived_habits = []
-    archived_habits = []
+    active_entries = []
+    archived_entries = []
 
     for habit in habits:
         archived = is_habit_archived(data, habit)
-        if archived:
-            archived_habits.append({"habit": habit, "archived": True})
-        else:
-            unarchived_habits.append({"habit": habit, "archived": False})
-    
-    unarchived_habits.sort(key=lambda item: item["habit"])
-    archived_habits.sort(key=lambda item: item["habit"])
 
-    menu_entries = unarchived_habits + archived_habits
+        entry = {"habit": habit, "archived": archived}
+
+        if archived:
+            archived_entries.append(entry)
+        else:
+            active_entries.append(entry)
+
+    active_entries.sort(key=lambda entry: entry["habit"])
+    archived_entries.sort(key=lambda entry: entry["habit"])
+
+    menu_entries = active_entries + archived_entries
+
     return menu_entries
 
 def display_habit_archive_menu(data, habits):
