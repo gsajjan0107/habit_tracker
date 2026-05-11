@@ -5,7 +5,7 @@ from storage import load_data, save_data
 from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
 from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, display_habit_archive_menu
-from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived, ensure_habits_exist
+from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived, ensure_habits_exist, display_message
 
 commands = {
     "1" : "Add habit",
@@ -27,9 +27,9 @@ def handle_add(data):
         if habit_exists(data, habit_name):
             
             if is_habit_archived(data, habit_name):
-                print("Habit exists but is archived.")
+                display_message("Habit exists but is archived.")
             else:
-                print("Habit already exists.")
+                display_message("Habit already exists.")
             
             continue
 
@@ -40,7 +40,7 @@ def handle_add(data):
         # ADD HABIT
         result = add_habit(data, habit_name, target)
         save_data(data)
-        print(result)
+        display_message(result)
         break
 
 def handle_log(data):
@@ -53,56 +53,56 @@ def handle_log(data):
             log_date = validate_date(log_date)
 
             result = daily_stats(data, log_date)
-            print()
+            display_message("")
             show_habits_status(result) # show pending and completed habits
             
             completed = result["completed"]
             pending = result["pending"]
 
             if not pending:
-                print("\n🎉 All habits completed for this day!")
+                display_message("\n🎉 All habits completed for this day!")
                 return
 
             selected_habits = get_selected_habits(pending)
 
             # User enters 'q'
             if selected_habits is None:
-                print("Logging cancelled.")
+                display_message("Logging cancelled.")
                 return
             
             # Filter habits by creation date before logging
             valid_habits, invalid_habits = (filter_habits_by_creation_date(data, selected_habits, log_date))
 
             if invalid_habits:
-                print("⚠️  Cannot log before creation date:")
+                display_message("⚠️  Cannot log before creation date:")
                 for habit in invalid_habits:
-                    print(f"- {habit}")
+                    display_message(f"- {habit}")
 
             if not valid_habits:
-                print("No valid habits to log.")
+                display_message("No valid habits to log.")
                 continue
             
             # Check if already logged
             to_log, skipped = separate_logged_habits(valid_habits, completed)
 
             if skipped:
-                print("⚠️  Already logged:")
+                display_message("⚠️  Already logged:")
                 for habit_name in skipped:
-                    print(f"- {habit_name}")
+                    display_message(f"- {habit_name}")
 
             if not to_log:
-                print("Nothing new to log.")
+                display_message("Nothing new to log.")
                 continue
             
             # Confirm logging
-            print("\nYou are about to log:")
+            display_message("\nYou are about to log:")
             for habit in to_log:
-                print(f"- {habit}")
+                display_message(f"- {habit}")
 
             confirmed = get_confirmation("\nProceed? (y/n): ")
 
             if not confirmed:
-                print("Logging cancelled.")
+                display_message("Logging cancelled.")
                 continue
 
             logged = log_multiple_habits(data, log_date, to_log)
@@ -111,27 +111,27 @@ def handle_log(data):
             reset = []
             habit_streaks = streaks(data, log_date)
 
-            print(f"\n✅ Logged {len(logged)} habits:")
+            display_message(f"\n✅ Logged {len(logged)} habits:")
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
 
                 if current_habit_streak == 1:
-                    print(f"\n⚠️  Streak reset: {habit} - 1 day streak")
+                    display_message(f"\n⚠️  Streak reset: {habit} - 1 day streak")
                     reset.append(habit)
                 else:
-                    print(f"- {habit}: {current_habit_streak} days streak")
+                    display_message(f"- {habit}: {current_habit_streak} days streak")
 
             break
 
         except ValueError as e:
-            print(e)
+            display_message(e)
 
 def handle_delete_log(data):
     if not ensure_habits_exist(data):
         return
     
     if not data["logs"]:
-        print("No logs found. Log a habit first.")
+        display_message("No logs found. Log a habit first.")
         return
     
     while True:
@@ -139,7 +139,7 @@ def handle_delete_log(data):
             log_date = input("\nEnter date (Press enter for today): ")
             log_date = validate_date(log_date)
         except ValueError as e:
-            print(e)
+            display_message(e)
             continue
 
         result = daily_stats(data, log_date)
@@ -147,33 +147,33 @@ def handle_delete_log(data):
         completed = result["completed"]
 
         if not completed:
-            print("No logs for this date.")
+            display_message("No logs for this date.")
             return
         
-        print(f"\n📅 Date: {formatted_date}")
-        print("\n✅ Logged:")
+        display_message(f"\n📅 Date: {formatted_date}")
+        display_message("\n✅ Logged:")
         display_numbered_list(completed)
 
         selected_habits = get_selected_habits(completed)
 
         if selected_habits is None:
-            print("Log deletion cancelled.")
+            display_message("Log deletion cancelled.")
             return
 
         if not selected_habits:
-            print("No habits selected.")
+            display_message("No habits selected.")
             continue
 
         break
     
-    print("\nYou are about to delete logs for:")
+    display_message("\nYou are about to delete logs for:")
     for habit in selected_habits:
-        print(f"- {habit}")
+        display_message(f"- {habit}")
 
     confirmed = get_confirmation("\nProceed? (y/n): ")
 
     if not confirmed:
-        print("Log deletion cancelled.")
+        display_message("Log deletion cancelled.")
         return
 
     deleted = []
@@ -183,12 +183,12 @@ def handle_delete_log(data):
             deleted.append(habit_name)
 
     if not deleted:
-        print("No logs were deleted.")
+        display_message("No logs were deleted.")
         return
         
-    print(f"\n🗑️  Deleted {len(deleted)} logs:")
+    display_message(f"\n🗑️  Deleted {len(deleted)} logs:")
     for habit in deleted:
-        print(f"- {habit}")
+        display_message(f"- {habit}")
 
     save_data(data)
 
@@ -207,13 +207,13 @@ def handle_delete(data):
     confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with logs. Confirm? (y/n): ")
 
     if not confirmed:
-        print("Deletion cancelled.")
+        display_message("Deletion cancelled.")
         return
 
     # DELETE HABIT
     result = delete_habit(data, habit)
     save_data(data)
-    print(result)
+    display_message(result)
  
 def handle_toggle_archive(data):
     if not ensure_habits_exist(data):
@@ -236,7 +236,7 @@ def handle_toggle_archive(data):
     if success:
         save_data(data)
         
-    print(msg)
+    display_message(msg)
 
 def handle_dashboard(data):
     if not ensure_habits_exist(data):
@@ -249,12 +249,12 @@ def handle_dashboard(data):
             break
 
         except ValueError as e:
-            print(e)
+            display_message(e)
     
 
     result = daily_stats(data, selected_date)
 
-    print("\n==== DASHBOARD ====")
+    display_message("\n==== DASHBOARD ====")
     show_habits_status(result)
 
     previous_day = selected_date - timedelta(days=1)
@@ -266,21 +266,21 @@ def handle_dashboard(data):
         missed = []
 
     if missed:
-        print("\n⚠️  Missed previous day:")
+        display_message("\n⚠️  Missed previous day:")
         for habit in missed:
-            print(f"- {habit}")
+            display_message(f"- {habit}")
 
-    print(f"\nCompleted {result['total_completed']} / {result['total_habits']} ({result['completion_rate']:.2f}%) habits today.")
+    display_message(f"\nCompleted {result['total_completed']} / {result['total_habits']} ({result['completion_rate']:.2f}%) habits today.")
 
-    print("\n📊 Weekly Stats:")
+    display_message("\n📊 Weekly Stats:")
 
     weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage
     habit_streaks = streaks(data, selected_date) # longest_streak, current_streak
     for habit, info in weekly_stats.items():
-        print(f"\n{habit:<15}")
-        print(f"  Weekly : {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)")
-        print(f"  Streak : 🔥 {habit_streaks[habit]['current_streak']}")
-        print(f"  Best   : 🏆 {habit_streaks[habit]['longest_streak']}")
+        display_message(f"\n{habit:<15}")
+        display_message(f"  Weekly : {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)")
+        display_message(f"  Streak : 🔥 {habit_streaks[habit]['current_streak']}")
+        display_message(f"  Best   : 🏆 {habit_streaks[habit]['longest_streak']}")
 
 def handle_exit(data):
     sys.exit()
@@ -297,10 +297,10 @@ handlers = {
 
 def main(data):
     while True:
-        print("\nMAIN MENU")
-        print("--------------------")
+        display_message("\nMAIN MENU")
+        display_message("--------------------")
         for key, label in commands.items():
-            print(f"{key}. {label}")
+            display_message(f"{key}. {label}")
 
         choice = get_valid_input(
             "\nEnter your choice: ",

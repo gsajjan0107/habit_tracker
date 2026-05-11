@@ -53,3 +53,6 @@ def ensure_habits_exist(data):
         return False
 
     return True
+
+def display_message(message):
+    print(message)
