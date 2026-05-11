@@ -19,6 +19,7 @@ commands = {
 
 data = load_data()
  
+
 def handle_add(data):
     while True:
         habit_name = get_valid_input("Enter habit name: ",
@@ -43,6 +44,7 @@ def handle_add(data):
         display_message(result)
         break
 
+
 def handle_log(data):
     if not ensure_habits_exist(data):
         return
@@ -63,6 +65,7 @@ def handle_log(data):
                 display_message("\n🎉 All habits completed for this day!")
                 return
 
+
             selected_habits = get_selected_habits(pending)
 
             # User enters 'q'
@@ -70,6 +73,7 @@ def handle_log(data):
                 display_message("Logging cancelled.")
                 return
             
+
             # Filter habits by creation date before logging
             valid_habits, invalid_habits = (filter_habits_by_creation_date(data, selected_habits, log_date))
 
@@ -130,10 +134,12 @@ def handle_delete_log(data):
     if not ensure_habits_exist(data):
         return
     
+
     if not data["logs"]:
         display_message("No logs found. Log a habit first.")
         return
     
+
     while True:
         try: # get valid date
             log_date = input("\nEnter date (Press enter for today): ")
@@ -150,6 +156,7 @@ def handle_delete_log(data):
             display_message("No logs for this date.")
             return
         
+
         display_message(f"\n📅 Date: {formatted_date}")
         display_message("\n✅ Logged:")
         display_numbered_list(completed)
@@ -159,6 +166,7 @@ def handle_delete_log(data):
         if selected_habits is None:
             display_message("Log deletion cancelled.")
             return
+
 
         if not selected_habits:
             display_message("No habits selected.")
@@ -176,6 +184,7 @@ def handle_delete_log(data):
         display_message("Log deletion cancelled.")
         return
 
+
     deleted = []
     for habit_name in selected_habits:
         result = delete_log(data, log_date, habit_name)
@@ -186,6 +195,7 @@ def handle_delete_log(data):
         display_message("No logs were deleted.")
         return
         
+
     display_message(f"\n🗑️  Deleted {len(deleted)} logs:")
     for habit in deleted:
         display_message(f"- {habit}")
@@ -196,6 +206,7 @@ def handle_delete(data):
     if not ensure_habits_exist(data):
         return
     
+
     habits = list(data["habits"])
     display_numbered_list(habits)
 
@@ -210,6 +221,7 @@ def handle_delete(data):
         display_message("Deletion cancelled.")
         return
 
+
     # DELETE HABIT
     result = delete_habit(data, habit)
     save_data(data)
@@ -219,6 +231,7 @@ def handle_toggle_archive(data):
     if not ensure_habits_exist(data):
         return
     
+
     habits = data["habits"]
 
     all_habits = display_habit_archive_menu(data, habits)
@@ -236,6 +249,7 @@ def handle_dashboard(data):
     if not ensure_habits_exist(data):
         return
     
+
     while True:
         try:
             date = input("\nEnter date (Press enter for today): ")
@@ -245,7 +259,6 @@ def handle_dashboard(data):
         except ValueError as e:
             display_message(e)
     
-
     result = daily_stats(data, selected_date)
 
     display_message("\n==== DASHBOARD ====")
