@@ -221,12 +221,12 @@ def handle_toggle_archive(data):
     
     habits = sorted(data["habits"])
 
-    display_habit_archive_menu(data, habits)
+    all_habits = display_habit_archive_menu(data, habits)
 
     selected_index = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))
     
-    habit_name = habits[selected_index - 1]
+    habit_name, archived = all_habits[selected_index - 1]
     
     # TOGGLE ARCHIVE
     result = toggle_archive_habit(data, habit_name)

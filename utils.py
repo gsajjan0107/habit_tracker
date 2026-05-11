@@ -81,12 +81,13 @@ def display_habit_archive_menu(data, habits):
         else:
             unarchived_habits.append((habit, False))
     
-    unarchived_habits.sort()
-    archived_habits.sort()
+    unarchived_habits.sort(key=lambda item: item[0])
+    archived_habits.sort(key=lambda item: item[0])
 
     all_habits = unarchived_habits + archived_habits
 
     for i, (habit, archived) in enumerate(all_habits, start=1):
         label = format_habit_label(habit, archived)
-
         print(f"{i}. {label}")
+    
+    return all_habits
