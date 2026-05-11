@@ -67,5 +67,5 @@ def separate_logged_habits(valid_habits, completed):
     return to_log, skipped
 
 def format_habit_status(habit, archived):
-    status = "archived" if archived else "active"
+    status = "archived" if archived else "unarchived"
     return f"{habit} ({status})"
