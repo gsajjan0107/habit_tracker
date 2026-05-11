@@ -138,14 +138,15 @@ def daily_stats(data, date=None):
 
     valid_habits = set()
 
-    for name, info in habits.items():
-        created_at = validate_date(info["created_at"])
+    for habit_name, habit_info in habits.items():
+        habit_created_at = validate_date(habit_info["created_at"])
+        habit_archived_at = habit_info.get("archived_at")
 
-        archived_at = info.get("archived_at")
-        archived_at = validate_date(archived_at) if archived_at else None
+        if habit_archived_at:
+            habit_archived_at = validate_date(habit_archived_at)
 
-        if created_at <= date and (archived_at is None or archived_at >= date):
-            valid_habits.add(name)
+        if habit_created_at <= date and (habit_archived_at is None or habit_archived_at >= date):
+            valid_habits.add(habit_name)
 
     if not valid_habits:
         raise ValueError(f"No valid habits for {date.isoformat()}")
