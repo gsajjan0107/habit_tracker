@@ -1,5 +1,6 @@
 from validators import validate_string, validate_int, validate_date
 from helpers import get_today
+from utils import make_result
 
 def habit_exists(data, habit_name):
     return data["habits"].get(habit_name)
@@ -102,33 +103,21 @@ def delete_log(data, log_date, habit_name):
 def archive_habit(data, habit_name, archived_at=None):
 
     if is_habit_archived(data, habit_name):
-        return {
-            "success": False,
-            "msg": "Habit already archived."
-            }
+        return make_result(False, "Habit already archived.")
     
     if archived_at is None:
         archived_at = get_today().isoformat()
    
     data["habits"][habit_name]["archived_at"] = archived_at
-    return {
-        "success": True,
-        "msg": f"{habit_name} archived."
-        }
+    return make_result(True, f"{habit_name} archived.")
 
 def unarchive_habit(data, habit_name):
     
     if not is_habit_archived(data, habit_name):
-        return {
-            "success": False,
-            "msg": "Habit already active."
-            }
+        return make_result(False, "Habit already active.")
     
     data["habits"][habit_name]["archived_at"] = None
-    return {
-        "success": True,
-        "msg": f"{habit_name} unarchived."
-        }
+    return make_result(True, f"{habit_name} unarchived.")
 
 def toggle_archive_habit(data, habit_name):
 

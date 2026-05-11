@@ -69,3 +69,9 @@ def separate_logged_habits(valid_habits, completed):
 def format_habit_status(habit, archived):
     status = "archived" if archived else "unarchived"
     return f"{habit} ({status})"
+
+def make_result(success, msg):
+    return {
+        "success": success,
+        "msg": msg
+    }
