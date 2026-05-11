@@ -71,7 +71,22 @@ def format_habit_label(habit, archived):
     return f"{habit} ({'archived' if archived else 'unarchived'})"
 
 def display_habit_archive_menu(data, habits):
-    for i, habit in enumerate(habits, start=1):
+    unarchived_habits = []
+    archived_habits = []
+
+    for habit in habits:
         archived = is_habit_archived(data, habit)
+        if archived:
+            archived_habits.append((habit, True))
+        else:
+            unarchived_habits.append((habit, False))
+    
+    unarchived_habits.sort()
+    archived_habits.sort()
+
+    all_habits = unarchived_habits + archived_habits
+
+    for i, (habit, archived) in enumerate(all_habits, start=1):
         label = format_habit_label(habit, archived)
+
         print(f"{i}. {label}")

@@ -219,7 +219,7 @@ def handle_toggle_archive(data):
     if not ensure_habits_exist(data):
         return
     
-    habits = list(data["habits"])
+    habits = sorted(data["habits"])
 
     display_habit_archive_menu(data, habits)
 
