@@ -230,8 +230,8 @@ def handle_toggle_archive(data):
     
     # TOGGLE ARCHIVE
     result = toggle_archive_habit(data, habit_name)
-    success = result["success"]
-    msg = result["msg"]
+    success = result.get("success", False)
+    msg = result.get("msg", "Unknown operation result.")
     
     if success:
         save_data(data)
