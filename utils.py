@@ -71,12 +71,6 @@ def format_habit_status(habit, archived):
     status = "archived" if archived else "unarchived"
     return f"{habit} ({status})"
 
-def make_result(success, msg):
-    return {
-        "success": success,
-        "msg": msg
-    }
-
 def display_habit_archive_menu(data, habits):
     for i, habit in enumerate(habits, start=1):
         archived = is_habit_archived(data, habit)

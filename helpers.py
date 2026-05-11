@@ -56,3 +56,10 @@ def ensure_habits_exist(data):
 
 def display_message(message):
     print(message)
+
+def make_result(success, msg, data=None):
+    return {
+        "success": success,
+        "msg": msg,
+        "data": data
+    }
