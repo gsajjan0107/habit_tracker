@@ -1,10 +1,11 @@
 import sys
-from validators import *
+from validators import get_valid_input, validate_string, validate_int, validate_date, validate_choice
 from datetime import timedelta
 from storage import load_data, save_data
-from habits import *
+from habits import habit_exists, is_habit_archived, add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
-from utils import *
+from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, format_habit_status
+from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list
 
 commands = {
     "1" : "Add habit",
@@ -71,13 +72,7 @@ def handle_log(data):
                 return
             
             # Filter habits by creation date before logging
-            valid_habits, invalid_habits = (
-                filter_habits_by_creation_date(
-                    data,
-                    selected_habits,
-                    log_date
-                )
-            )
+            valid_habits, invalid_habits = (filter_habits_by_creation_date(data, selected_habits, log_date))
 
             if invalid_habits:
                 print("⚠️  Cannot log before creation date:")
@@ -89,10 +84,7 @@ def handle_log(data):
                 continue
             
             # Check if already logged
-            to_log, skipped = separate_logged_habits(
-                valid_habits,
-                completed
-            )
+            to_log, skipped = separate_logged_habits(valid_habits, completed)
 
             if skipped:
                 print("⚠️  Already logged:")

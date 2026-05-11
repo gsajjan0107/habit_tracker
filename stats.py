@@ -1,5 +1,5 @@
 from datetime import timedelta
-from validators import *
+from validators import validate_date
 
 def logs_by_habit(data, date=None):
     logs = data["logs"]

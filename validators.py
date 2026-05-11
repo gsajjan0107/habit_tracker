@@ -1,6 +1,6 @@
 from datetime import datetime, date
-from utils import get_today
-import re
+from helpers import get_today
+import re # for validate_string
 
 def validate_data_structure(data):
 

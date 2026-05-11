@@ -1,5 +1,5 @@
-from validators import *
-from utils import get_today
+from validators import validate_string, validate_int, validate_date
+from helpers import get_today
 
 def habit_exists(data, habit_name):
     return data["habits"].get(habit_name)
@@ -66,6 +66,14 @@ def log_habit(data, log_date, habit_name):
     })
 
     return f"{habit_name} logged for {log_date}."
+
+def log_multiple_habits(data, log_date, habits):
+    logged = []
+    for habit_name in habits:
+        log_habit(data, log_date, habit_name)
+        logged.append(habit_name)
+
+    return logged
 
 def delete_log(data, log_date, habit_name):
     if not data["habits"]:
