@@ -94,19 +94,19 @@ def delete_log(data, log_date, habit_name):
 def archive_habit(data, habit_name):
 
     if is_habit_archived(data, habit_name):
-        return "Habit already archived."
+        return False, "Habit already archived."
     
     today = datetime.now().date().isoformat()
     data["habits"][habit_name]["archived_at"] = today
-    return f"{habit_name} successfully archived."
+    return True, f"{habit_name} archived."
 
 def unarchive_habit(data, habit_name):
     
     if not is_habit_archived(data, habit_name):
-        return "Habit already active."
+        return False, "Habit already active."
     
     data["habits"][habit_name]["archived_at"] = None
-    return f"{habit_name} successfully unarchived."
+    return True, f"{habit_name} successfully unarchived."
 
 def delete_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)
