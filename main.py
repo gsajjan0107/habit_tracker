@@ -199,10 +199,10 @@ def handle_delete(data):
     habits = list(data["habits"])
     display_numbered_list(habits)
 
-    choice = get_valid_input("\nSelect a habit (enter number): ",
+    selected_index = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))
     
-    habit = habits[choice - 1]
+    habit = habits[selected_index - 1]
 
     confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with logs. Confirm? (y/n): ")
 
@@ -223,10 +223,10 @@ def handle_toggle_archive(data):
 
     display_habit_archive_menu(data, habits)
 
-    choice = get_valid_input("\nSelect a habit (enter number): ",
+    selected_index = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))
     
-    habit_name = habits[choice - 1]
+    habit_name = habits[selected_index - 1]
     
     # TOGGLE ARCHIVE
     result = toggle_archive_habit(data, habit_name)
@@ -302,11 +302,11 @@ def main(data):
         for key, label in commands.items():
             display_message(f"{key}. {label}")
 
-        choice = get_valid_input(
+        selected_index = get_valid_input(
             "\nEnter your choice: ",
             lambda v: validate_choice(v, [n for n in commands]))
 
-        handlers[choice](data)
+        handlers[selected_index](data)
 
 if __name__ == "__main__":
     main(data)
