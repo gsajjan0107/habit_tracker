@@ -5,7 +5,7 @@ from storage import load_data, save_data
 from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
 from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, display_habit_archive_menu
-from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived
+from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived, ensure_habits_exist
 
 commands = {
     "1" : "Add habit",
@@ -44,8 +44,7 @@ def handle_add(data):
         break
 
 def handle_log(data):
-    if not data["habits"]:
-        print("No habits found. Add a habit first.")
+    if not ensure_habits_exist(data):
         return
     
     while True: 
@@ -128,8 +127,7 @@ def handle_log(data):
             print(e)
 
 def handle_delete_log(data):
-    if not data["habits"]:
-        print("No habits found. Add a habit first.")
+    if not ensure_habits_exist(data):
         return
     
     if not data["logs"]:
@@ -195,8 +193,7 @@ def handle_delete_log(data):
     save_data(data)
 
 def handle_delete(data):
-    if not data["habits"]:
-        print("No habits found. Add a habit first.")
+    if not ensure_habits_exist(data):
         return
     
     habits = list(data["habits"])
@@ -219,8 +216,7 @@ def handle_delete(data):
     print(result)
  
 def handle_toggle_archive(data):
-    if not data["habits"]:
-        print("No habits found. Add a habit first.")
+    if not ensure_habits_exist(data):
         return
     
     habits = list(data["habits"])
@@ -243,8 +239,7 @@ def handle_toggle_archive(data):
     print(msg)
 
 def handle_dashboard(data):
-    if not data["habits"]:
-        print("No habits found. Add a habit first.")
+    if not ensure_habits_exist(data):
         return
     
     while True:

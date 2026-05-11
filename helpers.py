@@ -46,3 +46,10 @@ def habit_exists(data, habit_name):
 
 def is_habit_archived(data, habit_name):
     return (data["habits"][habit_name].get("archived_at") is not None)
+
+def ensure_habits_exist(data):
+    if not data["habits"]:
+        print("No habits found. Add a habit first.")
+        return False
+
+    return True
