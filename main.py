@@ -234,10 +234,8 @@ def handle_toggle_archive(data):
     habits = list(data["habits"])
 
     for i, habit in enumerate(habits, start=1):
-        if is_habit_archived(data, habit):
-            print(f"{i}. {habit} (archived)")
-        else:
-            print(f"{i}. {habit} (active)")
+        label = format_habit_status(habit, is_habit_archived(data, habit))
+        print(f"{i}. {label}")
 
     choice = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))

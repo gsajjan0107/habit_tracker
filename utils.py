@@ -120,3 +120,7 @@ def get_today():
 def display_numbered_list(items):
     for i, item in enumerate(items, start=1):
         print(f"{i}. {item}")
+
+def format_habit_status(habit, archived):
+    status = "archived" if archived else "active"
+    return f"{habit} ({status})"
