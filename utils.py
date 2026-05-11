@@ -67,12 +67,12 @@ def separate_logged_habits(valid_habits, completed):
 
     return to_log, skipped
 
-def format_habit_status(habit, archived):
+def format_habit_label(habit, archived):
     status = "archived" if archived else "unarchived"
     return f"{habit} ({status})"
 
 def display_habit_archive_menu(data, habits):
     for i, habit in enumerate(habits, start=1):
         archived = is_habit_archived(data, habit)
-        label = format_habit_status(habit, archived)
+        label = format_habit_label(habit, archived)
         print(f"{i}. {label}")
