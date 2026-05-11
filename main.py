@@ -208,7 +208,7 @@ def handle_delete(data):
         print("No habits found. Add a habit first.")
         return
     
-    habits = [habit for habit in data["habits"]]
+    habits = list(data["habits"])
     for i, habit in enumerate(habits, start=1):
         print(f"{i}. {habit}")
 
@@ -233,7 +233,7 @@ def handle_toggle_archive(data):
         print("No habits found. Add a habit first.")
         return
     
-    habits = [habit for habit in data["habits"]]
+    habits = list(data["habits"])
 
     for i, habit in enumerate(habits, start=1):
         if is_habit_archived(data, habit):
