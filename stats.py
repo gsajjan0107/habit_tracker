@@ -2,8 +2,6 @@ from datetime import timedelta
 from validators import *
 
 def logs_by_habit(data, date=None):
-    date = validate_date(date)
-
     logs = data["logs"]
 
     habit_log_dates = {}
@@ -19,7 +17,7 @@ def logs_by_habit(data, date=None):
         
         log_date = validate_date(log["date"])
     
-        if log_date <= date:
+        if log_date <= date: # type: ignore
             habit_log_dates.setdefault(habit_name, set()).add(log_date)
 
     return habit_log_dates
@@ -64,7 +62,6 @@ def streaks(data, date=None):
     if not logs:
         raise ValueError("No logs found.")
     
-    date = validate_date(date)
     habit_logs = logs_by_habit(data, date)
 
     result = {}
