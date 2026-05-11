@@ -2,10 +2,10 @@ import sys
 from validators import get_valid_input, validate_string, validate_int, validate_date, validate_choice
 from datetime import timedelta
 from storage import load_data, save_data
-from habits import habit_exists, is_habit_archived, add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
+from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
-from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, format_habit_status
-from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list
+from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, display_habit_archive_menu
+from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived
 
 commands = {
     "1" : "Add habit",
@@ -225,10 +225,7 @@ def handle_toggle_archive(data):
     
     habits = list(data["habits"])
 
-    for i, habit in enumerate(habits, start=1):
-        archived = is_habit_archived(data, habit)
-        label = format_habit_status(habit, archived)
-        print(f"{i}. {label}")
+    display_habit_archive_menu(data, habits)
 
     choice = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))

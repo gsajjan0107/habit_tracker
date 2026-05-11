@@ -1,12 +1,6 @@
 from validators import validate_string, validate_int, validate_date
-from helpers import get_today
+from helpers import get_today, habit_exists, is_habit_archived
 from utils import make_result
-
-def habit_exists(data, habit_name):
-    return data["habits"].get(habit_name)
-
-def is_habit_archived(data, habit_name):
-    return (data["habits"][habit_name].get("archived_at") is not None)
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)

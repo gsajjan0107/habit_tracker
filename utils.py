@@ -1,4 +1,5 @@
 from validators import validate_int, validate_date
+from helpers import is_habit_archived
 
 def get_selected_habits(pending):
     while True:
@@ -75,3 +76,9 @@ def make_result(success, msg):
         "success": success,
         "msg": msg
     }
+
+def display_habit_archive_menu(data, habits):
+    for i, habit in enumerate(habits, start=1):
+        archived = is_habit_archived(data, habit)
+        label = format_habit_status(habit, archived)
+        print(f"{i}. {label}")

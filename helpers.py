@@ -40,3 +40,9 @@ def get_confirmation(message):
 
 def get_today():
     return datetime.now().date()
+
+def habit_exists(data, habit_name):
+    return data["habits"].get(habit_name)
+
+def is_habit_archived(data, habit_name):
+    return (data["habits"][habit_name].get("archived_at") is not None)
