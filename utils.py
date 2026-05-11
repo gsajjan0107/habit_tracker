@@ -71,7 +71,7 @@ def separate_logged_habits(valid_habits, completed):
 def format_habit_label(habit, archived):
     return f"{habit} ({'archived' if archived else 'unarchived'})"
 
-def display_habit_archive_menu(data, habits):
+def build_archive_menu_entries(data, habits):
     unarchived_habits = []
     archived_habits = []
 
@@ -86,13 +86,17 @@ def display_habit_archive_menu(data, habits):
     archived_habits.sort(key=lambda item: item[0])
 
     all_habits = unarchived_habits + archived_habits
+    return all_habits
+
+def display_habit_archive_menu(data, habits):
+    all_habits = build_archive_menu_entries(data, habits)
 
     for i, (habit, archived) in enumerate(all_habits, start=1):
         label = format_habit_label(habit, archived)
         display_message(f"{i}. {label}")
-    
-    return all_habits
 
+    return all_habits
+    
 def handle_operation_result(data, result):
     success = result.get("success", False)
     msg = result.get("msg", "Unknown operation result.")
