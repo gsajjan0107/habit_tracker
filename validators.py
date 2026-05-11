@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from helpers import get_today, is_habit_archived, display_message
+from helpers import get_today, display_message
 import re # for validate_string
 
 def validate_data_structure(data):
@@ -48,14 +48,14 @@ def validate_habits_data_structure(data):
         except ValueError:
             return False, f"habits['{habit}'].created_at → invalid date format (YYYY-MM-DD)." 
 
-        archived_at = is_habit_archived(data, habit)
-        if archived_at:
-            
+        archived_at = habit_data.get("archived_at")
+
+        if archived_at is not None:
             try:
                 archived = validate_date(archived_at)
             except ValueError:
                 return False, f"habits['{habit}'].archived_at → must be None or valid date."
-            
+
             if archived < created:
                 return False, f"habits['{habit}'] → archived_at cannot be before created_at."
 
