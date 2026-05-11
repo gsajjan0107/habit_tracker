@@ -78,12 +78,12 @@ def build_archive_menu_entries(data, habits):
     for habit in habits:
         archived = is_habit_archived(data, habit)
         if archived:
-            archived_habits.append((habit, True))
+            archived_habits.append({"habit": habit, "archived": True})
         else:
-            unarchived_habits.append((habit, False))
+            unarchived_habits.append({"habit": habit, "archived": False})
     
-    unarchived_habits.sort(key=lambda item: item[0])
-    archived_habits.sort(key=lambda item: item[0])
+    unarchived_habits.sort(key=lambda item: item["habit"])
+    archived_habits.sort(key=lambda item: item["habit"])
 
     all_habits = unarchived_habits + archived_habits
     return all_habits
@@ -91,7 +91,9 @@ def build_archive_menu_entries(data, habits):
 def display_habit_archive_menu(data, habits):
     all_habits = build_archive_menu_entries(data, habits)
 
-    for i, (habit, archived) in enumerate(all_habits, start=1):
+    for i, entry in enumerate(all_habits, start=1):
+        habit = entry["habit"]
+        archived = entry["archived"]
         label = format_habit_label(habit, archived)
         display_message(f"{i}. {label}")
 
