@@ -85,19 +85,19 @@ def build_archive_menu_entries(data, habits):
     unarchived_habits.sort(key=lambda item: item["habit"])
     archived_habits.sort(key=lambda item: item["habit"])
 
-    all_habits = unarchived_habits + archived_habits
-    return all_habits
+    menu_entries = unarchived_habits + archived_habits
+    return menu_entries
 
 def display_habit_archive_menu(data, habits):
-    all_habits = build_archive_menu_entries(data, habits)
+    menu_entries = build_archive_menu_entries(data, habits)
 
-    for i, entry in enumerate(all_habits, start=1):
+    for i, entry in enumerate(menu_entries, start=1):
         habit = entry["habit"]
         archived = entry["archived"]
         label = format_habit_label(habit, archived)
         display_message(f"{i}. {label}")
 
-    return all_habits
+    return menu_entries
     
 def handle_operation_result(data, result):
     success = result.get("success", False)
