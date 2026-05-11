@@ -1,5 +1,6 @@
 from validators import validate_int, validate_date
-from helpers import is_habit_archived
+from helpers import is_habit_archived, display_message
+from storage import save_data
 
 def get_selected_habits(pending):
     while True:
@@ -35,7 +36,7 @@ def get_selected_habits(pending):
 
         if errors:
             for error in errors:
-                print(f"Error: {error}")
+                display_message(f"Error: {error}")
             continue
         
         return selected_habits
@@ -88,6 +89,15 @@ def display_habit_archive_menu(data, habits):
 
     for i, (habit, archived) in enumerate(all_habits, start=1):
         label = format_habit_label(habit, archived)
-        print(f"{i}. {label}")
+        display_message(f"{i}. {label}")
     
     return all_habits
+
+def handle_operation_result(data, result):
+    success = result.get("success", False)
+    msg = result.get("msg", "Unknown operation result.")
+
+    if success:
+        save_data(data)
+
+    display_message(msg)

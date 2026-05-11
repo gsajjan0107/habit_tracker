@@ -1,6 +1,6 @@
 from validators import validate_string, validate_int, validate_date
 from helpers import get_today, habit_exists, is_habit_archived
-from helpers import make_result
+from helpers import make_result, display_message
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)
@@ -27,7 +27,7 @@ def add_habit(data, habit_name, target):
 
 def log_habit(data, log_date, habit_name):
     if not data["habits"]:
-        print("No habits found. Add a habit first.")
+        display_message("No habits found. Add a habit first.")
         return
     
     log_date = validate_date(log_date)

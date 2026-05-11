@@ -8,23 +8,23 @@ def format_display_date(date_str):
 
 def display_numbered_list(items):
     for i, item in enumerate(items, start=1):
-        print(f"{i}. {item}")
+        display_message(f"{i}. {item}")
 
 def show_habits_status(result):
     formatted_date = format_display_date(result["date"])
     pending = result["pending"]
     completed = result["completed"]
 
-    print(f"📅 Date: {formatted_date}")
+    display_message(f"📅 Date: {formatted_date}")
 
     if pending:
-        print("\n🚫 Pending:")
+        display_message("\n🚫 Pending:")
         display_numbered_list(pending)
 
     if completed:
-        print("\n✅ Completed:")
+        display_message("\n✅ Completed:")
         for habit in completed:
-            print(f"- {habit}")
+            display_message(f"- {habit}")
 
 def get_confirmation(message):
     while True:
@@ -36,7 +36,7 @@ def get_confirmation(message):
         if confirm in ["n", "no"]:
             return False
 
-        print("Invalid input. Please enter y/n.")
+        display_message("Invalid input. Please enter y/n.")
 
 def get_today():
     return datetime.now().date()
@@ -49,7 +49,7 @@ def is_habit_archived(data, habit_name):
 
 def ensure_habits_exist(data):
     if not data["habits"]:
-        print("No habits found. Add a habit first.")
+        display_message("No habits found. Add a habit first.")
         return False
 
     return True

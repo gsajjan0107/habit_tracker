@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from helpers import get_today, is_habit_archived
+from helpers import get_today, is_habit_archived, display_message
 import re # for validate_string
 
 def validate_data_structure(data):
@@ -106,7 +106,7 @@ def get_valid_input(prompt: str, validator):
         try:
             return validator(value)
         except ValueError as e:
-            print(f"Error: {e}")
+            display_message(f"Error: {e}")
 
 def validate_int(value: str, min_val=None, max_val=None) -> int:
     """Convert input to int and enforce optional minimum and maximum limits."""

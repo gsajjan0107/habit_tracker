@@ -4,7 +4,7 @@ from datetime import timedelta
 from storage import load_data, save_data
 from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
-from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, display_habit_archive_menu
+from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, display_habit_archive_menu, handle_operation_result
 from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived, ensure_habits_exist, display_message
 
 commands = {
@@ -219,24 +219,18 @@ def handle_toggle_archive(data):
     if not ensure_habits_exist(data):
         return
     
-    habits = sorted(data["habits"])
+    habits = data["habits"]
 
     all_habits = display_habit_archive_menu(data, habits)
 
     selected_index = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))
     
-    habit_name, archived = all_habits[selected_index - 1]
+    habit_name, _ = all_habits[selected_index - 1]
     
     # TOGGLE ARCHIVE
     result = toggle_archive_habit(data, habit_name)
-    success = result.get("success", False)
-    msg = result.get("msg", "Unknown operation result.")
-    
-    if success:
-        save_data(data)
-        
-    display_message(msg)
+    handle_operation_result(data, result)
 
 def handle_dashboard(data):
     if not ensure_habits_exist(data):
