@@ -95,26 +95,26 @@ def archive_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)
 
     if not habit_exists(data, habit_name):
-        raise ValueError("Habit does not exist.")
+        return "Habit does not exist."
     
     if is_habit_archived(data, habit_name):
-        raise ValueError("Habit already archived.")
+        return "Habit already archived."
     
     today = datetime.now().date().isoformat()
     data["habits"][habit_name]["archived_at"] = today
-    return f"{habit_name} archived."
+    return f"{habit_name} successfully archived."
 
 def unarchive_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)
 
     if not habit_exists(data, habit_name):
-        raise ValueError("Habit does not exist.")
+        return "Habit does not exist."
     
     if not is_habit_archived(data, habit_name):
-        raise ValueError("Habit already active.")
+        return "Habit already active."
     
     data["habits"][habit_name]["archived_at"] = None
-    return f"{habit_name} unarchived."
+    return f"{habit_name} successfully unarchived."
 
 def delete_habit(data, habit_name):
     habit_name = validate_string(habit_name, 3, 20)

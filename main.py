@@ -237,9 +237,9 @@ def handle_toggle_archive(data):
 
     for i, habit in enumerate(habits, start=1):
         if is_habit_archived(data, habit):
-            print(f"{i}. {habit} (active)")
-        else:
             print(f"{i}. {habit} (archived)")
+        else:
+            print(f"{i}. {habit} (active)")
 
     choice = get_valid_input("\nSelect a habit (enter number): ",
             lambda n: validate_int(n, 1, len(habits)))
@@ -256,7 +256,9 @@ def handle_toggle_archive(data):
     else:
         result = unarchive_habit(data, habit_name)
     
-    save_data(data)
+    if "successfully" in result:
+        save_data(data)
+        
     print(result)
 
 def handle_dashboard(data):
