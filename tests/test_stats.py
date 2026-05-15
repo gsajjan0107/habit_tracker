@@ -52,9 +52,15 @@ def test_daily_stats_excludes_future_created_habits(sample_data):
         "created_at": "2026-05-10",
         "archived_at": None
     }
+    
+    result = daily_stats(sample_data, "2026-05-09")
 
-    with pytest.raises(ValueError, match="No valid habits"):
-        daily_stats(sample_data, "2026-05-09")
+    assert result["date"] == "2026-05-09"
+    assert result["completed"] == []
+    assert result["pending"] == []
+    assert result["total_completed"] == 0
+    assert result["total_habits"] == 0
+    assert result["completion_rate"] == 0
 
 
 def test_daily_stats_archived_after_date_still_valid(sample_data):
@@ -75,9 +81,15 @@ def test_daily_stats_archived_before_date_excluded(sample_data):
         "created_at": "2026-05-01",
         "archived_at": "2026-05-05"
     }
+    
+    result = daily_stats(sample_data, "2026-05-10")
 
-    with pytest.raises(ValueError, match="No valid habits"):
-        daily_stats(sample_data, "2026-05-10")
+    assert result["date"] == "2026-05-10"
+    assert result["completed"] == []
+    assert result["pending"] == []
+    assert result["total_completed"] == 0
+    assert result["total_habits"] == 0
+    assert result["completion_rate"] == 0
 
 
 def test_daily_stats_completed_sorted(sample_data):
@@ -144,3 +156,16 @@ def test_streaks_with_habits_but_no_logs(sample_data):
 
     assert result["Workout"]["current_streak"] == 0
     assert result["Workout"]["longest_streak"] == 0
+
+
+def test_daily_stats_before_any_habit_is_valid(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    result = daily_stats(sample_data, "2026-05-01")
+
+    assert result["date"] == "2026-05-01"
+    assert result["completed"] == []
+    assert result["pending"] == []
+    assert result["total_completed"] == 0
+    assert result["total_habits"] == 0
+    assert result["completion_rate"] == 0

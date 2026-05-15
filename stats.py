@@ -155,7 +155,14 @@ def daily_stats(data, date=None):
             valid_habits.add(habit_name)
 
     if not valid_habits:
-        raise ValueError(f"No valid habits for {date.isoformat()}")
+        return {
+            "date": date.isoformat(),
+            "completed": [],
+            "pending": [],
+            "total_completed": 0,
+            "total_habits": 0,
+            "completion_rate": 0
+        }
 
     completed_on_date = {
         log["habit"]
