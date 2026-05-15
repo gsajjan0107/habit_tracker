@@ -273,7 +273,11 @@ def handle_dashboard(data):
 
     try:
         previous_day_result = daily_stats(data, previous_day)
-        missed = previous_day_result["pending"]
+        if previous_day_result["total_habits"] == 0:
+            missed = []
+        else:
+            missed = previous_day_result["pending"]
+
     except ValueError:
         missed = []
 
