@@ -60,3 +60,6 @@ def make_result(success, msg, data=None):
         "msg": msg,
         "data": data
     }
+
+def get_active_habits_from_stats(result):
+    return set(result["completed"]) | set(result["pending"])

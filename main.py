@@ -5,7 +5,7 @@ from storage import load_data, save_data
 from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
 from utils import get_selected_habits, filter_habits_by_creation_date, separate_logged_habits, display_habit_archive_menu, handle_operation_result
-from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived, ensure_habits_exist, display_message
+from helpers import show_habits_status, get_confirmation, format_display_date, display_numbered_list, habit_exists, is_habit_archived, ensure_habits_exist, display_message, get_active_habits_from_stats
 
 commands = {
     "1" : "Add habit",
@@ -294,7 +294,7 @@ def handle_dashboard(data):
 
     display_message("\n📊 Weekly Stats:")
 
-    active_habits = set(result["completed"]) | set(result["pending"])
+    active_habits = get_active_habits_from_stats(result)
     weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage
     habit_streaks = streaks(data, selected_date) # longest_streak, current_streak
     
