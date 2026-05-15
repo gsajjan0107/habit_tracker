@@ -286,7 +286,10 @@ def handle_dashboard(data):
         for habit in missed:
             display_message(f"- {habit}")
 
-    display_message(f"\nCompleted {result['total_completed']} / {result['total_habits']} ({result['completion_rate']:.2f}%) habits today.")
+    display_message(
+        f"\nCompleted {result['total_completed']} / {result['total_habits']} "
+        f"({result['completion_rate']:.2f}%) habits on {result['date']}."
+    )
 
     display_message("\n📊 Weekly Stats:")
 
