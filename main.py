@@ -44,7 +44,6 @@ def handle_add(data):
         display_message(result)
         break
 
-
 def handle_log(data):
     if not ensure_habits_exist(data):
         return

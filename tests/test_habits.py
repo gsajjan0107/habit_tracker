@@ -126,45 +126,56 @@ def test_archive_habit_success(sample_data):
 
     result = archive_habit(sample_data, "Workout")
 
-    assert result == "Workout archived."
-    assert sample_data["habits"]["Workout"]["archived_at"] is not None
+    assert result["success"] is True
+    assert result["msg"] == "Workout archived."
+    assert result["data"]["habit"] == "Workout"
+    assert result["data"]["archived"] is True
 
 
 def test_archive_nonexistent_habit(sample_data):
-    with pytest.raises(ValueError, match="Habit does not exist."):
-        archive_habit(sample_data, "Workout")
+    result = archive_habit(sample_data, "Workout")
+
+    assert result["success"] is False
+    assert result["msg"] == "Habit does not exist."
+    assert result["data"]["habit"] == "Workout"
 
 
 def test_archive_already_archived_habit(sample_data):
     add_habit(sample_data, "Workout", 5)
-
     archive_habit(sample_data, "Workout")
 
-    with pytest.raises(ValueError, match="Habit already archived."):
-        archive_habit(sample_data, "Workout")
+    result = archive_habit(sample_data, "Workout")
+
+    assert result["success"] is False
+    assert result["msg"] == "Habit already archived."
+    assert result["data"]["archived"] is True
 
 
 def test_unarchive_habit_success(sample_data):
     add_habit(sample_data, "Workout", 5)
 
-    archive_habit(sample_data, "Workout")
-
     result = unarchive_habit(sample_data, "Workout")
 
-    assert result == "Workout unarchived."
-    assert sample_data["habits"]["Workout"]["archived_at"] is None
+    assert result["success"] is False
+    assert result["msg"] == "Habit already active."
+    assert result["data"]["archived"] is False
 
 
 def test_unarchive_nonexistent_habit(sample_data):
-    with pytest.raises(ValueError, match="Habit does not exist."):
-        unarchive_habit(sample_data, "Workout")
+    result = archive_habit(sample_data, "Workout")
+
+    assert result["success"] is False
+    assert result["msg"] == "Habit does not exist."
+    assert result["data"]["habit"] == "Workout"
 
 
 def test_unarchive_already_active_habit(sample_data):
     add_habit(sample_data, "Workout", 5)
+    result = unarchive_habit(sample_data, "Workout")
 
-    with pytest.raises(ValueError, match="Habit already active."):
-        unarchive_habit(sample_data, "Workout")
+    assert result["success"] is False
+    assert result["msg"] == "Habit already active."
+    assert result["data"]["archived"] is False
 
 
 def test_archive_does_not_delete_habit(sample_data):

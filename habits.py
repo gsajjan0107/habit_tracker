@@ -95,22 +95,34 @@ def delete_log(data, log_date, habit_name):
         return f"Log of {habit_name} for {log_date} deleted."
 
 def archive_habit(data, habit_name, archived_at=None):
+    habit_name = validate_string(habit_name, 3, 20)
+
+    if not habit_exists(data, habit_name):
+        return make_result(False, "Habit does not exist.", {"habit": habit_name})
 
     if is_habit_archived(data, habit_name):
         return make_result(False, "Habit already archived.", {"habit": habit_name, "archived": True})
     
     if archived_at is None:
         archived_at = get_today().isoformat()
+    else:
+        archived_at = validate_date(archived_at).isoformat()
    
     data["habits"][habit_name]["archived_at"] = archived_at
+
     return make_result(True, f"{habit_name} archived.", {"habit": habit_name, "archived": True})
 
 def unarchive_habit(data, habit_name):
+    habit_name = validate_string(habit_name, 3, 20)
+
+    if not habit_exists(data, habit_name):
+        return make_result(False, "Habit does not exist.", {"habit": habit_name})
     
     if not is_habit_archived(data, habit_name):
         return make_result(False, "Habit already active.", {"habit": habit_name, "archived": False})
     
     data["habits"][habit_name]["archived_at"] = None
+
     return make_result(True, f"{habit_name} unarchived.", {"habit": habit_name, "archived": False})
 
 def toggle_archive_habit(data, habit_name):
