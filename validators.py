@@ -75,10 +75,11 @@ def validate_logs_data_structure(data):
     today = get_today()
     for i, log in enumerate(logs):
 
-        if not isinstance(log, dict):
-            return False, f"logs[{i}] → expected dict."
+        if "habit" not in log:
+            return False, f"logs[{i}].habit → missing key."
 
-        habit = log.get("habit")
+        habit = log["habit"]
+
         if not isinstance(habit, str) or not habit:
             return False, f"logs[{i}].habit → expected non-empty string."
         
