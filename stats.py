@@ -3,6 +3,7 @@ from validators import validate_date
 
 def logs_by_habit(data, date=None):
     logs = data["logs"]
+    date = validate_date(date)
 
     habit_log_dates = {}
     for log in logs:
@@ -17,7 +18,7 @@ def logs_by_habit(data, date=None):
         
         log_date = validate_date(log["date"])
     
-        if log_date <= date: # type: ignore
+        if log_date <= date:
             habit_log_dates.setdefault(habit_name, set()).add(log_date)
 
     return habit_log_dates
@@ -62,14 +63,25 @@ def streaks(data, date=None):
     if not logs:
         raise ValueError("No logs found.")
     
+    date = validate_date(date)
     habit_logs = logs_by_habit(data, date)
 
     result = {}
+    for habit_name, habit_info in habits.items():
+        created_at = validate_date(habit_info["created_at"])
 
-    for habit in habits:
-        log_dates = habit_logs.get(habit, set())
+        archived_at = habit_info.get("archived_at")
+        archived_at = validate_date(archived_at) if archived_at else None
 
-        result[habit] = {
+        if created_at > date:
+            continue
+
+        if archived_at is not None and archived_at < date:
+            continue
+
+        log_dates = habit_logs.get(habit_name, set())
+
+        result[habit_name] = {
             "longest_streak": best_streak(log_dates),
             "current_streak": current_streak(log_dates, date)
         }

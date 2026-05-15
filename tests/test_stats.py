@@ -1,5 +1,5 @@
 import pytest
-from stats import daily_stats
+from stats import daily_stats, streaks
 from habits import add_habit, log_habit
 
 
@@ -90,3 +90,50 @@ def test_daily_stats_completed_sorted(sample_data):
     result = daily_stats(sample_data, "2026-05-10")
 
     assert result["completed"] == ["Reading", "Workout"]
+
+
+def test_streaks_defaults_to_today(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    log_habit(sample_data, None, "Workout")
+
+    result = streaks(sample_data)
+
+    assert "Workout" in result
+    assert result["Workout"]["current_streak"] == 1
+    assert result["Workout"]["longest_streak"] == 1
+
+
+def test_streaks_excludes_future_created_habits(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2026-05-10",
+        "archived_at": None
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2026-05-10"
+    })
+
+    result = streaks(sample_data, "2026-05-09")
+
+    assert "Workout" not in result
+
+
+def test_streaks_excludes_archived_before_selected_date(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2026-05-01",
+        "archived_at": "2026-05-05"
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2026-05-04"
+    })
+
+    result = streaks(sample_data, "2026-05-10")
+
+    assert "Workout" not in result
+
+
