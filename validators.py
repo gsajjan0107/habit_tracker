@@ -41,7 +41,7 @@ def validate_habits_data_structure(data):
         if "target_per_week" not in habit_data:
             return False, f"habits['{habit}'].target_per_week → missing key."
 
-        target = habit_data.get("target_per_week")
+        target = habit_data["target_per_week"]
         if not isinstance(target, int) or target <= 0:
             return False, f"habits['{habit}'].target_per_week → expected int > 0."
 
@@ -85,6 +85,9 @@ def validate_logs_data_structure(data):
         if habit not in habits:
             return False, f"logs[{i}].habit → '{habit}' not found in habits."
 
+        if "date" not in log:
+            return False, f"logs[{i}].date → missing key."
+        
         try:
             date = validate_date(log["date"])
         except ValueError:

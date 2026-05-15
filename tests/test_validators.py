@@ -158,3 +158,25 @@ def test_validate_data_structure_missing_created_at():
     assert success is False
     assert "created_at" in msg
     assert "missing key" in msg
+
+def test_validate_data_structure_missing_log_date():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout"
+            }
+        ]
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "logs[0].date" in msg
+    assert "missing key" in msg
