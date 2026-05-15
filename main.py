@@ -289,14 +289,19 @@ def handle_dashboard(data):
 
     display_message(
         f"\nCompleted {result['total_completed']} / {result['total_habits']} "
-        f"({result['completion_rate']:.2f}%) habits on {result['date']}."
+        f"({result['completion_rate']:.2f}%) habits on {formatted_date}."
     )
 
     display_message("\n📊 Weekly Stats:")
 
+    active_habits = set(result["completed"]) | set(result["pending"])
     weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage
     habit_streaks = streaks(data, selected_date) # longest_streak, current_streak
+    
     for habit, info in weekly_stats.items():
+        if habit not in active_habits:
+            continue
+
         display_message(f"\n{habit:<15}")
         display_message(f"  Weekly : {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)")
         display_message(f"  Streak : 🔥 {habit_streaks[habit]['current_streak']}")
