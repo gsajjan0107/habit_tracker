@@ -37,10 +37,16 @@ def validate_habits_data_structure(data):
 
         if not isinstance(habit_data, dict):
             return False, f"habits['{habit}'] → expected dict."
+        
+        if "target_per_week" not in habit_data:
+            return False, f"habits['{habit}'].target_per_week → missing key."
 
         target = habit_data.get("target_per_week")
         if not isinstance(target, int) or target <= 0:
             return False, f"habits['{habit}'].target_per_week → expected int > 0."
+
+        if "created_at" not in habit_data:
+            return False, f"habits['{habit}'].created_at → missing key."
 
         created_at = habit_data["created_at"]
         try:

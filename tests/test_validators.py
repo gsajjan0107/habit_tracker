@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 from datetime import datetime, date
 
-from validators import get_valid_input, validate_int, validate_string, validate_choice, validate_date
+from validators import validate_data_structure, get_valid_input, validate_int, validate_string, validate_choice, validate_date
 
 # validate_int tests
 
@@ -123,3 +123,38 @@ def test_validate_date_non_string_input():
 def test_validate_date_false_input():
     with pytest.raises(ValueError):
         validate_date(False)
+
+def test_validate_data_structure_missing_target_per_week():
+    data = {
+        "habits": {
+            "Workout": {
+                "created_at": "2026-05-01",
+                "archived_at": None
+            }
+        },
+        "logs": []
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "target_per_week" in msg
+    assert "missing key" in msg
+
+
+def test_validate_data_structure_missing_created_at():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "archived_at": None
+            }
+        },
+        "logs": []
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "created_at" in msg
+    assert "missing key" in msg
