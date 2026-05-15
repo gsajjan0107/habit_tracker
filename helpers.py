@@ -11,11 +11,8 @@ def display_numbered_list(items):
         display_message(f"{i}. {item}")
 
 def show_habits_status(result):
-    formatted_date = format_display_date(result["date"])
     pending = result["pending"]
     completed = result["completed"]
-
-    display_message(f"📅 Date: {formatted_date}")
 
     if pending:
         display_message("\n🚫 Pending:")

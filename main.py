@@ -261,9 +261,10 @@ def handle_dashboard(data):
     
     result = daily_stats(data, selected_date)
     display_message("\n==== DASHBOARD ====")
+    formatted_date = format_display_date(result["date"])
+    display_message(f"\n📅 Date: {formatted_date}")
 
     if result["total_habits"] == 0:
-        display_message(f"\n📅 Date: {result['date']}")
         display_message("No habits were active on this date.")
         return
 
