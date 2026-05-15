@@ -71,9 +71,13 @@ def validate_logs_data_structure(data):
     logs = data["logs"]
     habits = data["habits"]
 
-    seen = set()  # Track (habit, date) pairs to prevent duplicates
+    seen = set()
     today = get_today()
+
     for i, log in enumerate(logs):
+
+        if not isinstance(log, dict):
+            return False, f"logs[{i}] → expected dict."
 
         if "habit" not in log:
             return False, f"logs[{i}].habit → missing key."
@@ -97,11 +101,13 @@ def validate_logs_data_structure(data):
         if date > today:
             return False, f"logs[{i}].date → cannot be in the future."
         
-        created = validate_date(habits[habit]["created_at"])        
+        created = validate_date(habits[habit]["created_at"])
+
         if date < created:
             return False, f"logs[{i}] → date before habit creation."
 
         key = (habit, date)
+
         if key in seen:
             return False, f"logs[{i}] → duplicate entry for ({habit}, {date})."
 

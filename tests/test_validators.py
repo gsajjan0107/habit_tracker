@@ -202,3 +202,23 @@ def test_validate_data_structure_missing_log_habit():
     assert success is False
     assert "logs[0].habit" in msg
     assert "missing key" in msg
+
+def test_validate_data_structure_log_entry_not_dict():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None
+            }
+        },
+        "logs": [
+            "bad-log-entry"
+        ]
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "logs[0]" in msg
+    assert "expected dict" in msg
