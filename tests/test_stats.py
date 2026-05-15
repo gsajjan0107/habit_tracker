@@ -137,3 +137,10 @@ def test_streaks_excludes_archived_before_selected_date(sample_data):
     assert "Workout" not in result
 
 
+def test_streaks_with_habits_but_no_logs(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    result = streaks(sample_data, "2026-05-10")
+
+    assert result["Workout"]["current_streak"] == 0
+    assert result["Workout"]["longest_streak"] == 0

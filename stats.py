@@ -55,18 +55,15 @@ def current_streak(log_dates, end_date):
 
 def streaks(data, date=None):
     habits = data["habits"]
-    logs = data["logs"]
 
     if not habits:
         raise ValueError("No habits created.")
-    
-    if not logs:
-        raise ValueError("No logs found.")
-    
+
     date = validate_date(date)
     habit_logs = logs_by_habit(data, date)
 
     result = {}
+
     for habit_name, habit_info in habits.items():
         created_at = validate_date(habit_info["created_at"])
 
