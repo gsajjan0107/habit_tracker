@@ -72,7 +72,6 @@ def validate_logs_data_structure(data):
     habits = data["habits"]
 
     seen = set()
-    today = get_today()
 
     for i, log in enumerate(logs):
 
@@ -97,9 +96,6 @@ def validate_logs_data_structure(data):
             date = validate_date(log["date"])
         except ValueError:
             return False, f"logs[{i}].date → invalid date format (YYYY-MM-DD)."
-        
-        if date > today:
-            return False, f"logs[{i}].date → cannot be in the future."
         
         created = validate_date(habits[habit]["created_at"])
 
