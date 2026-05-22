@@ -101,6 +101,14 @@ def validate_logs_data_structure(data):
 
         if date < created:
             return False, f"logs[{i}] → date before habit creation."
+        
+        archived_at = habits[habit].get("archived_at")
+
+        if archived_at is not None:
+            archived = validate_date(archived_at)
+
+        if date > archived:
+            return False, f"logs[{i}] → date after habit archive."
 
         key = (habit, date)
 

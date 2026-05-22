@@ -222,3 +222,27 @@ def test_validate_data_structure_log_entry_not_dict():
     assert success is False
     assert "logs[0]" in msg
     assert "expected dict" in msg
+
+
+def test_validate_data_structure_log_after_archive_date():
+    data = {
+        "habits": {
+            "Reading": {
+                "target_per_week": 5,
+                "created_at": "2020-05-01",
+                "archived_at": "2020-05-10",
+            }
+        },
+        "logs": [
+            {
+                "habit": "Reading",
+                "date": "2020-05-11",
+            }
+        ],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "logs[0]" in msg
+    assert "date after habit archive" in msg
