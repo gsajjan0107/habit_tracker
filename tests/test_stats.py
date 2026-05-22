@@ -404,3 +404,13 @@ def test_habit_weekly_completion_counts_each_habit_separately(sample_data):
     assert result["Reading"]["percentage"] == 33.33
 
 
+def test_daily_stats_pending_sorted(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    add_habit(sample_data, "Reading", 3)
+    add_habit(sample_data, "Boxing", 4)
+
+    result = daily_stats(sample_data, "2026-05-10")
+
+    assert result["pending"] == ["Boxing", "Reading", "Workout"]
+
+
