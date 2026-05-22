@@ -374,3 +374,33 @@ def test_habit_weekly_completion_adjusts_target_for_habit_archived_during_week(s
     assert result["Workout"]["percentage"] == 50.0
 
 
+def test_habit_weekly_completion_counts_each_habit_separately(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": None
+    }
+
+    sample_data["habits"]["Reading"] = {
+        "target_per_week": 3,
+        "created_at": "2020-05-01",
+        "archived_at": None
+    }
+
+    sample_data["logs"].extend([
+        {"habit": "Workout", "date": "2020-05-04"},
+        {"habit": "Workout", "date": "2020-05-05"},
+        {"habit": "Reading", "date": "2020-05-04"},
+    ])
+
+    result = habit_weekly_completion(sample_data, "2020-05-10")
+
+    assert result["Workout"]["done"] == 2
+    assert result["Workout"]["target"] == 5
+    assert result["Workout"]["percentage"] == 40.0
+
+    assert result["Reading"]["done"] == 1
+    assert result["Reading"]["target"] == 3
+    assert result["Reading"]["percentage"] == 33.33
+
+
