@@ -209,3 +209,24 @@ def test_habit_weekly_completion_percentage_capped_at_100(sample_data):
     assert result["Workout"]["done"] == 3
     assert result["Workout"]["target"] == 2
     assert result["Workout"]["percentage"] == 100
+
+
+def test_habit_weekly_completion_ignores_logs_outside_selected_week(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": None
+    }
+
+    sample_data["logs"].extend([
+        {"habit": "Workout", "date": "2020-05-03"},  # previous week
+        {"habit": "Workout", "date": "2020-05-04"},  # selected week
+        {"habit": "Workout", "date": "2020-05-10"},  # selected week
+        {"habit": "Workout", "date": "2020-05-11"},  # next week
+    ])
+
+    result = habit_weekly_completion(sample_data, "2020-05-10")
+
+    assert result["Workout"]["done"] == 2
+    assert result["Workout"]["target"] == 5
+    assert result["Workout"]["percentage"] == 40.0
