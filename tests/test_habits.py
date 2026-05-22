@@ -161,16 +161,19 @@ def test_archive_already_archived_habit(sample_data):
 
 def test_unarchive_habit_success(sample_data):
     add_habit(sample_data, "Workout", 5)
+    archive_habit(sample_data, "Workout")
 
     result = unarchive_habit(sample_data, "Workout")
 
-    assert result["success"] is False
-    assert result["msg"] == "Habit already active."
+    assert result["success"] is True
+    assert result["msg"] == "Workout unarchived."
+    assert result["data"]["habit"] == "Workout"
     assert result["data"]["archived"] is False
+    assert sample_data["habits"]["Workout"]["archived_at"] is None
 
 
 def test_unarchive_nonexistent_habit(sample_data):
-    result = archive_habit(sample_data, "Workout")
+    result = unarchive_habit(sample_data, "Workout")
 
     assert result["success"] is False
     assert result["msg"] == "Habit does not exist."
@@ -332,3 +335,28 @@ def test_toggle_archive_nonexistent_habit(sample_data):
     assert result["success"] is False
     assert result["msg"] == "Habit does not exist."
     assert result["data"]["habit"] == "Workout"
+
+
+def test_toggle_archive_active_habit_archives_it(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    result = toggle_archive_habit(sample_data, "Workout")
+
+    assert result["success"] is True
+    assert result["msg"] == "Workout archived."
+    assert result["data"]["habit"] == "Workout"
+    assert result["data"]["archived"] is True
+    assert sample_data["habits"]["Workout"]["archived_at"] is not None
+
+
+def test_toggle_archive_archived_habit_unarchives_it(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    archive_habit(sample_data, "Workout")
+
+    result = toggle_archive_habit(sample_data, "Workout")
+
+    assert result["success"] is True
+    assert result["msg"] == "Workout unarchived."
+    assert result["data"]["habit"] == "Workout"
+    assert result["data"]["archived"] is False
+    assert sample_data["habits"]["Workout"]["archived_at"] is None
