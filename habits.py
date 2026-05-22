@@ -104,11 +104,16 @@ def archive_habit(data, habit_name, archived_at=None):
         return make_result(False, "Habit already archived.", {"habit": habit_name, "archived": True})
     
     if archived_at is None:
-        archived_at = get_today().isoformat()
+        archived_date = get_today()
     else:
-        archived_at = validate_date(archived_at).isoformat()
-   
-    data["habits"][habit_name]["archived_at"] = archived_at
+        archived_date = validate_date(archived_at)
+
+    created_date = validate_date(data["habits"][habit_name]["created_at"])
+
+    if archived_date < created_date:
+        return make_result(False, "Habit cannot be archived before it was created.", {"habit": habit_name})
+
+    data["habits"][habit_name]["archived_at"] = archived_date.isoformat()
 
     return make_result(True, f"{habit_name} archived.", {"habit": habit_name, "archived": True})
 

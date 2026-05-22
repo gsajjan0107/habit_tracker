@@ -360,3 +360,17 @@ def test_toggle_archive_archived_habit_unarchives_it(sample_data):
     assert result["data"]["habit"] == "Workout"
     assert result["data"]["archived"] is False
     assert sample_data["habits"]["Workout"]["archived_at"] is None
+
+
+def test_archive_habit_before_creation_date_fails(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    sample_data["habits"]["Workout"]["created_at"] = "2026-05-10"
+
+    result = archive_habit(sample_data, "Workout", "2026-05-09")
+
+    assert result["success"] is False
+    assert result["msg"] == "Habit cannot be archived before it was created."
+    assert result["data"]["habit"] == "Workout"
+    assert sample_data["habits"]["Workout"]["archived_at"] is None
+
+
