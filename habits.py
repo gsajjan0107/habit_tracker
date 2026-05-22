@@ -85,22 +85,27 @@ def log_multiple_habits(data, log_date, habits):
 def delete_log(data, log_date, habit_name):
     if not data["habits"]:
         return "No habits found. Add a habit first."
-        
+
+    habit_name = validate_string(habit_name, 3, 20)
+
+    if not habit_exists(data, habit_name):
+        raise ValueError("Habit does not exist.")
+
     if not data["logs"]:
-        return "No logs found. Log a habit first."        
+        return "No logs found. Log a habit first."
 
     before = len(data["logs"])
-    
+
     log_date = validate_date(log_date)
     log_date = log_date.isoformat()
-    
+
     data["logs"] = [
         log for log in data["logs"]
         if not (log["habit"] == habit_name and log["date"] == log_date)
     ]
 
     after = len(data["logs"])
-        
+
     if before == after:
         return "No matching log found."
     else:

@@ -146,17 +146,11 @@ def test_log_habit_before_creation_date(sample_data):
     )
 
 
-def test_log_habit_empty_data(sample_data, capsys):
-    result = log_habit(sample_data, "2026-05-10", "Reading")
+def test_log_habit_empty_data(sample_data):
+    with pytest.raises(ValueError) as exc:
+        log_habit(sample_data, "2020-05-10", "Reading")
 
-    captured = capsys.readouterr()
-
-    assert result is None
-
-    assert (
-        "No habits found. Add a habit first."
-        in captured.out
-    )
+    assert str(exc.value) == "No habits found. Add a habit first."
 
 
 def test_archive_habit_success(sample_data):
@@ -429,3 +423,17 @@ def test_log_habit_no_habits_fails(sample_data):
     assert str(exc.value) == "No habits found. Add a habit first."
 
 
+def test_delete_log_nonexistent_habit_fails(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    with pytest.raises(ValueError) as exc:
+        delete_log(sample_data, "2020-05-10", "Reading")
+
+    assert str(exc.value) == "Habit does not exist."
+
+
+def test_delete_log_invalid_habit_name_fails(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    with pytest.raises(ValueError):
+        delete_log(sample_data, "2020-05-10", "A")
