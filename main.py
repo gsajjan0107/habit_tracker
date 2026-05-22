@@ -202,10 +202,16 @@ def handle_delete_log(data):
 
 
     deleted = []
-    for habit_name in selected_habits:
-        result = delete_log(data, log_date, habit_name)
-        if "deleted" in result.lower():
-            deleted.append(habit_name)
+
+    try:
+        for habit_name in selected_habits:
+            result = delete_log(data, log_date, habit_name)
+            if "deleted" in result.lower():
+                deleted.append(habit_name)
+
+    except ValueError as e:
+        display_message(e)
+        return
 
     if not deleted:
         display_message("No logs were deleted.")
