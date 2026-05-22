@@ -238,7 +238,7 @@ def handle_delete(data):
         return
     
 
-    habits = list(data["habits"])
+    habits = sorted(data["habits"])
     display_numbered_list(habits)
 
     selected_index = get_valid_input("\nSelect a habit (enter number): ",
@@ -263,7 +263,7 @@ def handle_toggle_archive(data):
         return
     
 
-    habits = data["habits"]
+    habits = sorted(data["habits"])
 
     menu_entries = display_habit_archive_menu(data, habits)
 
