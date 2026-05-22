@@ -456,3 +456,22 @@ def test_daily_stats_ignores_logs_before_habit_creation(sample_data):
     assert result["completion_rate"] == 0
 
 
+def test_streaks_includes_habit_on_archive_date(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": "2020-05-05"
+    }
+
+    sample_data["logs"].extend([
+        {"habit": "Workout", "date": "2020-05-04"},
+        {"habit": "Workout", "date": "2020-05-05"},
+    ])
+
+    result = streaks(sample_data, "2020-05-05")
+
+    assert "Workout" in result
+    assert result["Workout"]["current_streak"] == 2
+    assert result["Workout"]["longest_streak"] == 2
+
+
