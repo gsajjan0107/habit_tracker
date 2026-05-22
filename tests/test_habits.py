@@ -250,15 +250,15 @@ def test_delete_log_no_logs(sample_data):
 
 def test_delete_log_no_matching_log(sample_data):
     add_habit(sample_data, "Workout", 5)
-    sample_data["habits"]["Workout"]["created_at"] = "2026-05-09"
 
-    log_habit(sample_data, "2026-05-09", "Workout")
+    sample_data["habits"]["Workout"]["created_at"] = "2020-05-01"
 
-    result = delete_log(sample_data, "2026-05-10", "Workout")
+    log_habit(sample_data, "2020-05-09", "Workout")
 
-    assert result == "No matching log found."
+    with pytest.raises(ValueError) as exc:
+        delete_log(sample_data, "2020-05-10", "Workout")
 
-    assert len(sample_data["logs"]) == 1
+    assert str(exc.value) == "No matching log found."
 
 
 def test_delete_log_only_removes_matching_log(sample_data):

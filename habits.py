@@ -107,9 +107,9 @@ def delete_log(data, log_date, habit_name):
     after = len(data["logs"])
 
     if before == after:
-        return "No matching log found."
-    else:
-        return f"Log of {habit_name} for {log_date} deleted."
+        raise ValueError("No matching log found.")
+    
+    return f"Log of {habit_name} for {log_date} deleted."
 
 def archive_habit(data, habit_name, archived_at=None):
     habit_name = validate_string(habit_name, 3, 20)
