@@ -414,3 +414,45 @@ def test_daily_stats_pending_sorted(sample_data):
     assert result["pending"] == ["Boxing", "Reading", "Workout"]
 
 
+def test_daily_stats_ignores_logs_for_archived_habit_after_archive_date(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": "2020-05-05"
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2020-05-10"
+    })
+
+    result = daily_stats(sample_data, "2020-05-10")
+
+    assert result["completed"] == []
+    assert result["pending"] == []
+    assert result["total_habits"] == 0
+    assert result["total_completed"] == 0
+    assert result["completion_rate"] == 0
+
+
+def test_daily_stats_ignores_logs_before_habit_creation(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-10",
+        "archived_at": None
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2020-05-05"
+    })
+
+    result = daily_stats(sample_data, "2020-05-05")
+
+    assert result["completed"] == []
+    assert result["pending"] == []
+    assert result["total_habits"] == 0
+    assert result["total_completed"] == 0
+    assert result["completion_rate"] == 0
+
+
