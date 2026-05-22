@@ -1,6 +1,6 @@
 from validators import validate_string, validate_int, validate_date
 from helpers import get_today, habit_exists, is_habit_archived
-from helpers import make_result, display_message
+from helpers import make_result
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)
@@ -27,8 +27,7 @@ def add_habit(data, habit_name, target):
 
 def log_habit(data, log_date, habit_name):
     if not data["habits"]:
-        display_message("No habits found. Add a habit first.")
-        return
+        raise ValueError("No habits found. Add a habit first.")
     
     log_date = validate_date(log_date)
     
@@ -68,10 +67,18 @@ def log_habit(data, log_date, habit_name):
     return f"{habit_name} logged for {log_date}."
 
 def log_multiple_habits(data, log_date, habits):
+    original_logs = data["logs"].copy()
+
     logged = []
-    for habit_name in habits:
-        log_habit(data, log_date, habit_name)
-        logged.append(habit_name)
+
+    try:
+        for habit_name in habits:
+            log_habit(data, log_date, habit_name)
+            logged.append(habit_name)
+
+    except ValueError:
+        data["logs"] = original_logs
+        raise
 
     return logged
 

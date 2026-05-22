@@ -246,3 +246,27 @@ def test_validate_data_structure_log_after_archive_date():
     assert success is False
     assert "logs[0]" in msg
     assert "date after habit archive" in msg
+
+
+def test_validate_data_structure_active_habit_log_success():
+    data = {
+        "habits": {
+            "Reading": {
+                "target_per_week": 5,
+                "created_at": "2020-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Reading",
+                "date": "2020-05-02",
+            }
+        ],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is True
+    assert msg is None
+    
