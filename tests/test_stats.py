@@ -332,7 +332,45 @@ def test_habit_weekly_completion_includes_habit_archived_during_week(sample_data
 
     assert "Workout" in result
     assert result["Workout"]["done"] == 1
-    assert result["Workout"]["target"] == 5
-    assert result["Workout"]["percentage"] == 20.0
+    assert result["Workout"]["target"] == 3
+    assert result["Workout"]["percentage"] == 33.33
+
+
+def test_habit_weekly_completion_adjusts_target_for_habit_created_during_week(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-09",
+        "archived_at": None
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2020-05-09"
+    })
+
+    result = habit_weekly_completion(sample_data, "2020-05-10")
+
+    assert result["Workout"]["done"] == 1
+    assert result["Workout"]["target"] == 2
+    assert result["Workout"]["percentage"] == 50.0
+
+
+def test_habit_weekly_completion_adjusts_target_for_habit_archived_during_week(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": "2020-05-05"
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2020-05-04"
+    })
+
+    result = habit_weekly_completion(sample_data, "2020-05-10")
+
+    assert result["Workout"]["done"] == 1
+    assert result["Workout"]["target"] == 2
+    assert result["Workout"]["percentage"] == 50.0
 
 
