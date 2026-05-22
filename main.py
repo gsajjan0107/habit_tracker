@@ -44,7 +44,7 @@ def handle_add(data):
         if habit_exists(data, habit_name):
             
             if is_habit_archived(data, habit_name):
-                display_message("Habit exists but is archived.")
+                display_message("Habit exists but is archived. Unarchive it instead.")
             else:
                 display_message("Habit already exists.")
             
@@ -366,7 +366,10 @@ def main(data):
             "\nEnter your choice: ",
             lambda v: validate_choice(v, [n for n in commands]))
 
-        handlers[selected_index](data)
+        try:
+            handlers[selected_index](data)
+        except ValueError as e:
+            display_message(e)
 
 if __name__ == "__main__":
     data = load_data()
