@@ -8,7 +8,7 @@ def add_habit(data, habit_name, target):
 
     if habit_exists(data, habit_name):
         if is_habit_archived(data, habit_name):
-            raise ValueError("Habit exists but is archived.")
+            raise ValueError("Habit exists but is archived. Unarchive it instead.")
         else:
             raise ValueError("Habit already exists.")
     

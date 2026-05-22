@@ -42,7 +42,7 @@ def test_add_archived_habit():
         }
     }
 
-    with pytest.raises(ValueError, match="Habit exists but is archived."):
+    with pytest.raises(ValueError, match="Habit exists but is archived. Unarchive it instead."):
         add_habit(data, "Workout", 3)
 
 
