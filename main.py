@@ -133,7 +133,6 @@ def handle_log(data):
             logged = log_multiple_habits(data, log_date, to_log)
             save_data(data)
             
-            reset = []
             habit_streaks = streaks(data, log_date)
 
             display_message(f"\n✅ Logged {len(logged)} habits:\n")
@@ -142,7 +141,6 @@ def handle_log(data):
 
                 if current_habit_streak == 1:
                     display_message(f"⚠️  Streak reset: {habit} - 1 day streak")
-                    reset.append(habit)
                 else:
                     display_message(f"- {habit}: {current_habit_streak} days streak")
 
