@@ -277,12 +277,12 @@ def handle_dashboard(data):
         try:
             date = input("\nEnter date (Press enter for today): ")
             selected_date = validate_date(date)
+            result = daily_stats(data, selected_date)
             break
 
         except ValueError as e:
             display_message(e)
     
-    result = daily_stats(data, selected_date)
     display_message("\n==== DASHBOARD ====")
     formatted_date = format_display_date(result["date"])
     display_message(f"\n📅 Date: {formatted_date}")

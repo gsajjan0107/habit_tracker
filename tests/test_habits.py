@@ -409,15 +409,6 @@ def test_log_multiple_habits_rolls_back_if_one_fails(sample_data):
     assert sample_data["logs"] == []
 
 
-def test_log_multiple_habits_rolls_back_if_one_fails(sample_data):
-    add_habit(sample_data, "Workout", 5)
-
-    with pytest.raises(ValueError):
-        log_multiple_habits(sample_data, "2020-05-10", ["Workout", "Reading"])
-
-    assert sample_data["logs"] == []
-
-
 def test_log_habit_no_habits_fails(sample_data):
     with pytest.raises(ValueError) as exc:
         log_habit(sample_data, "2020-05-10", "Workout")
