@@ -230,3 +230,45 @@ def test_habit_weekly_completion_ignores_logs_outside_selected_week(sample_data)
     assert result["Workout"]["done"] == 2
     assert result["Workout"]["target"] == 5
     assert result["Workout"]["percentage"] == 40.0
+
+
+def test_streaks_calculates_current_and_longest_streak(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": None
+    }
+
+    sample_data["logs"].extend([
+        {"habit": "Workout", "date": "2020-05-01"},
+        {"habit": "Workout", "date": "2020-05-02"},
+        {"habit": "Workout", "date": "2020-05-04"},
+        {"habit": "Workout", "date": "2020-05-05"},
+        {"habit": "Workout", "date": "2020-05-06"},
+    ])
+
+    result = streaks(sample_data, "2020-05-06")
+
+    assert result["Workout"]["current_streak"] == 3
+    assert result["Workout"]["longest_streak"] == 3
+
+
+def test_streaks_current_streak_zero_when_selected_date_not_logged(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": None
+    }
+
+    sample_data["logs"].extend([
+        {"habit": "Workout", "date": "2020-05-01"},
+        {"habit": "Workout", "date": "2020-05-02"},
+        {"habit": "Workout", "date": "2020-05-03"},
+    ])
+
+    result = streaks(sample_data, "2020-05-05")
+
+    assert result["Workout"]["current_streak"] == 0
+    assert result["Workout"]["longest_streak"] == 3
+
+
