@@ -84,7 +84,7 @@ def log_multiple_habits(data, log_date, habits):
 
 def delete_log(data, log_date, habit_name):
     if not data["habits"]:
-        return "No habits found. Add a habit first."
+        raise ValueError("No habits found. Add a habit first.")
 
     habit_name = validate_string(habit_name, 3, 20)
 

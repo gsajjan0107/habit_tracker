@@ -233,9 +233,10 @@ def test_delete_log_success(sample_data):
 
 
 def test_delete_log_no_habits(sample_data):
-    result = delete_log(sample_data, "2026-05-10", "Workout")
+    with pytest.raises(ValueError) as exc:
+        delete_log(sample_data, "2020-05-10", "Workout")
 
-    assert result == "No habits found. Add a habit first."
+    assert str(exc.value) == "No habits found. Add a habit first."
 
 
 def test_delete_log_no_logs(sample_data):
@@ -437,3 +438,10 @@ def test_delete_log_invalid_habit_name_fails(sample_data):
 
     with pytest.raises(ValueError):
         delete_log(sample_data, "2020-05-10", "A")
+
+
+def test_delete_log_no_habits_fails(sample_data):
+    with pytest.raises(ValueError) as exc:
+        delete_log(sample_data, "2020-05-10", "Workout")
+
+    assert str(exc.value) == "No habits found. Add a habit first."
