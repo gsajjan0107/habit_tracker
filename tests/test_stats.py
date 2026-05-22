@@ -272,3 +272,27 @@ def test_streaks_current_streak_zero_when_selected_date_not_logged(sample_data):
     assert result["Workout"]["longest_streak"] == 3
 
 
+def test_habit_weekly_completion_excludes_habit_created_after_week(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-11",
+        "archived_at": None
+    }
+
+    result = habit_weekly_completion(sample_data, "2020-05-10")
+
+    assert "Workout" not in result
+
+
+def test_habit_weekly_completion_excludes_habit_archived_before_week(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": "2020-05-03"
+    }
+
+    result = habit_weekly_completion(sample_data, "2020-05-10")
+
+    assert "Workout" not in result
+
+
