@@ -72,8 +72,13 @@ def handle_log(data):
             log_date = validate_date(log_date)
 
             result = daily_stats(data, log_date)
+
+            if result["total_habits"] == 0:
+                display_message("No habits were active on this date.")
+                return
+
             show_habits_status(result) # show pending and completed habits
-            
+
             completed = result["completed"]
             pending = result["pending"]
 
@@ -205,6 +210,7 @@ def handle_delete_log(data):
         return
 
 
+    original_logs = data["logs"].copy()
     deleted = []
 
     try:
@@ -214,6 +220,7 @@ def handle_delete_log(data):
                 deleted.append(habit_name)
 
     except ValueError as e:
+        data["logs"] = original_logs
         display_message(e)
         return
 
