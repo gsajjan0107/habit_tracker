@@ -33,7 +33,7 @@ def get_confirmation(message):
         if confirm in ["n", "no"]:
             return False
 
-        display_message("Invalid input. Please enter y/n.")
+        display_message("Please enter y/yes or n/no.")
 
 def get_today():
     return datetime.now().date()
