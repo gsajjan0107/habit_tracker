@@ -72,7 +72,6 @@ def handle_log(data):
             log_date = validate_date(log_date)
 
             result = daily_stats(data, log_date)
-            display_message("")
             show_habits_status(result) # show pending and completed habits
             
             completed = result["completed"]
@@ -132,12 +131,12 @@ def handle_log(data):
             reset = []
             habit_streaks = streaks(data, log_date)
 
-            display_message(f"\n✅ Logged {len(logged)} habits:")
+            display_message(f"\n✅ Logged {len(logged)} habits:\n")
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
 
                 if current_habit_streak == 1:
-                    display_message(f"\n⚠️  Streak reset: {habit} - 1 day streak")
+                    display_message(f"⚠️  Streak reset: {habit} - 1 day streak")
                     reset.append(habit)
                 else:
                     display_message(f"- {habit}: {current_habit_streak} days streak")

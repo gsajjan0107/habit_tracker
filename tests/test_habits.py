@@ -1,5 +1,13 @@
 import pytest
-from habits import (add_habit, log_habit, archive_habit, unarchive_habit, delete_log, delete_habit)
+from habits import (
+    add_habit,
+    log_habit,
+    archive_habit,
+    unarchive_habit,
+    toggle_archive_habit,
+    delete_log,
+    delete_habit
+    )
 
 
 def test_add_habit_success(sample_data):
@@ -316,3 +324,11 @@ def test_delete_habit_with_multiple_logs(sample_data):
     assert sample_data["logs"] == []
 
     assert "Reading" not in sample_data["habits"]
+
+
+def test_toggle_archive_nonexistent_habit(sample_data):
+    result = toggle_archive_habit(sample_data, "Workout")
+
+    assert result["success"] is False
+    assert result["msg"] == "Habit does not exist."
+    assert result["data"]["habit"] == "Workout"

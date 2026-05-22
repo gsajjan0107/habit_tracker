@@ -126,6 +126,10 @@ def unarchive_habit(data, habit_name):
     return make_result(True, f"{habit_name} unarchived.", {"habit": habit_name, "archived": False})
 
 def toggle_archive_habit(data, habit_name):
+    habit_name = validate_string(habit_name, 3, 20)
+
+    if not habit_exists(data, habit_name):
+        return make_result(False, "Habit does not exist.", {"habit": habit_name})
 
     if is_habit_archived(data, habit_name):
         return unarchive_habit(data, habit_name)
