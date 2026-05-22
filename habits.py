@@ -92,7 +92,7 @@ def delete_log(data, log_date, habit_name):
         raise ValueError("Habit does not exist.")
 
     if not data["logs"]:
-        return "No logs found. Log a habit first."
+        raise ValueError("No logs found. Log a habit first.")
 
     before = len(data["logs"])
 

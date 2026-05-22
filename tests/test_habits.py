@@ -242,9 +242,10 @@ def test_delete_log_no_habits(sample_data):
 def test_delete_log_no_logs(sample_data):
     add_habit(sample_data, "Workout", 5)
 
-    result = delete_log(sample_data, "2026-05-10", "Workout")
+    with pytest.raises(ValueError) as exc:
+        delete_log(sample_data, "2020-05-10", "Workout")
 
-    assert result == "No logs found. Log a habit first."
+    assert str(exc.value) == "No logs found. Log a habit first."
 
 
 def test_delete_log_no_matching_log(sample_data):
