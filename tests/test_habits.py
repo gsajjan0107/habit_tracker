@@ -92,15 +92,44 @@ def test_log_habit_nonexistent_habit(sample_data):
     assert str(exc.value) == "Habit does not exist."
 
 
-def test_log_habit_archived_habit(sample_data):
+def test_log_habit_after_archive_date_fails(sample_data):
     add_habit(sample_data, "Reading", 30)
 
-    sample_data["habits"]["Reading"]["archived_at"] = "2026-05-10"
+    sample_data["habits"]["Reading"]["created_at"] = "2020-05-01"
+    sample_data["habits"]["Reading"]["archived_at"] = "2020-05-10"
 
     with pytest.raises(ValueError) as exc:
-        log_habit(sample_data, "2026-05-10", "Reading")
+        log_habit(sample_data, "2020-05-11", "Reading")
 
-    assert str(exc.value) == "Cannot log as the habit is archived."
+    assert str(exc.value) == "Cannot log after the habit was archived."
+
+
+def test_log_habit_before_archive_date_success(sample_data):
+    add_habit(sample_data, "Reading", 30)
+
+    sample_data["habits"]["Reading"]["created_at"] = "2020-05-01"
+    sample_data["habits"]["Reading"]["archived_at"] = "2020-05-10"
+
+    result = log_habit(sample_data, "2020-05-08", "Reading")
+
+    assert result == "Reading logged for 2020-05-08."
+    assert sample_data["logs"] == [
+        {
+            "habit": "Reading",
+            "date": "2020-05-08",
+        }
+    ]
+
+
+def test_log_habit_on_archive_date_success(sample_data):
+    add_habit(sample_data, "Reading", 30)
+
+    sample_data["habits"]["Reading"]["created_at"] = "2020-05-01"
+    sample_data["habits"]["Reading"]["archived_at"] = "2020-05-10"
+
+    result = log_habit(sample_data, "2020-05-10", "Reading")
+
+    assert result == "Reading logged for 2020-05-10."
 
 
 def test_log_habit_before_creation_date(sample_data):

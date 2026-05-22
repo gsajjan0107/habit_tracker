@@ -37,8 +37,13 @@ def log_habit(data, log_date, habit_name):
     if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
     
-    if is_habit_archived(data, habit_name):
-        raise ValueError("Cannot log as the habit is archived.")
+    archived_at = data["habits"][habit_name].get("archived_at")
+
+    if archived_at is not None:
+        archived_date = validate_date(archived_at)
+
+        if log_date > archived_date:
+            raise ValueError("Cannot log after the habit was archived.")
     
     created_date = data["habits"][habit_name]["created_at"]
     created_date = validate_date(created_date)
