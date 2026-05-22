@@ -43,7 +43,7 @@ def test_get_valid_input_prints_error():
 
         get_valid_input("Enter number: ", validate_int)
 
-        mock_print.assert_called_with("Error: Input (abc) must be an integer.")
+        mock_print.assert_called_with("Error: Input must be an integer.")
 
 # validate_string tests
 

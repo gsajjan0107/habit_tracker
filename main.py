@@ -35,9 +35,7 @@ commands = {
     "7" : "Exit"
 }
 
-data = load_data()
  
-
 def handle_add(data):
     while True:
         habit_name = get_valid_input("Enter habit name: ",
@@ -371,4 +369,5 @@ def main(data):
         handlers[selected_index](data)
 
 if __name__ == "__main__":
+    data = load_data()
     main(data)
