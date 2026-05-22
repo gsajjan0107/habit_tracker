@@ -160,13 +160,17 @@ def handle_delete_log(data):
         try: # get valid date
             log_date = input("\nEnter date (Press enter for today): ")
             log_date = validate_date(log_date)
+            result = daily_stats(data, log_date)
         except ValueError as e:
             display_message(e)
             continue
 
-        result = daily_stats(data, log_date)
         formatted_date = format_display_date(result["date"])
         completed = result["completed"]
+
+        if result["total_habits"] == 0:
+            display_message("No habits were active on this date.")
+            return
 
         if not completed:
             display_message("No logs for this date.")
