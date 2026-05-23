@@ -136,12 +136,20 @@ def habit_weekly_completion(data, date=None):
         if target > 0:
             percentage = round(min(done / target * 100, 100), 2)
 
+        if done >= target:
+            status = "completed"
+        elif done > 0:
+            status = "in_progress"
+        else:
+            status = "not_started"
+
         results[name] = {
             "done": done,
             "target": target,
-            "percentage": percentage
+            "percentage": percentage,
+            "status": status
         }
-
+        
     return results
 
 def daily_stats(data, date=None):
