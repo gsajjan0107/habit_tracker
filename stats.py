@@ -123,6 +123,7 @@ def habit_weekly_completion(data, date=None):
 
         target = min(info["target_per_week"], active_days)
         done = habit_count.get(name, 0)
+        remaining = max(target - done, 0)
 
         percentage = 0
         if target > 0:
@@ -138,6 +139,7 @@ def habit_weekly_completion(data, date=None):
         results[name] = {
             "done": done,
             "target": target,
+            "remaining": remaining,
             "percentage": percentage,
             "status": status
         }
