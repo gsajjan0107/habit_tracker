@@ -66,15 +66,7 @@ def streaks(data, date=None):
     result = {}
 
     for habit_name, habit_info in habits.items():
-        created_at = validate_date(habit_info["created_at"])
-
-        archived_at = habit_info.get("archived_at")
-        archived_at = validate_date(archived_at) if archived_at else None
-
-        if created_at > date:
-            continue
-
-        if archived_at is not None and archived_at < date:
+        if not is_habit_active_on_date(habit_info, date):
             continue
 
         log_dates = habit_logs.get(habit_name, set())
