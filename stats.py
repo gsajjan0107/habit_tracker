@@ -110,15 +110,20 @@ def habit_weekly_completion(data, date=None):
 
     for name, info in habits.items():
         created_at = validate_date(info["created_at"])
-
-        if created_at > sunday:
-            continue
-
         archived_at = info.get("archived_at")
-        if archived_at:
-            archived_at = validate_date(archived_at)
-            if archived_at < monday:
-                continue
+        archived_at = validate_date(archived_at) if archived_at else None
+
+        was_active_this_week = False
+
+        for day in range(7):
+            current_date = monday + timedelta(days=day)
+
+            if is_habit_active_on_date(info, current_date):
+                was_active_this_week = True
+                break
+
+        if not was_active_this_week:
+            continue
 
         active_start = max(created_at, monday)
         active_end = min(archived_at, sunday) if archived_at else sunday
@@ -146,8 +151,6 @@ def daily_stats(data, date=None):
         raise ValueError("No habits created.")
 
     date = validate_date(date)
-
-    valid_habits = set()
 
     valid_habits = {name for name, info in habits.items()
         if is_habit_active_on_date(info, date)}
