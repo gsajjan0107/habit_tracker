@@ -1,4 +1,5 @@
 from datetime import datetime
+from validators import validate_date
 
 def format_display_date(date_str):
     """Convert YYYY-MM-DD into a cleaner display format: 2026-05-08 -> 08 May 2026"""
@@ -63,3 +64,15 @@ def make_result(success, msg, data=None):
 
 def get_active_habits_from_stats(result):
     return set(result["completed"]) | set(result["pending"])
+
+def is_habit_active_on_date(info, selected_date):
+    selected_date = validate_date(selected_date)
+
+    created_at = validate_date(info["created_at"])
+
+    archived_at = info.get("archived_at")
+    archived_at = validate_date(archived_at) if archived_at else None
+
+    return created_at <= selected_date and (
+        archived_at is None or archived_at >= selected_date
+    )

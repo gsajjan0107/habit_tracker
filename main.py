@@ -313,7 +313,7 @@ def handle_dashboard(data):
         missed = []
 
     if missed:
-        display_message("\n⚠️  Missed previous day:")
+        display_message("\n⚠️  Not logged previous day:")
         for habit in missed:
             display_message(f"- {habit}")
 
