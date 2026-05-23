@@ -121,6 +121,13 @@ def habit_weekly_completion(data, date=None):
         active_end = min(archived_at, sunday) if archived_at else sunday
         active_days = (active_end - active_start).days + 1
 
+        available_start = max(date, active_start)
+        available_end = active_end
+
+        available_days_left = 0
+        if available_start <= available_end:
+            available_days_left = (available_end - available_start).days + 1
+
         target = min(info["target_per_week"], active_days)
         done = habit_count.get(name, 0)
         remaining = max(target - done, 0)
@@ -142,6 +149,7 @@ def habit_weekly_completion(data, date=None):
             "target": target,
             "remaining": remaining,
             "days_left": days_left,
+            "available_days_left": available_days_left,
             "percentage": percentage,
             "status": status
         }
