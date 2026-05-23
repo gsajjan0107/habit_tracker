@@ -494,3 +494,50 @@ def test_streaks_includes_habit_on_creation_date(sample_data):
     assert result["Workout"]["longest_streak"] == 1
 
 
+def test_habit_weekly_completion_status_not_started(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 3,
+        "created_at": "2020-05-01",
+        "archived_at": None,
+    }
+
+    result = habit_weekly_completion(sample_data, "2020-05-06")
+
+    assert result["Workout"]["status"] == "not_started"
+
+
+def test_habit_weekly_completion_status_in_progress(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 3,
+        "created_at": "2020-05-01",
+        "archived_at": None,
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2020-05-05",
+    })
+
+    result = habit_weekly_completion(sample_data, "2020-05-06")
+
+    assert result["Workout"]["status"] == "in_progress"
+
+
+def test_habit_weekly_completion_status_completed(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 3,
+        "created_at": "2020-05-01",
+        "archived_at": None,
+    }
+
+    sample_data["logs"].extend([
+        {"habit": "Workout", "date": "2020-05-04"},
+        {"habit": "Workout", "date": "2020-05-05"},
+        {"habit": "Workout", "date": "2020-05-06"},
+    ])
+
+    result = habit_weekly_completion(sample_data, "2020-05-06")
+
+    assert result["Workout"]["status"] == "completed"
+
+
