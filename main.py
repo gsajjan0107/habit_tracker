@@ -343,7 +343,7 @@ def handle_dashboard(data):
 
         display_message(f"\n{habit:<15}")
         display_message(f"  Weekly : {info['done']:>2}/{info['target']:<2} "
-                        f"({info['percentage']:.2f}%) - {status}")
+                        f"({info['percentage']:.2f}%) - {info['remaining']} left - {status}")
         display_message(f"  Streak : 🔥 {streak_info['current_streak']}")
         display_message(f"  Best   : 🏆 {streak_info['longest_streak']}")
 
