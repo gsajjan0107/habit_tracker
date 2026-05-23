@@ -325,20 +325,25 @@ def handle_dashboard(data):
     display_message("\n📊 Weekly Stats:")
 
     active_habits = get_active_habits_from_stats(result)
-    weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage
+    weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage, status
     habit_streaks = streaks(data, selected_date) # longest_streak, current_streak
-    
+
+    status_labels = {
+        "completed": "✅ completed",
+        "in_progress": "🔄 in progress",
+        "not_started": "⚪ not started",
+    }
+
     for habit, info in weekly_stats.items():
         if habit not in active_habits:
             continue
 
-        streak_info = habit_streaks.get(habit, {
-            "current_streak": 0,
-            "longest_streak": 0
-        })
+        streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
+        status = status_labels.get(info["status"], info["status"])
 
         display_message(f"\n{habit:<15}")
-        display_message(f"  Weekly : {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%)")
+        display_message(f"  Weekly : {info['done']:>2}/{info['target']:<2} "
+                        f"({info['percentage']:.2f}%) - {status}")
         display_message(f"  Streak : 🔥 {streak_info['current_streak']}")
         display_message(f"  Best   : 🏆 {streak_info['longest_streak']}")
 
