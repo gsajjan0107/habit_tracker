@@ -598,3 +598,16 @@ def test_habit_weekly_completion_is_possible_when_already_completed(sample_data)
     assert result["Workout"]["is_possible"] is True
 
 
+def test_habit_weekly_completion_available_days_left_respects_archived_date(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": "2020-05-08",
+    }
+
+    result = habit_weekly_completion(sample_data, "2020-05-06")
+
+    assert result["Workout"]["days_left"] == 5
+    assert result["Workout"]["available_days_left"] == 3
+
+
