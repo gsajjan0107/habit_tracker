@@ -541,3 +541,60 @@ def test_habit_weekly_completion_status_completed(sample_data):
     assert result["Workout"]["status"] == "completed"
 
 
+def test_habit_weekly_completion_is_possible_when_enough_days_left(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 3,
+        "created_at": "2020-05-01",
+        "archived_at": None,
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2020-05-04",
+    })
+
+    result = habit_weekly_completion(sample_data, "2020-05-06")
+
+    assert result["Workout"]["remaining"] == 2
+    assert result["Workout"]["available_days_left"] == 5
+    assert result["Workout"]["is_possible"] is True
+
+
+def test_habit_weekly_completion_is_not_possible_when_not_enough_days_left(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-01",
+        "archived_at": None,
+    }
+
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2020-05-04",
+    })
+
+    result = habit_weekly_completion(sample_data, "2020-05-09")
+
+    assert result["Workout"]["remaining"] == 4
+    assert result["Workout"]["available_days_left"] == 2
+    assert result["Workout"]["is_possible"] is False
+
+
+def test_habit_weekly_completion_is_possible_when_already_completed(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 2,
+        "created_at": "2020-05-01",
+        "archived_at": None,
+    }
+
+    sample_data["logs"].extend([
+        {"habit": "Workout", "date": "2020-05-04"},
+        {"habit": "Workout", "date": "2020-05-05"},
+    ])
+
+    result = habit_weekly_completion(sample_data, "2020-05-10")
+
+    assert result["Workout"]["remaining"] == 0
+    assert result["Workout"]["available_days_left"] == 1
+    assert result["Workout"]["is_possible"] is True
+
+
