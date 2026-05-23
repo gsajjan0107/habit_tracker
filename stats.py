@@ -1,5 +1,6 @@
 from datetime import timedelta
 from validators import validate_date
+from helpers import is_habit_active_on_date
 
 def logs_by_habit(data, date=None):
     logs = data["logs"]
@@ -148,15 +149,8 @@ def daily_stats(data, date=None):
 
     valid_habits = set()
 
-    for habit_name, habit_info in habits.items():
-        habit_created_at = validate_date(habit_info["created_at"])
-        habit_archived_at = habit_info.get("archived_at")
-
-        if habit_archived_at:
-            habit_archived_at = validate_date(habit_archived_at)
-
-        if habit_created_at <= date and (habit_archived_at is None or habit_archived_at >= date):
-            valid_habits.add(habit_name)
+    valid_habits = {name for name, info in habits.items()
+        if is_habit_active_on_date(info, date)}
 
     if not valid_habits:
         return {
