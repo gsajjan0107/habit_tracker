@@ -88,6 +88,7 @@ def habit_weekly_completion(data, date=None):
 
     monday = date - timedelta(days=date.weekday())
     sunday = monday + timedelta(days=6)
+    days_left = (sunday - date).days + 1
 
     habit_count = {}
 
@@ -131,7 +132,7 @@ def habit_weekly_completion(data, date=None):
         target = min(info["target_per_week"], active_days)
         done = habit_count.get(name, 0)
         remaining = max(target - done, 0)
-        days_left = (sunday - date).days + 1
+        is_possible = remaining <= available_days_left
 
         percentage = 0
         if target > 0:
@@ -150,6 +151,7 @@ def habit_weekly_completion(data, date=None):
             "remaining": remaining,
             "days_left": days_left,
             "available_days_left": available_days_left,
+            "is_possible": is_possible,
             "percentage": percentage,
             "status": status
         }
