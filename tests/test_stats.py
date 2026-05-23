@@ -611,3 +611,16 @@ def test_habit_weekly_completion_available_days_left_respects_archived_date(samp
     assert result["Workout"]["available_days_left"] == 3
 
 
+def test_habit_weekly_completion_available_days_left_respects_created_date(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2020-05-06",
+        "archived_at": None,
+    }
+
+    result = habit_weekly_completion(sample_data, "2020-05-04")
+
+    assert result["Workout"]["days_left"] == 7
+    assert result["Workout"]["available_days_left"] == 5
+
+
