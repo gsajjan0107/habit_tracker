@@ -341,9 +341,24 @@ def handle_dashboard(data):
         streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
         status = status_labels.get(info["status"], info["status"])
 
+        if info["status"] == "completed":
+            weekly_message = "✅ completed"
+        elif not info["is_possible"]:
+            weekly_message = (
+                f"⚠️  Not possible this week "
+                f"({info['remaining']} needed, {info['available_days_left']} days available)"
+            )
+        else:
+            weekly_message = (
+                f"{info['remaining']} needed, "
+                f"{info['available_days_left']} days available - {status}"
+            )
+
         display_message(f"\n{habit:<15}")
-        display_message(f"  Weekly : {info['done']:>2}/{info['target']:<2} "
-                        f"({info['percentage']:.2f}%) - {info['remaining']} left - {status}")
+        display_message(
+            f"  Weekly : {info['done']:>2}/{info['target']:<2} "
+            f"({info['percentage']:.2f}%) - {weekly_message}"
+        )
         display_message(f"  Streak : 🔥 {streak_info['current_streak']}")
         display_message(f"  Best   : 🏆 {streak_info['longest_streak']}")
 
