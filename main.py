@@ -28,14 +28,13 @@ from helpers import (
 commands = {
     "1" : "Add habit",
     "2" : "Log habit",
-    "3" : "Delete Log",
-    "4" : "Delete habit",
+    "3" : "Delete log",
+    "4" : "Delete habit permanently",
     "5" : "Toggle archive",
     "6" : "Dashboard",
     "7" : "Exit"
 }
 
- 
 def handle_add(data):
     while True:
         habit_name = get_valid_input("Enter habit name: ",
@@ -243,8 +242,9 @@ def handle_delete(data):
             lambda n: validate_int(n, 1, len(menu_entries)))
     
     habit = menu_entries[selected_index - 1]["habit"]
+    log_count = sum(1 for log in data["logs"] if log["habit"] == habit)
 
-    confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with logs. Confirm? (y/n): ")
+    confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with {log_count} logs. Confirm? (y/n): ")
 
     if not confirmed:
         display_message("Deletion cancelled.")
