@@ -23,7 +23,8 @@ from helpers import (
     ensure_habits_exist,
     display_message,
     get_active_habits_from_stats,
-    count_logs_for_habit
+    count_logs_for_habit,
+    get_logged_habits_for_date
 )
 
 commands = {
@@ -160,15 +161,14 @@ def handle_view_logs(data):
         try:
             date = input("\nEnter date (Press enter for today): ")
             selected_date = validate_date(date)
-            result = daily_stats(data, selected_date)
+            completed = get_logged_habits_for_date(data, selected_date)
             break
 
         except ValueError as e:
             display_message(e)
 
-    formatted_date = format_display_date(result["date"])
-    completed = result["completed"]
-
+    formatted_date = format_display_date(selected_date)
+    
     display_message("\n==== VIEW LOGS ====")
     display_message(f"\n📅 Date: {formatted_date}")
 

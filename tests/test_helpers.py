@@ -1,4 +1,5 @@
-from helpers import get_confirmation, is_habit_active_on_date, count_logs_for_habit
+from datetime import date
+from helpers import get_confirmation, is_habit_active_on_date, count_logs_for_habit, get_logged_habits_for_date
 
 def test_get_confirmation_yes(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
@@ -130,3 +131,25 @@ def test_count_logs_for_habit_counts_only_matching_habit(sample_data):
     ]
 
     assert count_logs_for_habit(sample_data, "Workout") == 2
+
+
+def test_get_logged_habits_for_date_returns_logged_habits(sample_data):
+    sample_data["logs"] = [
+        {"habit": "Workout", "date": "2026-05-25"},
+        {"habit": "Reading", "date": "2026-05-25"},
+        {"habit": "Python", "date": "2026-05-24"},
+    ]
+
+    result = get_logged_habits_for_date(sample_data, date(2026, 5, 25))
+
+    assert result == ["Reading", "Workout"]
+
+
+def test_get_logged_habits_for_date_returns_empty_list_when_no_logs_for_date(sample_data):
+    sample_data["logs"] = [
+        {"habit": "Workout", "date": "2026-05-24"},
+    ]
+
+    result = get_logged_habits_for_date(sample_data, date(2026, 5, 25))
+
+    assert result == []
