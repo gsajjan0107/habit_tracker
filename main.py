@@ -135,7 +135,9 @@ def handle_log(data):
             
             habit_streaks = streaks(data, log_date)
 
-            display_message(f"\n✅ Logged {len(logged)} habits:\n")
+            habit_word = "habit" if len(logged) == 1 else "habits"
+            display_message(f"\n✅ Logged {len(logged)} {habit_word}:\n")
+            
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
                 day_word = "day" if current_habit_streak == 1 else "days"
