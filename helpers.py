@@ -16,11 +16,10 @@ def show_habits_status(result):
 
     if completed:
         display_message("\n✅ Completed:")
-        for habit in completed:
-            display_message(f"- {habit}")
+        display_numbered_list(completed)
 
     if pending:
-        display_message("\n🚫 Pending:")
+        display_message("\n🚫 Unfinished:")
         display_numbered_list(pending)
 
 def get_confirmation(message):

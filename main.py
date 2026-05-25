@@ -29,11 +29,12 @@ from helpers import (
 commands = {
     "1" : "Add habit",
     "2" : "Log habit",
-    "3" : "Delete log",
-    "4" : "Delete habit permanently",
-    "5" : "Archive / Unarchive habit",
-    "6" : "Dashboard",
-    "7" : "Exit"
+    "3" : "View logs",
+    "4" : "Delete log",
+    "5" : "Delete habit permanently",
+    "6" : "Archive / Unarchive habit",
+    "7" : "Dashboard",
+    "8" : "Exit"
 }
 
 def handle_add(data):
@@ -146,6 +147,37 @@ def handle_log(data):
 
         except ValueError as e:
             display_message(e)
+
+def handle_view_logs(data):
+    if not ensure_habits_exist(data):
+        return
+
+    if not data["logs"]:
+        display_message("No logs found. Log a habit first.")
+        return
+
+    while True:
+        try:
+            date = input("\nEnter date (Press enter for today): ")
+            selected_date = validate_date(date)
+            result = daily_stats(data, selected_date)
+            break
+
+        except ValueError as e:
+            display_message(e)
+
+    formatted_date = format_display_date(result["date"])
+    completed = result["completed"]
+
+    display_message("\n==== VIEW LOGS ====")
+    display_message(f"\n📅 Date: {formatted_date}")
+
+    if not completed:
+        display_message("No habits logged on this date.")
+        return
+    
+    display_message("\n✅ Logged habits:")
+    display_numbered_list(completed)
 
 def handle_delete_log(data):
     if not ensure_habits_exist(data):
@@ -376,11 +408,12 @@ def handle_exit(data):
 handlers = {
     "1": handle_add,
     "2": handle_log,
-    "3": handle_delete_log,
-    "4": handle_delete,
-    "5": handle_toggle_archive,
-    "6": handle_dashboard,
-    "7": handle_exit,
+    "3": handle_view_logs,
+    "4": handle_delete_log,
+    "5": handle_delete,
+    "6": handle_toggle_archive,
+    "7": handle_dashboard,
+    "8": handle_exit,
 }
 
 def main(data):
