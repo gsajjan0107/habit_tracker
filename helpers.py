@@ -74,3 +74,7 @@ def is_habit_active_on_date(info, selected_date):
     archived_at = validate_date(archived_at) if archived_at else None
 
     return created_at <= selected_date and (archived_at is None or archived_at >= selected_date)
+
+
+def count_logs_for_habit(data, habit):
+    return sum(1 for log in data["logs"] if log["habit"] == habit)

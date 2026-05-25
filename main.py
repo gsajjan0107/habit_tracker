@@ -23,6 +23,7 @@ from helpers import (
     ensure_habits_exist,
     display_message,
     get_active_habits_from_stats,
+    count_logs_for_habit
 )
 
 commands = {
@@ -30,7 +31,7 @@ commands = {
     "2" : "Log habit",
     "3" : "Delete log",
     "4" : "Delete habit permanently",
-    "5" : "Toggle archive",
+    "5" : "Archive / Unarchive habit",
     "6" : "Dashboard",
     "7" : "Exit"
 }
@@ -242,7 +243,7 @@ def handle_delete(data):
             lambda n: validate_int(n, 1, len(menu_entries)))
     
     habit = menu_entries[selected_index - 1]["habit"]
-    log_count = sum(1 for log in data["logs"] if log["habit"] == habit)
+    log_count = count_logs_for_habit(data, habit)
 
     confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with {log_count} logs. Confirm? (y/n): ")
 

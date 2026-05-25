@@ -1,5 +1,4 @@
-from helpers import get_confirmation, is_habit_active_on_date
-
+from helpers import get_confirmation, is_habit_active_on_date, count_logs_for_habit
 
 def test_get_confirmation_yes(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
@@ -95,3 +94,39 @@ def test_get_confirmation_retries_until_valid(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: next(responses))
 
     assert get_confirmation("Confirm? ") is True
+
+
+def test_count_logs_for_habit_returns_zero_when_no_logs(sample_data):
+    sample_data["habits"] = {
+        "Workout": {
+            "target_per_week": 3,
+            "created_at": "2026-05-01",
+            "archived_at": None,
+        }
+    }
+    sample_data["logs"] = []
+
+    assert count_logs_for_habit(sample_data, "Workout") == 0
+
+
+def test_count_logs_for_habit_counts_only_matching_habit(sample_data):
+    sample_data["habits"] = {
+        "Workout": {
+            "target_per_week": 3,
+            "created_at": "2026-05-01",
+            "archived_at": None,
+        },
+        "Reading": {
+            "target_per_week": 3,
+            "created_at": "2026-05-01",
+            "archived_at": None,
+        },
+    }
+
+    sample_data["logs"] = [
+        {"habit": "Workout", "date": "2026-05-01"},
+        {"habit": "Workout", "date": "2026-05-02"},
+        {"habit": "Reading", "date": "2026-05-01"},
+    ]
+
+    assert count_logs_for_habit(sample_data, "Workout") == 2
