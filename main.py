@@ -221,7 +221,9 @@ def handle_delete_log(data):
         display_message("No habits selected.")
         return
     
-    display_message(f"\nYou are about to delete {len(selected_habits)} logs:")
+    log_word = "log" if len(selected_habits) == 1 else "logs"
+
+    display_message(f"\nYou are about to delete {len(selected_habits)} {log_word}:")
     for habit in selected_habits:
         display_message(f"- {habit}")
 
