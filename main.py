@@ -138,11 +138,9 @@ def handle_log(data):
             display_message(f"\n✅ Logged {len(logged)} habits:\n")
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
+                day_word = "day" if current_habit_streak == 1 else "days"
 
-                if current_habit_streak == 1:
-                    display_message(f"- {habit}: 1 day streak")
-                else:
-                    display_message(f"- {habit}: {current_habit_streak} days streak")
+                display_message(f"- {habit}: {current_habit_streak} {day_word} streak")
 
             break
 
