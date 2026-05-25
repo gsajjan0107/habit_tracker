@@ -24,7 +24,8 @@ from helpers import (
     display_message,
     get_active_habits_from_stats,
     count_logs_for_habit,
-    get_logged_habits_for_date
+    get_logged_habits_for_date,
+    pluralize
 )
 
 commands = {
@@ -135,9 +136,9 @@ def handle_log(data):
             
             habit_streaks = streaks(data, log_date)
 
-            habit_word = "habit" if len(logged) == 1 else "habits"
+            habit_word = pluralize(len(logged), "habit")
             display_message(f"\n✅ Logged {len(logged)} {habit_word}:\n")
-            
+
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
                 day_word = "day" if current_habit_streak == 1 else "days"
@@ -221,7 +222,7 @@ def handle_delete_log(data):
         display_message("No habits selected.")
         return
     
-    log_word = "log" if len(selected_habits) == 1 else "logs"
+    log_word = pluralize(len(selected_habits), "log")
 
     display_message(f"\nYou are about to delete {len(selected_habits)} {log_word}:")
     for habit in selected_habits:
@@ -253,7 +254,7 @@ def handle_delete_log(data):
         return
         
 
-    deleted_log_word = "log" if len(deleted) == 1 else "logs"
+    deleted_log_word = pluralize(len(deleted), "log")
 
     display_message(f"\n🗑️  Deleted {len(deleted)} {deleted_log_word}:")
     for habit in deleted:

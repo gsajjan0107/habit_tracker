@@ -88,3 +88,9 @@ def get_logged_habits_for_date(data, selected_date):
                     if log["date"] == selected_date}
 
     return sorted(logged_habits)
+
+def pluralize(count, singular, plural=None):
+    if plural is None:
+        plural = singular + "s"
+
+    return singular if count == 1 else plural

@@ -1,6 +1,13 @@
 from datetime import date
 import pytest
-from helpers import get_confirmation, is_habit_active_on_date, count_logs_for_habit, get_logged_habits_for_date, format_display_date
+from helpers import (
+    get_confirmation,
+    is_habit_active_on_date,
+    count_logs_for_habit,
+    get_logged_habits_for_date,
+    format_display_date,
+    pluralize,
+)
 
 def test_get_confirmation_yes(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
@@ -171,3 +178,19 @@ def test_format_display_date_accepts_date_object():
 def test_format_display_date_rejects_invalid_type():
     with pytest.raises(ValueError, match="Date must be a string or date object."):
         format_display_date(123)
+
+
+def test_pluralize_returns_singular_for_one():
+    assert pluralize(1, "habit") == "habit"
+
+
+def test_pluralize_returns_plural_for_zero():
+    assert pluralize(0, "habit") == "habits"
+
+
+def test_pluralize_returns_plural_for_more_than_one():
+    assert pluralize(2, "habit") == "habits"
+
+
+def test_pluralize_uses_custom_plural():
+    assert pluralize(2, "entry", "entries") == "entries"
