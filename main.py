@@ -237,12 +237,12 @@ def handle_delete(data):
     
 
     habits = sorted(data["habits"])
-    display_numbered_list(habits)
+    menu_entries = display_habit_archive_menu(data, habits)
 
     selected_index = get_valid_input("\nSelect a habit (enter number): ",
-            lambda n: validate_int(n, 1, len(habits)))
+            lambda n: validate_int(n, 1, len(menu_entries)))
     
-    habit = habits[selected_index - 1]
+    habit = menu_entries[selected_index - 1]["habit"]
 
     confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with logs. Confirm? (y/n): ")
 
@@ -250,7 +250,7 @@ def handle_delete(data):
         display_message("Deletion cancelled.")
         return
     
-    
+
     typed_name = input(f"Type the habit name [{habit}] to confirm permanent deletion: ").strip()
 
     if typed_name != habit:
