@@ -1,10 +1,14 @@
-from datetime import datetime
+from datetime import datetime, date
 
-def format_display_date(date_str):
-    """Convert YYYY-MM-DD into a cleaner display format: 2026-05-08 -> 08 May 2026"""
+def format_display_date(value):
+    if isinstance(value, date):
+        date_obj = value
+    elif isinstance(value, str):
+        date_obj = datetime.strptime(value, "%Y-%m-%d").date()
+    else:
+        raise ValueError("Date must be a string or date object.")
 
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    return date_obj.strftime("%d %b %Y")
+    return date_obj.strftime("%A, %d %B %Y")
 
 def display_numbered_list(items):
     for i, item in enumerate(items, start=1):

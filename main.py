@@ -167,7 +167,7 @@ def handle_view_logs(data):
         except ValueError as e:
             display_message(e)
 
-    formatted_date = format_display_date(selected_date.isoformat())
+    formatted_date = format_display_date(selected_date)
 
     display_message("\n==== VIEW LOGS ====")
     display_message(f"\n📅 Date: {formatted_date}")

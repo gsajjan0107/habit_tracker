@@ -1,5 +1,6 @@
 from datetime import date
-from helpers import get_confirmation, is_habit_active_on_date, count_logs_for_habit, get_logged_habits_for_date
+import pytest
+from helpers import get_confirmation, is_habit_active_on_date, count_logs_for_habit, get_logged_habits_for_date, format_display_date
 
 def test_get_confirmation_yes(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
@@ -153,3 +154,20 @@ def test_get_logged_habits_for_date_returns_empty_list_when_no_logs_for_date(sam
     result = get_logged_habits_for_date(sample_data, date(2026, 5, 25))
 
     assert result == []
+
+
+def test_format_display_date_accepts_string_date():
+    result = format_display_date("2026-05-25")
+
+    assert result == "Monday, 25 May 2026"
+
+
+def test_format_display_date_accepts_date_object():
+    result = format_display_date(date(2026, 5, 25))
+
+    assert result == "Monday, 25 May 2026"
+
+
+def test_format_display_date_rejects_invalid_type():
+    with pytest.raises(ValueError, match="Date must be a string or date object."):
+        format_display_date(123)
