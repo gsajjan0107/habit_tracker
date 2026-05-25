@@ -167,8 +167,8 @@ def handle_view_logs(data):
         except ValueError as e:
             display_message(e)
 
-    formatted_date = format_display_date(selected_date)
-    
+    formatted_date = format_display_date(selected_date.isoformat())
+
     display_message("\n==== VIEW LOGS ====")
     display_message(f"\n📅 Date: {formatted_date}")
 
@@ -176,7 +176,7 @@ def handle_view_logs(data):
         display_message("No habits logged on this date.")
         return
     
-    display_message("\n✅ Logged habits:")
+    display_message(f"\n✅ Logged habits ({len(completed)}):")
     display_numbered_list(completed)
 
 def handle_delete_log(data):
