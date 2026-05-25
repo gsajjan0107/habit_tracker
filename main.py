@@ -329,7 +329,7 @@ def handle_dashboard(data):
         f"({result['completion_rate']:.2f}%) habits on {formatted_date}."
     )
 
-    display_message("\n📊 Weekly Stats:")
+    display_message("\n📊 Weekly Progress:")
 
     active_habits = get_active_habits_from_stats(result)
     weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage, status

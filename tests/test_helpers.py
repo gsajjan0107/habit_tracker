@@ -63,3 +63,35 @@ def test_is_habit_active_on_date_after_archived_date():
     }
 
     assert is_habit_active_on_date(info, "2026-05-16") is False
+
+
+def test_get_confirmation_yes_returns_true(monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda _: "yes")
+
+    assert get_confirmation("Confirm? ") is True
+
+
+def test_get_confirmation_y_returns_true(monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda _: "y")
+
+    assert get_confirmation("Confirm? ") is True
+
+
+def test_get_confirmation_no_returns_false(monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda _: "no")
+
+    assert get_confirmation("Confirm? ") is False
+
+
+def test_get_confirmation_n_returns_false(monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda _: "n")
+
+    assert get_confirmation("Confirm? ") is False
+
+
+def test_get_confirmation_retries_until_valid(monkeypatch):
+    responses = iter(["maybe", "yes"])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(responses))
+
+    assert get_confirmation("Confirm? ") is True
