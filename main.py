@@ -253,7 +253,9 @@ def handle_delete_log(data):
         return
         
 
-    display_message(f"\n🗑️  Deleted {len(deleted)} logs:")
+    deleted_log_word = "log" if len(deleted) == 1 else "logs"
+
+    display_message(f"\n🗑️  Deleted {len(deleted)} {deleted_log_word}:")
     for habit in deleted:
         display_message(f"- {habit}")
 
