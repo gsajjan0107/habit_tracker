@@ -140,7 +140,7 @@ def handle_log(data):
                 current_habit_streak = habit_streaks[habit]["current_streak"]
 
                 if current_habit_streak == 1:
-                    display_message(f"⚠️  Streak reset: {habit} - 1 day streak")
+                    display_message(f"- {habit}: 1 day streak")
                 else:
                     display_message(f"- {habit}: {current_habit_streak} days streak")
 
