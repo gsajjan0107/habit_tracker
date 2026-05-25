@@ -249,6 +249,13 @@ def handle_delete(data):
     if not confirmed:
         display_message("Deletion cancelled.")
         return
+    
+    
+    typed_name = input(f"Type the habit name [{habit}] to confirm permanent deletion: ").strip()
+
+    if typed_name != habit:
+        display_message("Habit name did not match. Deletion cancelled.")
+        return
 
 
     # DELETE HABIT
