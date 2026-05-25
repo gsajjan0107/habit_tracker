@@ -190,42 +190,36 @@ def handle_delete_log(data):
     
 
     while True:
-        try: # get valid date
+        try:
             log_date = input("\nEnter date (Press enter for today): ")
             log_date = validate_date(log_date)
-            result = daily_stats(data, log_date)
+            completed = get_logged_habits_for_date(data, log_date)
+            break
+
         except ValueError as e:
             display_message(e)
-            continue
 
-        formatted_date = format_display_date(result["date"])
-        completed = result["completed"]
+    formatted_date = format_display_date(log_date)
 
-        if result["total_habits"] == 0:
-            display_message("No habits were active on this date.")
-            return
-
-        if not completed:
-            display_message("No logs for this date.")
-            return
+    if not completed:
+        display_message("No logs for this date.")
+        return
         
 
-        display_message(f"\n📅 Date: {formatted_date}")
-        display_message("\n✅ Logged:")
-        display_numbered_list(completed)
+    display_message(f"\n📅 Date: {formatted_date}")
+    display_message("\n✅ Logged:")
+    display_numbered_list(completed)
 
-        selected_habits = get_selected_habits(completed)
+    selected_habits = get_selected_habits(completed)
 
-        if selected_habits is None:
-            display_message("Log deletion cancelled.")
-            return
+    if selected_habits is None:
+        display_message("Log deletion cancelled.")
+        return
 
 
-        if not selected_habits:
-            display_message("No habits selected.")
-            continue
-
-        break
+    if not selected_habits:
+        display_message("No habits selected.")
+        return
     
     display_message("\nYou are about to delete logs for:")
     for habit in selected_habits:
