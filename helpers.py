@@ -15,8 +15,8 @@ def display_numbered_list(items):
         display_message(f"{i}. {item}")
 
 def show_habits_status(result):
-    pending = result["pending"]
-    completed = result["completed"]
+    pending = sorted(result["pending"])
+    completed = sorted(result["completed"])
 
     if completed:
         habit_word = pluralize(len(completed), "habit")
