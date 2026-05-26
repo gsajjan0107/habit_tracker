@@ -11,6 +11,7 @@ from helpers import (
     format_weekly_message,
     format_weekly_status,
     format_daily_summary,
+    format_previous_day_missed_message,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -355,3 +356,19 @@ def test_format_daily_summary_multiple_habits():
     summary = format_daily_summary(result, "Tuesday, 26 May 2026")
 
     assert summary == "2/4 habits completed (50.00%) on Tuesday, 26 May 2026."
+
+
+def test_format_previous_day_missed_message_single_habit():
+    missed = ["Workout"]
+
+    result = format_previous_day_missed_message(date(2026, 5, 25), missed)
+
+    assert result == "Not logged on Monday, 25 May 2026 (1 habit):"
+
+
+def test_format_previous_day_missed_message_multiple_habits():
+    missed = ["Workout", "Reading"]
+
+    result = format_previous_day_missed_message(date(2026, 5, 25), missed)
+
+    assert result == "Not logged on Monday, 25 May 2026 (2 habits):"

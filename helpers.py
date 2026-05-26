@@ -132,3 +132,12 @@ def format_daily_summary(result, formatted_date):
         f"{habit_word} completed ({result['completion_rate']:.2f}%) "
         f"on {formatted_date}."
     )
+
+def format_previous_day_missed_message(previous_day, missed):
+    previous_day_formatted = format_display_date(previous_day)
+    habit_word = pluralize(len(missed), "habit")
+
+    return (
+        f"Not logged on {previous_day_formatted} "
+        f"({len(missed)} {habit_word}):"
+    )

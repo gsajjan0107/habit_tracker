@@ -26,7 +26,8 @@ from helpers import (
     pluralize,
     format_weekly_message,
     format_weekly_status,
-    format_daily_summary
+    format_daily_summary,
+    format_previous_day_missed_message,
 )
 
 commands = {
@@ -352,16 +353,8 @@ def handle_dashboard(data):
         missed = []
 
     if missed:
-        previous_day_formatted = format_display_date(previous_day)
-        habit_word = pluralize(len(missed), "habit")
-
         display_message("\n⚠️ Previous Day Missed")
-
-        display_message(
-            f"Not logged on {previous_day_formatted} "
-            f"({len(missed)} {habit_word}):"
-        )
-
+        display_message(format_previous_day_missed_message(previous_day, missed))
         display_numbered_list(missed)
 
     display_message("\n📌 Daily Summary")
