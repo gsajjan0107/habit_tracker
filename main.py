@@ -93,6 +93,10 @@ def handle_log(data):
                 display_message("Logging cancelled.")
                 return
             
+
+            if not selected_habits:
+                display_message("No habits selected.")
+                continue
             
             # Confirm logging
             habit_word = pluralize(len(selected_habits), "habit")
@@ -109,7 +113,7 @@ def handle_log(data):
 
             if not confirmed:
                 display_message("Logging cancelled.")
-                continue
+                return
 
             logged = log_multiple_habits(data, log_date, selected_habits)
             save_data(data)
@@ -129,7 +133,7 @@ def handle_log(data):
 
                 display_message(f"- {habit}: {current_habit_streak} {day_word} streak")
 
-            break
+            return
 
         except ValueError as e:
             display_message(e)
