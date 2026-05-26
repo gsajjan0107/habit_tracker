@@ -354,9 +354,12 @@ def handle_dashboard(data):
         previous_day_formatted = format_display_date(previous_day)
         habit_word = pluralize(len(missed), "habit")
 
+        display_message("\n⚠️ Previous Day Missed")
+
         display_message(
-            f"\n⚠️  Not logged on {previous_day_formatted} "
-            f"({len(missed)} {habit_word}):")
+            f"Not logged on {previous_day_formatted} "
+            f"({len(missed)} {habit_word}):"
+        )
 
         display_numbered_list(missed)
 
