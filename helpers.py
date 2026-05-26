@@ -19,11 +19,13 @@ def show_habits_status(result):
     completed = result["completed"]
 
     if completed:
-        display_message("\n✅ Completed:")
+        habit_word = pluralize(len(completed), "habit")
+        display_message(f"\n✅ Completed ({len(completed)} {habit_word}):")
         display_numbered_list(completed)
 
     if pending:
-        display_message("\n🚫 Unfinished:")
+        habit_word = pluralize(len(pending), "habit")
+        display_message(f"\n🚫 Unfinished ({len(pending)} {habit_word}):")
         display_numbered_list(pending)
 
 def get_confirmation(message):

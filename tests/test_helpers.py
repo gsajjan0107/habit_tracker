@@ -6,6 +6,7 @@ from helpers import (
     count_logs_for_habit,
     get_logged_habits_for_date,
     format_display_date,
+    show_habits_status,
     pluralize,
 )
 
@@ -194,3 +195,70 @@ def test_pluralize_returns_plural_for_more_than_one():
 
 def test_pluralize_uses_custom_plural():
     assert pluralize(2, "entry", "entries") == "entries"
+
+
+def test_show_habits_status_displays_counts(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("helpers.display_message", lambda message: messages.append(message))
+    monkeypatch.setattr(
+        "helpers.display_numbered_list",
+        lambda items: messages.extend([f"{i}. {item}" for i, item in enumerate(items, start=1)])
+    )
+
+    result = {
+        "completed": ["Workout", "Reading"],
+        "pending": ["Python"],
+    }
+
+    show_habits_status(result)
+
+    assert "\n✅ Completed (2 habits):" in messages
+    assert "1. Workout" in messages
+    assert "2. Reading" in messages
+    assert "\n🚫 Unfinished (1 habit):" in messages
+    assert "1. Python" in messages
+
+
+def test_show_habits_status_displays_only_pending_when_no_completed(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("helpers.display_message", lambda message: messages.append(message))
+    monkeypatch.setattr(
+        "helpers.display_numbered_list",
+        lambda items: messages.extend([f"{i}. {item}" for i, item in enumerate(items, start=1)])
+    )
+
+    result = {
+        "completed": [],
+        "pending": ["Python"],
+    }
+
+    show_habits_status(result)
+
+    assert "\n✅ Completed" not in messages
+    assert "\n🚫 Unfinished (1 habit):" in messages
+    assert "1. Python" in messages
+
+
+def test_show_habits_status_displays_only_completed_when_no_pending(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("helpers.display_message", lambda message: messages.append(message))
+    monkeypatch.setattr(
+        "helpers.display_numbered_list",
+        lambda items: messages.extend([f"{i}. {item}" for i, item in enumerate(items, start=1)])
+    )
+
+    result = {
+        "completed": ["Workout"],
+        "pending": [],
+    }
+
+    show_habits_status(result)
+
+    assert "\n✅ Completed (1 habit):" in messages
+    assert "1. Workout" in messages
+    assert "\n🚫 Unfinished" not in messages
+
+

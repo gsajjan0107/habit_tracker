@@ -356,8 +356,7 @@ def handle_dashboard(data):
             f"\n⚠️  Not logged on {previous_day_formatted} "
             f"({len(missed)} {habit_word}):")
 
-        for habit in missed:
-            display_message(f"- {habit}")
+        display_numbered_list(missed)
 
     display_message(
         f"\nCompleted {result['total_completed']} / {result['total_habits']} "
