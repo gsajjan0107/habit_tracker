@@ -41,21 +41,6 @@ def get_selected_habits(pending):
         
         return selected_habits
 
-def filter_habits_by_creation_date(data, habits, log_date):
-    valid_habits = []
-    invalid_habits = []
-
-    for habit in habits:
-        created_date = data["habits"][habit]["created_at"]
-        created_date = validate_date(created_date)
-
-        if log_date < created_date:
-            invalid_habits.append(habit)
-        else:
-            valid_habits.append(habit)
-
-    return valid_habits, invalid_habits
-
 def separate_logged_habits(valid_habits, completed):
     to_log = []
     skipped = []
