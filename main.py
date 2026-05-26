@@ -97,7 +97,7 @@ def handle_log(data):
 
             if not selected_habits:
                 display_message("No habits selected.")
-                continue
+                return
             
             # Confirm logging
             habit_word = pluralize(len(selected_habits), "habit")
@@ -349,7 +349,9 @@ def handle_dashboard(data):
         missed = []
 
     if missed:
-        display_message("\n⚠️  Not logged previous day:")
+        previous_day_formatted = format_display_date(previous_day)
+
+        display_message(f"\n⚠️  Not logged on {previous_day_formatted}:")
         for habit in missed:
             display_message(f"- {habit}")
 
