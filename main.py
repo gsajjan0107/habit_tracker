@@ -121,7 +121,9 @@ def handle_log(data):
                 continue
             
             # Confirm logging
-            display_message("\nYou are about to log:")
+            habit_word = pluralize(len(to_log), "habit")
+
+            display_message(f"\nYou are about to log {len(to_log)} {habit_word}:")
             for habit in to_log:
                 display_message(f"- {habit}")
 
