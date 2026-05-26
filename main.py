@@ -143,7 +143,11 @@ def handle_log(data):
             habit_streaks = streaks(data, log_date)
 
             habit_word = pluralize(len(logged), "habit")
-            display_message(f"\n✅ Logged {len(logged)} {habit_word}:\n")
+            formatted_date = format_display_date(log_date)
+
+            display_message(
+                f"\n✅ Logged {len(logged)} {habit_word} "
+                f"for {formatted_date}:\n")
 
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
