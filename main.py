@@ -122,8 +122,12 @@ def handle_log(data):
             
             # Confirm logging
             habit_word = pluralize(len(to_log), "habit")
+            formatted_date = format_display_date(log_date)
 
-            display_message(f"\nYou are about to log {len(to_log)} {habit_word}:")
+            display_message(
+                f"\nYou are about to log {len(to_log)} {habit_word} "
+                f"for {formatted_date}:")
+
             for habit in to_log:
                 display_message(f"- {habit}")
 
