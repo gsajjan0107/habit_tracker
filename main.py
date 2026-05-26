@@ -362,8 +362,10 @@ def handle_dashboard(data):
 
     habit_word = pluralize(result["total_habits"], "habit")
 
+    display_message("\n📌 Daily Summary:")
+
     display_message(
-        f"\nDaily Summary: {result['total_completed']}/{result['total_habits']} "
+        f"   {result['total_completed']}/{result['total_habits']} "
         f"{habit_word} completed ({result['completion_rate']:.2f}%) "
         f"on {formatted_date}.")
 
