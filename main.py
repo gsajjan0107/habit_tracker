@@ -144,7 +144,7 @@ def handle_view_logs(data):
         return
 
     if not data["logs"]:
-        display_message("No logs found. Log a habit first.")
+        display_message("No logs found yet. Log a habit first.")
         return
 
     while True:
@@ -175,7 +175,7 @@ def handle_delete_log(data):
     
 
     if not data["logs"]:
-        display_message("No logs found. Log a habit first.")
+        display_message("No logs found yet. Log a habit first.")
         return
     
 
@@ -271,7 +271,9 @@ def handle_delete(data):
     log_count = count_logs_for_habit(data, habit)
     log_word = pluralize(log_count, "log")
 
-    confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with {log_count} {log_word}. Confirm? (y/n): ")
+    confirmed = get_confirmation(
+        f"The habit [{habit}] will be deleted permanently along with "
+        f"{log_count} {log_word}. Confirm? (y/n): ")
 
     if not confirmed:
         display_message("Deletion cancelled.")
