@@ -94,29 +94,16 @@ def handle_log(data):
                 display_message("Logging cancelled.")
                 return
             
-
-            # Check if already logged
-            to_log, skipped = separate_logged_habits(selected_habits, completed)
-
-            if skipped:
-                habit_word = pluralize(len(skipped), "habit")
-                display_message(f"⚠️  Already logged {len(skipped)} {habit_word}:")
-                for habit_name in skipped:
-                    display_message(f"- {habit_name}")
-
-            if not to_log:
-                display_message("Nothing new to log.")
-                continue
             
             # Confirm logging
-            habit_word = pluralize(len(to_log), "habit")
+            habit_word = pluralize(len(selected_habits), "habit")
             formatted_date = format_display_date(log_date)
 
             display_message(
-                f"\nYou are about to log {len(to_log)} {habit_word} "
+                f"\nYou are about to log {len(selected_habits)} {habit_word} "
                 f"for {formatted_date}:")
 
-            for habit in to_log:
+            for habit in selected_habits:
                 display_message(f"- {habit}")
 
             confirmed = get_confirmation("\nProceed? (y/n): ")
@@ -125,7 +112,7 @@ def handle_log(data):
                 display_message("Logging cancelled.")
                 continue
 
-            logged = log_multiple_habits(data, log_date, to_log)
+            logged = log_multiple_habits(data, log_date, selected_habits)
             save_data(data)
             
             habit_streaks = streaks(data, log_date)
