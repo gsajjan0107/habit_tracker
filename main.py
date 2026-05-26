@@ -363,11 +363,13 @@ def handle_dashboard(data):
         f"({result['completion_rate']:.2f}%) habits on {formatted_date}."
     )
 
-    display_message("\n📊 Weekly Progress:")
-
     active_habits = get_active_habits_from_stats(result)
-    weekly_stats = habit_weekly_completion(data, selected_date) # done, target, percentage, status
-    habit_streaks = streaks(data, selected_date) # longest_streak, current_streak
+    habit_word = pluralize(len(active_habits), "habit")
+
+    display_message(f"\n📊 Weekly Progress ({len(active_habits)} {habit_word}):")
+
+    weekly_stats = habit_weekly_completion(data, selected_date)
+    habit_streaks = streaks(data, selected_date)
 
     status_labels = {
         "completed": "✅ completed",
@@ -388,14 +390,14 @@ def handle_dashboard(data):
             day_word = pluralize(info["available_days_left"], "day")
 
             weekly_message = (
-                f"{info['remaining']} needed, "
+                f"{info['remaining']} more needed, "
                 f"{info['available_days_left']} {day_word} available - {status}")
         else:
             day_word = pluralize(info["available_days_left"], "day")
 
             weekly_message = (
                 f"⚠️  Not possible this week "
-                f"({info['remaining']} needed, "
+                f"({info['remaining']} more needed, "
                 f"{info['available_days_left']} {day_word} available)")
 
         display_message(f"\n{habit:<15}")
