@@ -358,9 +358,11 @@ def handle_dashboard(data):
 
         display_numbered_list(missed)
 
+    habit_word = pluralize(result["total_habits"], "habit")
+
     display_message(
         f"\nDaily Summary: {result['total_completed']}/{result['total_habits']} "
-        f"habits completed ({result['completion_rate']:.2f}%) "
+        f"{habit_word} completed ({result['completion_rate']:.2f}%) "
         f"on {formatted_date}.")
 
     active_habits = get_active_habits_from_stats(result)
