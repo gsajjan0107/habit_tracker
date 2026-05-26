@@ -350,8 +350,12 @@ def handle_dashboard(data):
 
     if missed:
         previous_day_formatted = format_display_date(previous_day)
+        habit_word = pluralize(len(missed), "habit")
 
-        display_message(f"\n⚠️  Not logged on {previous_day_formatted}:")
+        display_message(
+            f"\n⚠️  Not logged on {previous_day_formatted} "
+            f"({len(missed)} {habit_word}):")
+
         for habit in missed:
             display_message(f"- {habit}")
 
