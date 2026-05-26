@@ -141,7 +141,7 @@ def handle_log(data):
 
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
-                day_word = "day" if current_habit_streak == 1 else "days"
+                day_word = pluralize(current_habit_streak, "day")
 
                 display_message(f"- {habit}: {current_habit_streak} {day_word} streak")
 
@@ -275,8 +275,9 @@ def handle_delete(data):
     
     habit = menu_entries[selected_index - 1]["habit"]
     log_count = count_logs_for_habit(data, habit)
+    log_word = pluralize(log_count, "log")
 
-    confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with {log_count} logs. Confirm? (y/n): ")
+    confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently along with {log_count} {log_word}. Confirm? (y/n): ")
 
     if not confirmed:
         display_message("Deletion cancelled.")

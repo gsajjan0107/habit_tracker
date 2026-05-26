@@ -144,7 +144,7 @@ def validate_int(value: str, min_val=None, max_val=None) -> int:
     return num
 
 def validate_string(value: str, min_len=1, max_len=None) -> str:
-    """Validate text length and allow only letters and spaces."""
+    """Validate text length and allow letters, spaces, and selected symbols."""
     value = value.strip()
 
     if not value:
@@ -156,8 +156,8 @@ def validate_string(value: str, min_len=1, max_len=None) -> str:
     if max_len is not None and len(value) > max_len:
         raise ValueError(f"Maximum {max_len} characters allowed.")
     
-    if not re.match(r"^[A-Za-z ]+$", value):
-        raise ValueError("Only letters and spaces allowed.")
+    if not re.match(r"^[A-Za-z /$_:\-]+$", value):
+        raise ValueError("Only letters, spaces, and / $ - _ : allowed.")
     
     return value.title()
 
