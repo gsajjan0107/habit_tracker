@@ -7,7 +7,6 @@ from stats import daily_stats, habit_weekly_completion, streaks
 
 from utils import (
     get_selected_habits,
-    separate_logged_habits,
     display_habit_archive_menu,
     handle_operation_result
 )

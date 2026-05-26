@@ -41,18 +41,6 @@ def get_selected_habits(pending):
         
         return selected_habits
 
-def separate_logged_habits(valid_habits, completed):
-    to_log = []
-    skipped = []
-
-    for habit in valid_habits:
-        if habit in completed:
-            skipped.append(habit)
-        else:
-            to_log.append(habit)
-
-    return to_log, skipped
-
 def format_habit_label(habit, archived):
     return f"{habit} ({'archived' if archived else 'unarchived'})"
 
