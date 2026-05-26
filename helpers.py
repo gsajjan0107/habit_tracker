@@ -158,3 +158,11 @@ def get_previous_day_missed_habits(data, selected_date, daily_stats_func):
 
     except ValueError:
         return previous_day, []
+    
+def format_log_confirmation_message(selected_habits, formatted_date):
+    habit_word = pluralize(len(selected_habits), "habit")
+
+    return (
+        f"\nYou are about to log {len(selected_habits)} {habit_word} "
+        f"for {formatted_date}:"
+    )

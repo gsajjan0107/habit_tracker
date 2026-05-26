@@ -1,6 +1,5 @@
 import sys
 from validators import get_valid_input, validate_string, validate_int, validate_date, validate_choice
-from datetime import timedelta
 from storage import load_data, save_data
 from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
 from stats import daily_stats, habit_weekly_completion, streaks
@@ -29,6 +28,7 @@ from helpers import (
     format_previous_day_missed_message,
     get_sorted_active_habits_from_stats,
     get_previous_day_missed_habits,
+    format_log_confirmation_message,
 )
 
 commands = {
@@ -104,13 +104,8 @@ def handle_log(data):
                 display_message("No habits selected.")
                 return
             
-            # Confirm logging
-            habit_word = pluralize(len(selected_habits), "habit")
             formatted_date = format_display_date(log_date)
-
-            display_message(
-                f"\nYou are about to log {len(selected_habits)} {habit_word} "
-                f"for {formatted_date}:")
+            display_message(format_log_confirmation_message(selected_habits, formatted_date))
 
             for habit in selected_habits:
                 display_message(f"- {habit}")

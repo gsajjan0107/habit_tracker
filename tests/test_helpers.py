@@ -14,6 +14,7 @@ from helpers import (
     format_previous_day_missed_message,
     get_sorted_active_habits_from_stats,
     get_previous_day_missed_habits,
+    format_log_confirmation_message,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -463,3 +464,27 @@ def test_get_previous_day_missed_habits_returns_empty_on_value_error():
 
     assert previous_day == date(2026, 5, 25)
     assert missed == []
+
+
+def test_format_log_confirmation_message_single_habit():
+    selected_habits = ["Workout"]
+
+    result = format_log_confirmation_message(
+        selected_habits,
+        "Tuesday, 26 May 2026"
+    )
+
+    assert result == "\nYou are about to log 1 habit for Tuesday, 26 May 2026:"
+
+
+def test_format_log_confirmation_message_multiple_habits():
+    selected_habits = ["Workout", "Reading"]
+
+    result = format_log_confirmation_message(
+        selected_habits,
+        "Tuesday, 26 May 2026"
+    )
+
+    assert result == "\nYou are about to log 2 habits for Tuesday, 26 May 2026:"
+
+
