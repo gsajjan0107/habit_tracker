@@ -368,9 +368,8 @@ def handle_dashboard(data):
     weekly_stats = habit_weekly_completion(data, selected_date)
     habit_streaks = streaks(data, selected_date)
 
-    for habit, info in weekly_stats.items():
-        if habit not in active_habits:
-            continue
+    for habit in sorted(active_habits):
+        info = weekly_stats[habit]
 
         streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
         status = format_weekly_status(info["status"])
