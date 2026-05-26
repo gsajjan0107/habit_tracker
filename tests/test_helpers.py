@@ -9,7 +9,8 @@ from helpers import (
     show_habits_status,
     pluralize,
     format_weekly_message,
-    format_weekly_status
+    format_weekly_status,
+    format_daily_summary,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -330,3 +331,27 @@ def test_format_weekly_status_not_started():
 
 def test_format_weekly_status_unknown_returns_original():
     assert format_weekly_status("paused") == "paused"
+
+
+def test_format_daily_summary_single_habit():
+    result = {
+        "total_completed": 1,
+        "total_habits": 1,
+        "completion_rate": 100.0,
+    }
+
+    summary = format_daily_summary(result, "Tuesday, 26 May 2026")
+
+    assert summary == "1/1 habit completed (100.00%) on Tuesday, 26 May 2026."
+
+
+def test_format_daily_summary_multiple_habits():
+    result = {
+        "total_completed": 2,
+        "total_habits": 4,
+        "completion_rate": 50.0,
+    }
+
+    summary = format_daily_summary(result, "Tuesday, 26 May 2026")
+
+    assert summary == "2/4 habits completed (50.00%) on Tuesday, 26 May 2026."

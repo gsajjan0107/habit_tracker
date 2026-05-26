@@ -25,7 +25,8 @@ from helpers import (
     get_logged_habits_for_date,
     pluralize,
     format_weekly_message,
-    format_weekly_status
+    format_weekly_status,
+    format_daily_summary
 )
 
 commands = {
@@ -363,14 +364,8 @@ def handle_dashboard(data):
 
         display_numbered_list(missed)
 
-    habit_word = pluralize(result["total_habits"], "habit")
-
-    display_message("\n📌 Daily Summary:")
-
-    display_message(
-        f"   {result['total_completed']}/{result['total_habits']} "
-        f"{habit_word} completed ({result['completion_rate']:.2f}%) "
-        f"on {formatted_date}.")
+    display_message("\n📌 Daily Summary")
+    display_message(format_daily_summary(result, formatted_date))
 
     active_habits = get_active_habits_from_stats(result)
     habit_word = pluralize(len(active_habits), "habit")

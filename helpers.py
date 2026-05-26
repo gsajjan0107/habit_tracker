@@ -123,3 +123,12 @@ def format_weekly_status(status):
     }
 
     return status_labels.get(status, status)
+
+def format_daily_summary(result, formatted_date):
+    habit_word = pluralize(result["total_habits"], "habit")
+
+    return (
+        f"{result['total_completed']}/{result['total_habits']} "
+        f"{habit_word} completed ({result['completion_rate']:.2f}%) "
+        f"on {formatted_date}."
+    )
