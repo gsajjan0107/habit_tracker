@@ -112,7 +112,8 @@ def handle_log(data):
             to_log, skipped = separate_logged_habits(valid_habits, completed)
 
             if skipped:
-                display_message("⚠️  Already logged:")
+                habit_word = pluralize(len(skipped), "habit")
+                display_message(f"⚠️  Already logged {len(skipped)} {habit_word}:")
                 for habit_name in skipped:
                     display_message(f"- {habit_name}")
 
