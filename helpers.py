@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 def format_display_date(value):
     if isinstance(value, date):
@@ -144,3 +144,17 @@ def format_previous_day_missed_message(previous_day, missed):
 
 def get_sorted_active_habits_from_stats(result):
     return sorted(get_active_habits_from_stats(result))
+
+def get_previous_day_missed_habits(data, selected_date, daily_stats_func):
+    previous_day = selected_date - timedelta(days=1)
+
+    try:
+        previous_day_result = daily_stats_func(data, previous_day)
+
+        if previous_day_result["total_habits"] == 0:
+            return previous_day, []
+
+        return previous_day, sorted(previous_day_result["pending"])
+
+    except ValueError:
+        return previous_day, []

@@ -20,7 +20,6 @@ from helpers import (
     is_habit_archived,
     ensure_habits_exist,
     display_message,
-    get_active_habits_from_stats,
     count_logs_for_habit,
     get_logged_habits_for_date,
     pluralize,
@@ -28,7 +27,8 @@ from helpers import (
     format_weekly_status,
     format_daily_summary,
     format_previous_day_missed_message,
-    get_sorted_active_habits_from_stats
+    get_sorted_active_habits_from_stats,
+    get_previous_day_missed_habits,
 )
 
 commands = {
@@ -341,17 +341,7 @@ def handle_dashboard(data):
 
     show_habits_status(result)
 
-    previous_day = selected_date - timedelta(days=1)
-
-    try:
-        previous_day_result = daily_stats(data, previous_day)
-        if previous_day_result["total_habits"] == 0:
-            missed = []
-        else:
-            missed = previous_day_result["pending"]
-
-    except ValueError:
-        missed = []
+    previous_day, missed = get_previous_day_missed_habits(data, selected_date, daily_stats)
 
     if missed:
         display_message("\n⚠️ Previous Day Missed")
@@ -382,6 +372,8 @@ def handle_dashboard(data):
             f"({info['percentage']:.2f}%) - {weekly_message}")
         display_message(f"  Streak : 🔥 {streak_info['current_streak']}")
         display_message(f"  Best   : 🏆 {streak_info['longest_streak']}")
+
+    display_message("\n✅ Dashboard loaded.")
 
 def handle_exit(data):
     sys.exit()

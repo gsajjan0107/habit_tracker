@@ -13,6 +13,7 @@ from helpers import (
     format_daily_summary,
     format_previous_day_missed_message,
     get_sorted_active_habits_from_stats,
+    get_previous_day_missed_habits,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -414,3 +415,51 @@ def test_get_sorted_active_habits_from_stats_returns_sorted_names():
         "Reading",
         "Workout",
     ]
+
+
+def test_get_previous_day_missed_habits_returns_sorted_pending():
+    def fake_daily_stats(data, selected_date):
+        return {
+            "total_habits": 3,
+            "pending": ["Workout", "Boxing", "Python"],
+        }
+
+    previous_day, missed = get_previous_day_missed_habits(
+        {},
+        date(2026, 5, 26),
+        fake_daily_stats
+    )
+
+    assert previous_day == date(2026, 5, 25)
+    assert missed == ["Boxing", "Python", "Workout"]
+
+
+def test_get_previous_day_missed_habits_returns_empty_when_no_active_habits():
+    def fake_daily_stats(data, selected_date):
+        return {
+            "total_habits": 0,
+            "pending": ["Workout"],
+        }
+
+    previous_day, missed = get_previous_day_missed_habits(
+        {},
+        date(2026, 5, 26),
+        fake_daily_stats
+    )
+
+    assert previous_day == date(2026, 5, 25)
+    assert missed == []
+
+
+def test_get_previous_day_missed_habits_returns_empty_on_value_error():
+    def fake_daily_stats(data, selected_date):
+        raise ValueError("No habits created.")
+
+    previous_day, missed = get_previous_day_missed_habits(
+        {},
+        date(2026, 5, 26),
+        fake_daily_stats
+    )
+
+    assert previous_day == date(2026, 5, 25)
+    assert missed == []
