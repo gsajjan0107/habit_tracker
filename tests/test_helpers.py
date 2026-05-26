@@ -218,8 +218,8 @@ def test_show_habits_status_displays_counts(monkeypatch):
     show_habits_status(result)
 
     assert "\n✅ Completed (2 habits):" in messages
-    assert "1. Workout" in messages
-    assert "2. Reading" in messages
+    assert "1. Reading" in messages
+    assert "2. Workout" in messages
     assert "\n🚫 Unfinished (1 habit):" in messages
     assert "1. Python" in messages
 
@@ -372,3 +372,30 @@ def test_format_previous_day_missed_message_multiple_habits():
     result = format_previous_day_missed_message(date(2026, 5, 25), missed)
 
     assert result == "Not logged on Monday, 25 May 2026 (2 habits):"
+
+
+def test_show_habits_status_sorts_completed_and_pending(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("helpers.display_message", lambda message: messages.append(message))
+    monkeypatch.setattr(
+        "helpers.display_numbered_list",
+        lambda items: messages.extend(
+            [f"{i}. {item}" for i, item in enumerate(items, start=1)]
+        )
+    )
+
+    result = {
+        "completed": ["Workout", "Python", "Reading"],
+        "pending": ["Meditation", "Boxing", "Journaling"],
+    }
+
+    show_habits_status(result)
+
+    assert "1. Python" in messages
+    assert "2. Reading" in messages
+    assert "3. Workout" in messages
+
+    assert "1. Boxing" in messages
+    assert "2. Journaling" in messages
+    assert "3. Meditation" in messages
