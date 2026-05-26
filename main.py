@@ -386,17 +386,17 @@ def handle_dashboard(data):
         streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
         status = status_labels.get(info["status"], info["status"])
 
+        day_word = pluralize(info["available_days_left"], "day")
+
         if info["status"] == "completed":
             weekly_message = "✅ completed"
-        elif not info["is_possible"]:
-            day_word = pluralize(info["available_days_left"], "day")
 
+        elif info["is_possible"]:
             weekly_message = (
                 f"{info['remaining']} more needed, "
                 f"{info['available_days_left']} {day_word} available - {status}")
-        else:
-            day_word = pluralize(info["available_days_left"], "day")
 
+        else:
             weekly_message = (
                 f"⚠️  Not possible this week "
                 f"({info['remaining']} more needed, "
