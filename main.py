@@ -375,12 +375,6 @@ def handle_dashboard(data):
     weekly_stats = habit_weekly_completion(data, selected_date)
     habit_streaks = streaks(data, selected_date)
 
-    status_labels = {
-        "completed": "✅ completed",
-        "in_progress": "🔄 in progress",
-        "not_started": "⚪ not started",
-    }
-
     for habit, info in weekly_stats.items():
         if habit not in active_habits:
             continue
