@@ -29,6 +29,7 @@ from helpers import (
     get_sorted_active_habits_from_stats,
     get_previous_day_missed_habits,
     format_log_confirmation_message,
+    format_logged_success_message,
 )
 
 commands = {
@@ -121,12 +122,8 @@ def handle_log(data):
             
             habit_streaks = streaks(data, log_date)
 
-            habit_word = pluralize(len(logged), "habit")
             formatted_date = format_display_date(log_date)
-
-            display_message(
-                f"\n✅ Logged {len(logged)} {habit_word} "
-                f"for {formatted_date}:\n")
+            display_message(format_logged_success_message(logged, formatted_date))
 
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]

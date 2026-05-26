@@ -166,3 +166,11 @@ def format_log_confirmation_message(selected_habits, formatted_date):
         f"\nYou are about to log {len(selected_habits)} {habit_word} "
         f"for {formatted_date}:"
     )
+
+def format_logged_success_message(logged, formatted_date):
+    habit_word = pluralize(len(logged), "habit")
+
+    return (
+        f"\n✅ Logged {len(logged)} {habit_word} "
+        f"for {formatted_date}:\n"
+    )
