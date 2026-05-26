@@ -7,7 +7,6 @@ from stats import daily_stats, habit_weekly_completion, streaks
 
 from utils import (
     get_selected_habits,
-    filter_habits_by_creation_date,
     separate_logged_habits,
     display_habit_archive_menu,
     handle_operation_result
@@ -96,20 +95,8 @@ def handle_log(data):
                 return
             
 
-            # Filter habits by creation date before logging
-            valid_habits, invalid_habits = (filter_habits_by_creation_date(data, selected_habits, log_date))
-
-            if invalid_habits:
-                display_message("⚠️  Cannot log before creation date:")
-                for habit in invalid_habits:
-                    display_message(f"- {habit}")
-
-            if not valid_habits:
-                display_message("No valid habits to log.")
-                continue
-            
             # Check if already logged
-            to_log, skipped = separate_logged_habits(valid_habits, completed)
+            to_log, skipped = separate_logged_habits(selected_habits, completed)
 
             if skipped:
                 habit_word = pluralize(len(skipped), "habit")
