@@ -28,6 +28,7 @@ from helpers import (
     format_weekly_status,
     format_daily_summary,
     format_previous_day_missed_message,
+    get_sorted_active_habits_from_stats
 )
 
 commands = {
@@ -360,7 +361,7 @@ def handle_dashboard(data):
     display_message("\n📌 Daily Summary")
     display_message(format_daily_summary(result, formatted_date))
 
-    active_habits = get_active_habits_from_stats(result)
+    active_habits = get_sorted_active_habits_from_stats(result)
     habit_word = pluralize(len(active_habits), "habit")
 
     display_message(f"\n📊 Weekly Progress ({len(active_habits)} {habit_word}):")
@@ -368,7 +369,7 @@ def handle_dashboard(data):
     weekly_stats = habit_weekly_completion(data, selected_date)
     habit_streaks = streaks(data, selected_date)
 
-    for habit in sorted(active_habits):
+    for habit in active_habits:
         info = weekly_stats[habit]
 
         streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})

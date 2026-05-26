@@ -12,6 +12,7 @@ from helpers import (
     format_weekly_status,
     format_daily_summary,
     format_previous_day_missed_message,
+    get_sorted_active_habits_from_stats,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -399,3 +400,17 @@ def test_show_habits_status_sorts_completed_and_pending(monkeypatch):
     assert "1. Boxing" in messages
     assert "2. Journaling" in messages
     assert "3. Meditation" in messages
+
+
+def test_get_sorted_active_habits_from_stats_returns_sorted_names():
+    result = {
+        "completed": ["Workout", "Python"],
+        "pending": ["Reading", "Boxing"],
+    }
+
+    assert get_sorted_active_habits_from_stats(result) == [
+        "Boxing",
+        "Python",
+        "Reading",
+        "Workout",
+    ]

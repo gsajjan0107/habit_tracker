@@ -141,3 +141,6 @@ def format_previous_day_missed_message(previous_day, missed):
         f"Not logged on {previous_day_formatted} "
         f"({len(missed)} {habit_word}):"
     )
+
+def get_sorted_active_habits_from_stats(result):
+    return sorted(get_active_habits_from_stats(result))
