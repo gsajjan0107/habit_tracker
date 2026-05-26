@@ -163,7 +163,7 @@ def handle_view_logs(data):
     display_message(f"\n📅 Date: {formatted_date}")
 
     if not completed:
-        display_message("No habits logged on this date.")
+        display_message(f"No habits logged on {formatted_date}.")
         return
     
     display_message(f"\n✅ Logged habits ({len(completed)}):")
@@ -192,7 +192,7 @@ def handle_delete_log(data):
     formatted_date = format_display_date(log_date)
 
     if not completed:
-        display_message("No logs for this date.")
+        display_message(f"No logs found for {formatted_date}.")
         return
         
 
@@ -213,7 +213,10 @@ def handle_delete_log(data):
     
     log_word = pluralize(len(selected_habits), "log")
 
-    display_message(f"\nYou are about to delete {len(selected_habits)} {log_word}:")
+    display_message(
+        f"\nYou are about to delete {len(selected_habits)} {log_word} "
+        f"for {formatted_date}:")
+
     for habit in selected_habits:
         display_message(f"- {habit}")
 
@@ -242,14 +245,16 @@ def handle_delete_log(data):
         display_message("No logs were deleted.")
         return
         
+    save_data(data)
 
     deleted_log_word = pluralize(len(deleted), "log")
 
-    display_message(f"\n🗑️  Deleted {len(deleted)} {deleted_log_word}:")
+    display_message(
+        f"\n🗑️  Deleted {len(deleted)} {deleted_log_word} "
+        f"for {formatted_date}:")
+
     for habit in deleted:
         display_message(f"- {habit}")
-
-    save_data(data)
 
 def handle_delete(data):
     if not ensure_habits_exist(data):
@@ -324,7 +329,7 @@ def handle_dashboard(data):
     display_message(f"\n📅 Date: {formatted_date}")
 
     if result["total_habits"] == 0:
-        display_message("No habits were active on this date.")
+        display_message(f"No habits were active on {formatted_date}.")
         return
 
     show_habits_status(result)
