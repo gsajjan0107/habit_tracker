@@ -9,6 +9,7 @@ from helpers import (
     show_habits_status,
     pluralize,
     format_weekly_message,
+    format_weekly_status
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -313,3 +314,19 @@ def test_format_weekly_message_not_possible():
     result = format_weekly_message(info, "🔄 in progress")
 
     assert result == "⚠️  Not possible this week (4 more needed, 1 day available)"
+
+
+def test_format_weekly_status_completed():
+    assert format_weekly_status("completed") == "✅ completed"
+
+
+def test_format_weekly_status_in_progress():
+    assert format_weekly_status("in_progress") == "🔄 in progress"
+
+
+def test_format_weekly_status_not_started():
+    assert format_weekly_status("not_started") == "⚪ not started"
+
+
+def test_format_weekly_status_unknown_returns_original():
+    assert format_weekly_status("paused") == "paused"

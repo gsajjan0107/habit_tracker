@@ -114,3 +114,12 @@ def format_weekly_message(info, status):
         f"({info['remaining']} more needed, "
         f"{info['available_days_left']} {day_word} available)"
     )
+
+def format_weekly_status(status):
+    status_labels = {
+        "completed": "✅ completed",
+        "in_progress": "🔄 in progress",
+        "not_started": "⚪ not started",
+    }
+
+    return status_labels.get(status, status)

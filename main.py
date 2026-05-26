@@ -25,6 +25,7 @@ from helpers import (
     get_logged_habits_for_date,
     pluralize,
     format_weekly_message,
+    format_weekly_status
 )
 
 commands = {
@@ -385,7 +386,7 @@ def handle_dashboard(data):
             continue
 
         streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
-        status = status_labels.get(info["status"], info["status"])
+        status = format_weekly_status(info["status"])
         weekly_message = format_weekly_message(info, status)
 
         display_message(f"\n{habit:<15}")
