@@ -96,3 +96,21 @@ def pluralize(count, singular, plural=None):
         plural = singular + "s"
 
     return singular if count == 1 else plural
+
+def format_weekly_message(info, status):
+    day_word = pluralize(info["available_days_left"], "day")
+
+    if info["status"] == "completed":
+        return "✅ completed"
+
+    if info["is_possible"]:
+        return (
+            f"{info['remaining']} more needed, "
+            f"{info['available_days_left']} {day_word} available - {status}"
+        )
+
+    return (
+        f"⚠️  Not possible this week "
+        f"({info['remaining']} more needed, "
+        f"{info['available_days_left']} {day_word} available)"
+    )

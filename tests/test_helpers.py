@@ -8,6 +8,7 @@ from helpers import (
     format_display_date,
     show_habits_status,
     pluralize,
+    format_weekly_message,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -262,3 +263,53 @@ def test_show_habits_status_displays_only_completed_when_no_pending(monkeypatch)
     assert "\n🚫 Unfinished" not in messages
 
 
+def test_format_weekly_message_completed():
+    info = {
+        "status": "completed",
+        "is_possible": True,
+        "remaining": 0,
+        "available_days_left": 3,
+    }
+
+    result = format_weekly_message(info, "✅ completed")
+
+    assert result == "✅ completed"
+
+
+def test_format_weekly_message_in_progress_possible():
+    info = {
+        "status": "in_progress",
+        "is_possible": True,
+        "remaining": 2,
+        "available_days_left": 3,
+    }
+
+    result = format_weekly_message(info, "🔄 in progress")
+
+    assert result == "2 more needed, 3 days available - 🔄 in progress"
+
+
+def test_format_weekly_message_in_progress_possible_one_day_left():
+    info = {
+        "status": "in_progress",
+        "is_possible": True,
+        "remaining": 1,
+        "available_days_left": 1,
+    }
+
+    result = format_weekly_message(info, "🔄 in progress")
+
+    assert result == "1 more needed, 1 day available - 🔄 in progress"
+
+
+def test_format_weekly_message_not_possible():
+    info = {
+        "status": "in_progress",
+        "is_possible": False,
+        "remaining": 4,
+        "available_days_left": 1,
+    }
+
+    result = format_weekly_message(info, "🔄 in progress")
+
+    assert result == "⚠️  Not possible this week (4 more needed, 1 day available)"

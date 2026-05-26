@@ -23,7 +23,8 @@ from helpers import (
     get_active_habits_from_stats,
     count_logs_for_habit,
     get_logged_habits_for_date,
-    pluralize
+    pluralize,
+    format_weekly_message,
 )
 
 commands = {
@@ -385,22 +386,7 @@ def handle_dashboard(data):
 
         streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
         status = status_labels.get(info["status"], info["status"])
-
-        day_word = pluralize(info["available_days_left"], "day")
-
-        if info["status"] == "completed":
-            weekly_message = "✅ completed"
-
-        elif info["is_possible"]:
-            weekly_message = (
-                f"{info['remaining']} more needed, "
-                f"{info['available_days_left']} {day_word} available - {status}")
-
-        else:
-            weekly_message = (
-                f"⚠️  Not possible this week "
-                f"({info['remaining']} more needed, "
-                f"{info['available_days_left']} {day_word} available)")
+        weekly_message = format_weekly_message(info, status)
 
         display_message(f"\n{habit:<15}")
         display_message(
