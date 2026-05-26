@@ -71,6 +71,7 @@ def handle_log(data):
             log_date = validate_date(log_date)
 
             result = daily_stats(data, log_date)
+            pending = result["pending"]
 
             if result["total_habits"] == 0:
                 display_message("No habits were active on this date.")
@@ -78,11 +79,9 @@ def handle_log(data):
 
             show_habits_status(result) # show pending and completed habits
 
-            completed = result["completed"]
-            pending = result["pending"]
-
             if not pending:
-                display_message("\n🎉 All habits completed for this day!")
+                formatted_date = format_display_date(log_date)
+                display_message(f"\n🎉 All habits completed for {formatted_date}!")
                 return
 
 
