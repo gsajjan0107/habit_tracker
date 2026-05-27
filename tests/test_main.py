@@ -434,3 +434,53 @@ def test_handle_log_cancels_when_user_declines_confirmation(monkeypatch):
     assert data["logs"] == []
 
 
+def test_handle_log_logs_all_pending_habits_after_confirmation(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [],
+    }
+
+    messages = []
+    saved = {"called": False}
+
+    inputs = iter([
+        "2026-05-01",  # select date
+        "all",         # select all pending habits
+        "y",           # confirm logging
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(updated_data):
+        saved["called"] = True
+        assert updated_data == data
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_log(data)
+
+    assert data["logs"] == [
+        {
+            "habit": "Reading",
+            "date": "2026-05-01",
+        },
+        {
+            "habit": "Workout",
+            "date": "2026-05-01",
+        },
+    ]
+    assert any("Logged" in message for message in messages)
+
+
