@@ -400,3 +400,37 @@ def test_handle_log_logs_selected_habit_after_confirmation(monkeypatch):
     assert any("Logged" in message for message in messages)
 
 
+def test_handle_log_cancels_when_user_declines_confirmation(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+
+    inputs = iter([
+        "2026-05-01",  # select date
+        "1",           # select Workout
+        "n",           # decline confirmation
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when logging is declined")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_log(data)
+
+    assert "Logging cancelled." in messages
+    assert data["logs"] == []
+
+
