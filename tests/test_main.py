@@ -294,3 +294,34 @@ def test_handle_toggle_archive_archives_selected_active_habit(monkeypatch):
     assert data["habits"]["Workout"]["archived_at"] is not None
 
 
+def test_handle_toggle_archive_unarchives_selected_archived_habit(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": "2026-05-10",
+            }
+        },
+        "logs": [],
+    }
+
+    called = {"handled": False}
+
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    def fake_handle_operation_result(updated_data, result):
+        called["handled"] = True
+
+        assert updated_data == data
+        assert result["success"] is True
+        assert "unarchived" in result["msg"].lower()
+
+    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
+
+    main.handle_toggle_archive(data)
+
+    assert called["handled"] is True
+    assert data["habits"]["Workout"]["archived_at"] is None
+
+
