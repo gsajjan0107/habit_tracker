@@ -30,6 +30,7 @@ from helpers import (
     get_previous_day_missed_habits,
     format_log_confirmation_message,
     format_logged_success_message,
+    format_streak_line,
 )
 
 commands = {
@@ -105,6 +106,7 @@ def handle_log(data):
                 display_message("No habits selected.")
                 return
             
+
             formatted_date = format_display_date(log_date)
             display_message(format_log_confirmation_message(selected_habits, formatted_date))
 
@@ -116,6 +118,7 @@ def handle_log(data):
             if not confirmed:
                 display_message("Logging cancelled.")
                 return
+            
 
             logged = log_multiple_habits(data, log_date, selected_habits)
             save_data(data)
@@ -127,9 +130,7 @@ def handle_log(data):
 
             for habit in logged:
                 current_habit_streak = habit_streaks[habit]["current_streak"]
-                day_word = pluralize(current_habit_streak, "day")
-
-                display_message(f"- {habit}: {current_habit_streak} {day_word} streak")
+                display_message(format_streak_line(habit, current_habit_streak))
 
             return
 

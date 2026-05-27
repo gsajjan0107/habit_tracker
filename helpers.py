@@ -174,3 +174,8 @@ def format_logged_success_message(logged, formatted_date):
         f"\n✅ Logged {len(logged)} {habit_word} "
         f"for {formatted_date}:\n"
     )
+
+def format_streak_line(habit, current_streak):
+    day_word = pluralize(current_streak, "day")
+
+    return f"- {habit}: {current_streak} {day_word} streak"

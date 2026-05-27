@@ -16,6 +16,7 @@ from helpers import (
     get_previous_day_missed_habits,
     format_log_confirmation_message,
     format_logged_success_message,
+    format_streak_line,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -509,5 +510,17 @@ def test_format_logged_success_message_multiple_habits():
     )
 
     assert result == "\n✅ Logged 2 habits for Tuesday, 26 May 2026:\n"
+
+
+def test_format_streak_line_single_day():
+    result = format_streak_line("Workout", 1)
+
+    assert result == "- Workout: 1 day streak"
+
+
+def test_format_streak_line_multiple_days():
+    result = format_streak_line("Workout", 5)
+
+    assert result == "- Workout: 5 days streak"
 
 
