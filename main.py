@@ -299,8 +299,18 @@ def handle_toggle_archive(data):
 
     menu_entries = display_habit_archive_menu(data, habits)
 
-    selected_index = get_valid_input("\nSelect a habit (enter number): ",
-            lambda n: validate_int(n, 1, len(menu_entries)))
+    while True:
+        choice = input("\nSelect a habit number, or 'q' to cancel: ").strip().lower()
+
+        if choice == "q":
+            display_message("Archive/unarchive cancelled.")
+            return
+
+        try:
+            selected_index = validate_int(choice, 1, len(menu_entries))
+            break
+        except ValueError as e:
+            display_message(f"Error: {e}")
     
     entry = menu_entries[selected_index - 1]
     habit_name = entry["habit"]
