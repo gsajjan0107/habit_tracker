@@ -220,3 +220,46 @@ def test_handle_delete_cancels_when_user_declines_confirmation(monkeypatch):
     }
 
 
+def test_handle_delete_deletes_habit_after_full_confirmation(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+    saved = {"called": False}
+
+    inputs = iter([
+        "1",        # select Workout
+        "y",        # confirm deletion
+        "Workout",  # type exact habit name
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(updated_data):
+        saved["called"] = True
+        assert updated_data == data
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete(data)
+
+    assert saved["called"] is True
+    assert "Workout" not in data["habits"]
+    assert data["logs"] == []
+    assert "Workout deleted." in messages
+
+
