@@ -325,3 +325,36 @@ def test_handle_toggle_archive_unarchives_selected_archived_habit(monkeypatch):
     assert data["habits"]["Workout"]["archived_at"] is None
 
 
+def test_handle_log_can_be_cancelled_at_habit_selection(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+
+    inputs = iter([
+        "2026-05-01",  # select date
+        "q",           # cancel habit selection
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when logging is cancelled")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_log(data)
+
+    assert "Logging cancelled." in messages
+    assert data["logs"] == []
+
+
