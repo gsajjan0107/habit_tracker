@@ -66,3 +66,50 @@ def test_handle_delete_log_can_be_cancelled_after_selecting_date(monkeypatch):
             "date": "2026-05-01",
         }
     ]
+
+
+def test_handle_delete_can_be_cancelled_at_habit_selection(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "q")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when deletion is cancelled")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete(data)
+
+    assert "Deletion cancelled." in messages
+    assert data == {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
