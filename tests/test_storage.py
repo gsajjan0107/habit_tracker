@@ -122,3 +122,49 @@ def test_save_data_does_not_overwrite_existing_file_when_data_is_invalid(tmp_pat
     assert saved_data == existing_data
 
 
+def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, monkeypatch):
+    test_file = tmp_path / "data.json"
+    monkeypatch.setattr(storage, "DATA_FILE", test_file)
+
+    existing_data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    new_data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-02",
+                "archived_at": None,
+            },
+        },
+        "logs": [],
+    }
+
+    test_file.write_text(json.dumps(existing_data, indent=4))
+
+    storage.save_data(new_data)
+
+    backup_files = list(tmp_path.glob("data_backup_*.json"))
+
+    assert len(backup_files) == 1
+
+    backup_data = json.loads(backup_files[0].read_text())
+    saved_data = json.loads(test_file.read_text())
+
+    assert backup_data == existing_data
+    assert saved_data == new_data
+
+
