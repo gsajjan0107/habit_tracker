@@ -1,4 +1,4 @@
-from utils import build_archive_menu_entries, get_selected_habits
+from utils import build_archive_menu_entries, get_selected_habits, handle_operation_result
 
 def test_build_archive_menu_entries_puts_active_habits_before_archived(sample_data):
     sample_data["habits"] = {
@@ -94,3 +94,42 @@ def test_get_selected_habits_retries_after_blank_input(monkeypatch):
     result = get_selected_habits(pending)
 
     assert result == ["Reading"]
+
+
+def test_handle_operation_result_saves_data_when_successful(monkeypatch, sample_data):
+    saved = {"called": False}
+
+    def fake_save_data(data):
+        saved["called"] = True
+        assert data == sample_data
+
+    monkeypatch.setattr("utils.save_data", fake_save_data)
+
+    result = {
+        "success": True,
+        "msg": "Habit archived.",
+    }
+
+    handle_operation_result(sample_data, result)
+
+    assert saved["called"] is True
+
+
+def test_handle_operation_result_does_not_save_data_when_unsuccessful(monkeypatch, sample_data):
+    saved = {"called": False}
+
+    def fake_save_data(data):
+        saved["called"] = True
+
+    monkeypatch.setattr("utils.save_data", fake_save_data)
+
+    result = {
+        "success": False,
+        "msg": "Habit not found.",
+    }
+
+    handle_operation_result(sample_data, result)
+
+    assert saved["called"] is False
+
+
