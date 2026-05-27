@@ -263,3 +263,34 @@ def test_handle_delete_deletes_habit_after_full_confirmation(monkeypatch):
     assert "Workout deleted." in messages
 
 
+def test_handle_toggle_archive_archives_selected_active_habit(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    called = {"handled": False}
+
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    def fake_handle_operation_result(updated_data, result):
+        called["handled"] = True
+
+        assert updated_data == data
+        assert result["success"] is True
+        assert "archived" in result["msg"].lower()
+
+    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
+
+    main.handle_toggle_archive(data)
+
+    assert called["handled"] is True
+    assert data["habits"]["Workout"]["archived_at"] is not None
+
+
