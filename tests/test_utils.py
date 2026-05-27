@@ -1,4 +1,4 @@
-from utils import build_archive_menu_entries
+from utils import build_archive_menu_entries, get_selected_habits
 
 def test_build_archive_menu_entries_puts_active_habits_before_archived(sample_data):
     sample_data["habits"] = {
@@ -22,3 +22,64 @@ def test_build_archive_menu_entries_puts_active_habits_before_archived(sample_da
         {"habit": "B Active", "archived": False},
         {"habit": "A Archived", "archived": True},
     ]
+
+
+def test_get_selected_habits_selects_single_habit(monkeypatch):
+    pending = ["Workout", "Reading", "Coding"]
+
+    monkeypatch.setattr("builtins.input", lambda _: "2")
+
+    result = get_selected_habits(pending)
+
+    assert result == ["Reading"]
+
+
+def test_get_selected_habits_selects_multiple_habits(monkeypatch):
+    pending = ["Workout", "Reading", "Coding"]
+
+    monkeypatch.setattr("builtins.input", lambda _: "1 3")
+
+    result = get_selected_habits(pending)
+
+    assert result == ["Workout", "Coding"]
+
+
+def test_get_selected_habits_selects_all(monkeypatch):
+    pending = ["Workout", "Reading", "Coding"]
+
+    monkeypatch.setattr("builtins.input", lambda _: "all")
+
+    result = get_selected_habits(pending)
+
+    assert result == pending
+
+
+def test_get_selected_habits_returns_none_when_cancelled(monkeypatch):
+    pending = ["Workout", "Reading", "Coding"]
+
+    monkeypatch.setattr("builtins.input", lambda _: "q")
+
+    result = get_selected_habits(pending)
+
+    assert result is None
+
+
+def test_get_selected_habits_ignores_duplicate_numbers(monkeypatch):
+    pending = ["Workout", "Reading", "Coding"]
+
+    monkeypatch.setattr("builtins.input", lambda _: "1 1 2")
+
+    result = get_selected_habits(pending)
+
+    assert result == ["Workout", "Reading"]
+
+
+def test_get_selected_habits_retries_after_invalid_input(monkeypatch):
+    pending = ["Workout", "Reading", "Coding"]
+
+    inputs = iter(["9", "2"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    result = get_selected_habits(pending)
+
+    assert result == ["Reading"]
