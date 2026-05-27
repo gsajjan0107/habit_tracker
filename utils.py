@@ -6,6 +6,10 @@ def get_selected_habits(pending):
     while True:
         raw = input("\nEnter habit numbers, 'all', or 'q' to cancel: ").strip().lower()
 
+        if not raw:
+            display_message("Please select at least one habit, 'all', or 'q' to cancel.")
+            continue
+
         if raw == 'q':
             return None
 

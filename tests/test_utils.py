@@ -83,3 +83,14 @@ def test_get_selected_habits_retries_after_invalid_input(monkeypatch):
     result = get_selected_habits(pending)
 
     assert result == ["Reading"]
+
+
+def test_get_selected_habits_retries_after_blank_input(monkeypatch):
+    pending = ["Workout", "Reading", "Coding"]
+
+    inputs = iter(["", "2"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    result = get_selected_habits(pending)
+
+    assert result == ["Reading"]
