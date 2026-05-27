@@ -113,3 +113,58 @@ def test_handle_delete_can_be_cancelled_at_habit_selection(monkeypatch):
             }
         ],
     }
+
+
+def test_handle_delete_cancels_when_typed_habit_name_does_not_match(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+
+    inputs = iter([
+        "1",        # select Workout
+        "y",        # confirm deletion
+        "WrongName" # wrong final typed habit name
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when habit name does not match")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete(data)
+
+    assert "Habit name did not match. Deletion cancelled." in messages
+    assert data == {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+
