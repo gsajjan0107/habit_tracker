@@ -4,7 +4,7 @@ from storage import save_data
 
 def get_selected_habits(pending):
     while True:
-        raw = input("\nEnter habit numbers (or 'all'): ").strip().lower()
+        raw = input("\nEnter habit numbers, 'all', or 'q' to cancel: ").strip().lower()
 
         if raw == 'q':
             return None
