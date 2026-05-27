@@ -1,4 +1,4 @@
-from utils import build_archive_menu_entries, get_selected_habits, handle_operation_result
+from utils import build_archive_menu_entries, get_selected_habits, handle_operation_result, format_habit_label
 
 def test_build_archive_menu_entries_puts_active_habits_before_archived(sample_data):
     sample_data["habits"] = {
@@ -133,3 +133,13 @@ def test_handle_operation_result_does_not_save_data_when_unsuccessful(monkeypatc
     assert saved["called"] is False
 
 
+def test_format_habit_label_shows_unarchived_habit():
+    result = format_habit_label("Workout", False)
+
+    assert result == "Workout (unarchived)"
+
+
+def test_format_habit_label_shows_archived_habit():
+    result = format_habit_label("Workout", True)
+
+    assert result == "Workout (archived)"
