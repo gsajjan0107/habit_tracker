@@ -799,3 +799,38 @@ def test_handle_add_retries_when_target_is_invalid(monkeypatch):
     assert "Workout added." in messages
 
 
+def test_handle_add_retries_when_habit_name_is_invalid(monkeypatch):
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    messages = []
+    saved = {"called": False}
+
+    inputs = iter([
+        "ab",       # invalid habit name: too short
+        "Workout",  # valid habit name
+        "5",        # valid target per week
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+    monkeypatch.setattr("validators.display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(updated_data):
+        saved["called"] = True
+        assert updated_data == data
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_add(data)
+
+    assert "Error: Minimum 3 characters required." in messages
+    assert saved["called"] is True
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["target_per_week"] == 5
+    assert data["habits"]["Workout"]["archived_at"] is None
+    assert "Workout added." in messages
+
+
