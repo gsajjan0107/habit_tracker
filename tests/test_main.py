@@ -1,6 +1,6 @@
+import copy
 import main
 import helpers
-
 
 
 # ===== data helpers =====
@@ -42,7 +42,7 @@ def run_handle_add(monkeypatch, data, user_inputs):
     monkeypatch.setattr("validators.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
-        save_calls.append(updated_data.copy())
+        save_calls.append(copy.deepcopy(updated_data))
 
     monkeypatch.setattr(main, "save_data", fake_save_data)
 
@@ -86,7 +86,7 @@ def run_handle_delete_log(monkeypatch, data, user_inputs):
     monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
-        save_calls.append(updated_data.copy())
+        save_calls.append(copy.deepcopy(updated_data))
 
     monkeypatch.setattr(main, "save_data", fake_save_data)
 
@@ -106,7 +106,7 @@ def run_handle_delete(monkeypatch, data, user_inputs):
     monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
-        save_calls.append(updated_data.copy())
+        save_calls.append(copy.deepcopy(updated_data))
 
     monkeypatch.setattr(main, "save_data", fake_save_data)
 
@@ -127,7 +127,7 @@ def run_handle_log(monkeypatch, data, user_inputs):
     monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
-        save_calls.append(updated_data.copy())
+        save_calls.append(copy.deepcopy(updated_data))
 
     monkeypatch.setattr(main, "save_data", fake_save_data)
 
