@@ -28,206 +28,11 @@ def make_data(habits=None, logs=None):
 
 # ===== handle_add tests =====
 
-def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
-
-    messages = []
-    saved = {"called": False}
-
-    inputs = iter([
-        "Workout",  # habit name
-        "5",        # target per week
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_add(data)
-
-    assert saved["called"] is True
-    assert "Workout" in data["habits"]
-    assert data["habits"]["Workout"]["target_per_week"] == 5
-    assert data["habits"]["Workout"]["archived_at"] is None
-    assert "Workout added." in messages
-
-
-def test_handle_add_retries_when_habit_already_exists(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
-
-    messages = []
-    saved = {"called": False}
-
-    inputs = iter([
-        "Workout",  # duplicate existing habit
-        "Reading",  # new valid habit
-        "3",        # target per week
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_add(data)
-
-    assert "Habit already exists." in messages
-    assert saved["called"] is True
-    assert "Workout" in data["habits"]
-    assert "Reading" in data["habits"]
-    assert data["habits"]["Reading"]["target_per_week"] == 3
-    assert data["habits"]["Reading"]["archived_at"] is None
-    assert "Reading added." in messages
-
-
-def test_handle_add_retries_when_habit_exists_but_is_archived(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": "2026-05-10",
-            }
-        },
-        "logs": [],
-    }
-
-    messages = []
-    saved = {"called": False}
-
-    inputs = iter([
-        "Workout",  # existing archived habit
-        "Reading",  # new valid habit
-        "3",        # target per week
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_add(data)
-
-    assert "Habit exists but is archived. Unarchive it instead." in messages
-    assert saved["called"] is True
-    assert "Workout" in data["habits"]
-    assert data["habits"]["Workout"]["archived_at"] == "2026-05-10"
-    assert "Reading" in data["habits"]
-    assert data["habits"]["Reading"]["target_per_week"] == 3
-    assert data["habits"]["Reading"]["archived_at"] is None
-    assert "Reading added." in messages
-
-
-def test_handle_add_retries_when_target_is_invalid(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
-
-    messages = []
-    saved = {"called": False}
-
-    inputs = iter([
-        "Workout",  # valid habit name
-        "0",        # invalid target
-        "5",        # valid target
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-    monkeypatch.setattr("validators.display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_add(data)
-
-    assert "Error: Input number must be >= 1" in messages
-    assert saved["called"] is True
-    assert "Workout" in data["habits"]
-    assert data["habits"]["Workout"]["target_per_week"] == 5
-    assert data["habits"]["Workout"]["archived_at"] is None
-    assert "Workout added." in messages
-
-
-def test_handle_add_retries_when_habit_name_is_invalid(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
-
-    messages = []
-    saved = {"called": False}
-
-    inputs = iter([
-        "ab",       # invalid habit name: too short
-        "Workout",  # valid habit name
-        "5",        # valid target per week
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-    monkeypatch.setattr("validators.display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_add(data)
-
-    assert "Error: Minimum 3 characters required." in messages
-    assert saved["called"] is True
-    assert "Workout" in data["habits"]
-    assert data["habits"]["Workout"]["target_per_week"] == 5
-    assert data["habits"]["Workout"]["archived_at"] is None
-    assert "Workout added." in messages
-
-
-def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
-
+def run_handle_add(monkeypatch, data, user_inputs):
     messages = []
     save_calls = []
 
-    inputs = iter([
-        "ab",       # invalid habit name
-        "Workout",  # valid habit name
-        "0",        # invalid target
-        "5",        # valid target
-    ])
+    inputs = iter(user_inputs)
 
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
@@ -240,6 +45,137 @@ def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
 
     main.handle_add(data)
 
+    return messages, save_calls
+
+
+def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
+    data = make_data()
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Workout",
+            "5",
+        ],
+    )
+
+    assert len(save_calls) == 1
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["target_per_week"] == 5
+    assert data["habits"]["Workout"]["archived_at"] is None
+    assert "Workout added." in messages
+
+
+def test_handle_add_retries_when_habit_already_exists(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Workout",
+            "Reading",
+            "3",
+        ],
+    )
+
+    assert "Habit already exists." in messages
+    assert len(save_calls) == 1
+    assert "Workout" in data["habits"]
+    assert "Reading" in data["habits"]
+    assert data["habits"]["Reading"]["target_per_week"] == 3
+    assert data["habits"]["Reading"]["archived_at"] is None
+    assert "Reading added." in messages
+
+
+def test_handle_add_retries_when_habit_exists_but_is_archived(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(archived_at="2026-05-10"),
+        }
+    )
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Workout",
+            "Reading",
+            "3",
+        ],
+    )
+
+    assert "Habit exists but is archived. Unarchive it instead." in messages
+    assert len(save_calls) == 1
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["archived_at"] == "2026-05-10"
+    assert "Reading" in data["habits"]
+    assert data["habits"]["Reading"]["target_per_week"] == 3
+    assert data["habits"]["Reading"]["archived_at"] is None
+    assert "Reading added." in messages
+
+
+def test_handle_add_retries_when_target_is_invalid(monkeypatch):
+    data = make_data()
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Workout",
+            "0",
+            "5",
+        ],
+    )
+
+    assert "Error: Input number must be >= 1" in messages
+    assert len(save_calls) == 1
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["target_per_week"] == 5
+    assert data["habits"]["Workout"]["archived_at"] is None
+    assert "Workout added." in messages
+
+
+def test_handle_add_retries_when_habit_name_is_invalid(monkeypatch):
+    data = make_data()
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "ab",
+            "Workout",
+            "5",
+        ],
+    )
+
+    assert "Error: Minimum 3 characters required." in messages
+    assert len(save_calls) == 1
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["target_per_week"] == 5
+    assert data["habits"]["Workout"]["archived_at"] is None
+    assert "Workout added." in messages
+
+
+def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
+    data = make_data()
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "ab",
+            "Workout",
+            "0",
+            "5",
+        ],
+    )
+
     assert any("Minimum 3 characters required." in message for message in messages)
     assert any("Input number must be >= 1" in message for message in messages)
 
@@ -250,35 +186,21 @@ def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
 
 
 def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": "2026-05-10",
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(archived_at="2026-05-10"),
+        }
+    )
 
-    messages = []
-    save_calls = []
-
-    inputs = iter([
-        "Workout",  # existing archived habit
-        "Reading",  # new valid habit
-        "3",        # valid target
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(updated_data):
-        save_calls.append(updated_data.copy())
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_add(data)
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Workout",
+            "Reading",
+            "3",
+        ],
+    )
 
     assert "Habit exists but is archived. Unarchive it instead." in messages
 
@@ -289,8 +211,6 @@ def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch)
     assert data["habits"]["Reading"]["target_per_week"] == 3
     assert data["habits"]["Reading"]["archived_at"] is None
     assert "Reading added." in messages
-
-
 
 
 # ===== handle_toggle_archive tests =====
