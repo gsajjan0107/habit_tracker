@@ -1193,3 +1193,56 @@ def test_handle_dashboard_retries_invalid_date_then_shows_no_active_habits(monke
     assert "\n==== DASHBOARD ====" in messages
     assert "\n📅 Date: Friday, 01 May 2026" in messages
     assert "No habits were active on Friday, 01 May 2026." in messages
+
+
+def test_handle_log_shows_message_when_all_habits_completed(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Reading",
+                "date": "2026-05-01",
+            },
+        ],
+    }
+
+    messages = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when all habits are already completed")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_log(data)
+
+    assert "\n🎉 All habits completed for Friday, 01 May 2026!" in messages
+    assert data["logs"] == [
+        {
+            "habit": "Workout",
+            "date": "2026-05-01",
+        },
+        {
+            "habit": "Reading",
+            "date": "2026-05-01",
+        },
+    ]
+
+
