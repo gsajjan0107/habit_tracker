@@ -811,7 +811,7 @@ def test_handle_delete_cancels_when_user_declines_confirmation(monkeypatch):
     )
 
 
-def test_handle_delete_deletes_habit_after_full_confirmation(monkeypatch):
+def test_handle_delete_refuses_to_delete_habit_with_logs_after_full_confirmation(monkeypatch):
     data = make_data(
         habits={
             "Workout": make_habit(),
@@ -831,10 +831,12 @@ def test_handle_delete_deletes_habit_after_full_confirmation(monkeypatch):
         ],
     )
 
-    assert len(save_calls) == 1
-    assert "Workout" not in data["habits"]
-    assert data["logs"] == []
-    assert "Workout deleted." in messages
+    assert any("existing logs" in str(message) for message in messages)
+    assert "Workout" in data["habits"]
+    assert data["logs"] == [
+        make_log("Workout", "2026-05-01"),
+    ]
+    assert save_calls == []
 
 
 def test_handle_delete_shows_message_when_no_habits_exist(monkeypatch):

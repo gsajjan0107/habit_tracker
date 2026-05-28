@@ -164,10 +164,8 @@ def delete_habit(data, habit_name):
     if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
 
-    data["logs"] = [
-        log for log in data["logs"]
-        if log["habit"] != habit_name
-    ]
+    if any(log["habit"] == habit_name for log in data["logs"]):
+        raise ValueError("Cannot permanently delete a habit with existing logs. Archive it instead.")
 
     del data["habits"][habit_name]
     return f"{habit_name} deleted."

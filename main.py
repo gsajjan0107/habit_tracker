@@ -293,8 +293,13 @@ def handle_delete(data):
         return
 
 
-    # DELETE HABIT
-    result = delete_habit(data, habit)
+    try:
+        result = delete_habit(data, habit)
+
+    except ValueError as e:
+        display_message(e)
+        return
+
     save_data(data)
     display_message(result)
  

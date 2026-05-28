@@ -298,7 +298,7 @@ def test_delete_habit_success(sample_data):
     assert "Reading" not in sample_data["habits"]
 
 
-def test_delete_habit_removes_related_logs(sample_data):
+def test_delete_habit_with_existing_log_raises_error(sample_data):
     add_habit(sample_data, "Reading", 30)
     add_habit(sample_data, "Workout", 30)
 
@@ -313,14 +313,20 @@ def test_delete_habit_removes_related_logs(sample_data):
         }
     ]
 
-    delete_habit(sample_data, "Reading")
+    with pytest.raises(ValueError, match="existing logs"):
+        delete_habit(sample_data, "Reading")
 
-    assert len(sample_data["logs"]) == 1
-
-    assert sample_data["logs"][0] == {
-        "habit": "Workout",
-        "date": "2026-05-10"
-    }
+    assert "Reading" in sample_data["habits"]
+    assert sample_data["logs"] == [
+        {
+            "habit": "Reading",
+            "date": "2026-05-10"
+        },
+        {
+            "habit": "Workout",
+            "date": "2026-05-10"
+        }
+    ]
 
 
 def test_delete_nonexistent_habit(sample_data):
@@ -330,7 +336,7 @@ def test_delete_nonexistent_habit(sample_data):
     assert str(exc.value) == "Habit does not exist."
 
 
-def test_delete_habit_with_multiple_logs(sample_data):
+def test_delete_habit_with_multiple_logs_raises_error(sample_data):
     add_habit(sample_data, "Reading", 30)
 
     sample_data["logs"] = [
@@ -348,11 +354,11 @@ def test_delete_habit_with_multiple_logs(sample_data):
         }
     ]
 
-    delete_habit(sample_data, "Reading")
+    with pytest.raises(ValueError, match="existing logs"):
+        delete_habit(sample_data, "Reading")
 
-    assert sample_data["logs"] == []
-
-    assert "Reading" not in sample_data["habits"]
+    assert "Reading" in sample_data["habits"]
+    assert len(sample_data["logs"]) == 3
 
 
 def test_toggle_archive_nonexistent_habit(sample_data):
@@ -437,3 +443,18 @@ def test_delete_log_no_habits_fails(sample_data):
         delete_log(sample_data, "2020-05-10", "Workout")
 
     assert str(exc.value) == "No habits found. Add a habit first."
+
+
+def test_delete_habit_with_existing_logs_raises_error(sample_data):
+    sample_data["habits"]["Workout"] = {
+        "target_per_week": 5,
+        "created_at": "2026-05-01",
+        "archived_at": None,
+    }
+    sample_data["logs"].append({
+        "habit": "Workout",
+        "date": "2026-05-01",
+    })
+
+    with pytest.raises(ValueError, match="existing logs"):
+        delete_habit(sample_data, "Workout")
