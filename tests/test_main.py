@@ -1342,3 +1342,41 @@ def test_handle_delete_log_shows_message_when_no_logs_exist(monkeypatch):
     assert data["logs"] == []
 
 
+def test_handle_delete_log_shows_message_when_no_logs_for_selected_date(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "2026-05-02")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when no logs exist for selected date")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete_log(data)
+
+    assert "No logs found for Saturday, 02 May 2026." in messages
+    assert data["logs"] == [
+        {
+            "habit": "Workout",
+            "date": "2026-05-01",
+        }
+    ]
+    
+
