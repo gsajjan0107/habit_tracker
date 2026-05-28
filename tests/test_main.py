@@ -213,187 +213,146 @@ def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch)
     assert "Reading added." in messages
 
 
+
+
 # ===== handle_toggle_archive tests =====
 
-def test_handle_toggle_archive_can_be_cancelled(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
-
+def run_handle_toggle_archive(monkeypatch, data, user_inputs):
     messages = []
+    handled_results = []
 
-    monkeypatch.setattr("builtins.input", lambda _: "q")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+    inputs = iter(user_inputs)
 
-    def fake_handle_operation_result(data, result):
-        raise AssertionError("handle_operation_result should not be called when cancelled")
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_handle_operation_result(updated_data, result):
+        handled_results.append({
+            "data": updated_data,
+            "result": result,
+        })
 
     monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
 
     main.handle_toggle_archive(data)
 
+    return messages, handled_results
+
+
+def test_handle_toggle_archive_can_be_cancelled(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
+
+    messages, handled_results = run_handle_toggle_archive(
+        monkeypatch,
+        data,
+        user_inputs=["q"],
+    )
+
     assert "Archive/unarchive cancelled." in messages
+    assert handled_results == []
     assert data["habits"]["Workout"]["archived_at"] is None
 
 
 def test_handle_toggle_archive_archives_selected_active_habit(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
 
-    called = {"handled": False}
+    messages, handled_results = run_handle_toggle_archive(
+        monkeypatch,
+        data,
+        user_inputs=["1"],
+    )
 
-    monkeypatch.setattr("builtins.input", lambda _: "1")
-
-    def fake_handle_operation_result(updated_data, result):
-        called["handled"] = True
-
-        assert updated_data == data
-        assert result["success"] is True
-        assert "archived" in result["msg"].lower()
-
-    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
-
-    main.handle_toggle_archive(data)
-
-    assert called["handled"] is True
+    assert len(handled_results) == 1
+    assert handled_results[0]["data"] == data
+    assert handled_results[0]["result"]["success"] is True
+    assert "archived" in handled_results[0]["result"]["msg"].lower()
     assert data["habits"]["Workout"]["archived_at"] is not None
 
 
 def test_handle_toggle_archive_unarchives_selected_archived_habit(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": "2026-05-10",
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(archived_at="2026-05-10"),
+        }
+    )
 
-    called = {"handled": False}
+    messages, handled_results = run_handle_toggle_archive(
+        monkeypatch,
+        data,
+        user_inputs=["1"],
+    )
 
-    monkeypatch.setattr("builtins.input", lambda _: "1")
-
-    def fake_handle_operation_result(updated_data, result):
-        called["handled"] = True
-
-        assert updated_data == data
-        assert result["success"] is True
-        assert "unarchived" in result["msg"].lower()
-
-    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
-
-    main.handle_toggle_archive(data)
-
-    assert called["handled"] is True
+    assert len(handled_results) == 1
+    assert handled_results[0]["data"] == data
+    assert handled_results[0]["result"]["success"] is True
+    assert "unarchived" in handled_results[0]["result"]["msg"].lower()
     assert data["habits"]["Workout"]["archived_at"] is None
 
 
 def test_handle_toggle_archive_shows_message_when_no_habits_exist(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
+    data = make_data()
 
-    messages = []
-
-    def fake_input(prompt):
-        raise AssertionError("input should not be called when no habits exist")
-
-    monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-
-    main.handle_toggle_archive(data)
+    messages, handled_results = run_handle_toggle_archive(
+        monkeypatch,
+        data,
+        user_inputs=[],
+    )
 
     assert "No habits found. Add a habit first." in messages
-    assert data == {
-        "habits": {},
-        "logs": [],
-    }
+    assert handled_results == []
+    assert data == make_data()
 
 
 def test_handle_toggle_archive_retries_invalid_selection_then_archives(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
 
-    called = {"handled": False}
+    messages, handled_results = run_handle_toggle_archive(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "9",
+            "1",
+        ],
+    )
 
-    inputs = iter([
-        "9",
-        "1",
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-
-    def fake_handle_operation_result(updated_data, result):
-        called["handled"] = True
-        assert updated_data == data
-        assert result["success"] is True
-
-    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
-
-    main.handle_toggle_archive(data)
-
-    assert called["handled"] is True
+    assert len(handled_results) == 1
+    assert handled_results[0]["data"] == data
+    assert handled_results[0]["result"]["success"] is True
     assert data["habits"]["Workout"]["archived_at"] is not None
 
 
 def test_handle_toggle_archive_retries_non_numeric_selection_then_archives(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
 
-    called = {"handled": False}
+    messages, handled_results = run_handle_toggle_archive(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "abc",
+            "1",
+        ],
+    )
 
-    inputs = iter([
-        "abc",
-        "1",
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-
-    def fake_handle_operation_result(updated_data, result):
-        called["handled"] = True
-        assert updated_data == data
-        assert result["success"] is True
-
-    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
-
-    main.handle_toggle_archive(data)
-
-    assert called["handled"] is True
+    assert len(handled_results) == 1
+    assert handled_results[0]["data"] == data
+    assert handled_results[0]["result"]["success"] is True
     assert data["habits"]["Workout"]["archived_at"] is not None
 
 
