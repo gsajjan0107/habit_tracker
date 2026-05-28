@@ -1490,3 +1490,32 @@ def test_handle_view_habit_details_can_cancel(monkeypatch):
     main.handle_view_habit_details(data)
 
     assert "View habit details cancelled." in messages
+
+
+def test_handle_view_habit_details_shows_archived_habit(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": "2026-05-10",
+            },
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Habit: Workout" in messages
+    assert "Status: Archived" in messages
+    assert "Archived: 2026-05-10" in messages
+    assert "Total logs: 1" in messages
+
+
