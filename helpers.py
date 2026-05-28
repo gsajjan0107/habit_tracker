@@ -179,3 +179,6 @@ def format_streak_line(habit, current_streak):
     day_word = pluralize(current_streak, "day")
 
     return f"- {habit}: {current_streak} {day_word} streak"
+
+def habit_has_logs(data, habit):
+    return any(log["habit"] == habit for log in data["logs"])

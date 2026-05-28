@@ -17,6 +17,7 @@ from helpers import (
     format_log_confirmation_message,
     format_logged_success_message,
     format_streak_line,
+    habit_has_logs,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -524,3 +525,29 @@ def test_format_streak_line_multiple_days():
     assert result == "- Workout: 5 days streak"
 
 
+def test_habit_has_logs_returns_true_when_habit_has_logs():
+    data = {
+        "habits": {},
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    assert habit_has_logs(data, "Workout") is True
+
+
+def test_habit_has_logs_returns_false_when_habit_has_no_logs():
+    data = {
+        "habits": {},
+        "logs": [
+            {
+                "habit": "Reading",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    assert habit_has_logs(data, "Workout") is False

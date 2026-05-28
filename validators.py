@@ -90,31 +90,33 @@ def validate_logs_data_structure(data):
         if "habit" not in log:
             return False, f"logs[{i}].habit → missing key."
 
-        habit = log["habit"]
+        if "date" not in log:
+            return False, f"logs[{i}].date → missing key."
 
-        if habit not in data["habits"]:
-            return False, f"logs[{i}].habit → habit '{habit}' does not exist."
+        required_keys = {"habit", "date"}
+
+        if set(log.keys()) != required_keys:
+            return False, f"logs[{i}] → invalid keys."
+
+        habit = log["habit"]
 
         if not isinstance(habit, str) or not habit:
             return False, f"logs[{i}].habit → expected non-empty string."
-        
-        if habit not in habits:
-            return False, f"logs[{i}].habit → '{habit}' not found in habits."
 
-        if "date" not in log:
-            return False, f"logs[{i}].date → missing key."
-        
+        if habit not in habits:
+            return False, f"logs[{i}].habit → habit '{habit}' does not exist."
+
         try:
             date = validate_date(log["date"])
         except ValueError:
             return False, f"logs[{i}].date → invalid date format (YYYY-MM-DD)."
-        
+
         created = validate_date(habits[habit]["created_at"])
 
         if date < created:
             return False, f"logs[{i}] → date before habit creation."
-        
-        archived_at = habits[habit].get("archived_at")
+
+        archived_at = habits[habit]["archived_at"]
 
         if archived_at is not None:
             archived = validate_date(archived_at)

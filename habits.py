@@ -1,6 +1,6 @@
 from validators import validate_string, validate_int, validate_date
 from helpers import get_today, habit_exists, is_habit_archived
-from helpers import make_result
+from helpers import make_result, habit_has_logs
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)
@@ -164,7 +164,7 @@ def delete_habit(data, habit_name):
     if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
 
-    if any(log["habit"] == habit_name for log in data["logs"]):
+    if habit_has_logs(data, habit_name):
         raise ValueError("Cannot permanently delete a habit with existing logs. Archive it instead.")
 
     del data["habits"][habit_name]

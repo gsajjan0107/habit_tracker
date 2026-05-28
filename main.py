@@ -18,7 +18,6 @@ from helpers import (
     is_habit_archived,
     ensure_habits_exist,
     display_message,
-    count_logs_for_habit,
     get_logged_habits_for_date,
     pluralize,
     format_weekly_message,
@@ -29,7 +28,8 @@ from helpers import (
     get_previous_day_missed_habits,
     format_log_confirmation_message,
     format_logged_success_message,
-    format_streak_line,)
+    format_streak_line,
+    habit_has_logs,)
 
 commands = {
     "1" : "Add habit",
@@ -275,7 +275,7 @@ def handle_delete(data):
     
     habit = menu_entries[selected_index - 1]["habit"]
 
-    if any(log["habit"] == habit for log in data["logs"]):
+    if habit_has_logs(data, habit):
         display_message("Cannot permanently delete a habit with existing logs. Archive it instead.")
         return
 
