@@ -883,3 +883,35 @@ def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
     assert numbered_lists == [["Reading", "Workout"]]
 
 
+def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+    numbered_lists = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "2026-05-02")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
+
+    main.handle_view_logs(data)
+
+    assert "\n==== VIEW LOGS ====" in messages
+    assert "\n📅 Date: Saturday, 02 May 2026" in messages
+    assert "No habits logged on Saturday, 02 May 2026." in messages
+    assert numbered_lists == []
+
+
