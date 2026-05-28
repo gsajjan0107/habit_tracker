@@ -1118,3 +1118,50 @@ def test_handle_dashboard_shows_previous_day_missed_habits(monkeypatch):
     assert ["Reading", "Workout"] in numbered_lists
 
 
+def test_handle_dashboard_does_not_show_previous_day_missed_when_yesterday_complete(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Reading",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Workout",
+                "date": "2026-05-02",
+            },
+        ],
+    }
+
+    messages = []
+    numbered_lists = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "2026-05-02")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
+
+    main.handle_dashboard(data)
+
+    assert "\n==== DASHBOARD ====" in messages
+    assert "\n⚠️ Previous Day Missed" not in messages
+    assert all(
+        "Not logged on Friday, 01 May 2026" not in message
+        for message in messages
+    )
+
+
