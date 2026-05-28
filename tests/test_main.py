@@ -1316,3 +1316,29 @@ def test_handle_delete_log_shows_message_when_no_habits_exist(monkeypatch):
     assert data["logs"] == []
 
 
+def test_handle_delete_log_shows_message_when_no_logs_exist(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+
+    def fake_input(prompt):
+        raise AssertionError("input should not be called when no logs exist")
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    main.handle_delete_log(data)
+
+    assert "No logs found yet. Log a habit first." in messages
+    assert data["logs"] == []
+
+
