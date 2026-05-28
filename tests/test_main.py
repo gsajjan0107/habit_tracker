@@ -1128,6 +1128,8 @@ def test_handle_log_retries_invalid_confirmation_then_cancels(monkeypatch):
     assert data["logs"] == []
 
 
+
+
 # ===== handle_view_logs tests =====
 
 def run_handle_view_logs(monkeypatch, data, user_inputs):
@@ -1238,62 +1240,63 @@ def test_handle_view_logs_shows_message_when_no_habits_exist(monkeypatch):
 
 # ===== handle_dashboard tests =====
 
-def test_handle_dashboard_shows_message_when_no_active_habits(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-02",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
-
+def run_handle_dashboard(monkeypatch, data, user_inputs=None):
     messages = []
+    numbered_lists = []
 
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
+    if user_inputs is not None:
+        inputs = iter(user_inputs)
+        monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
     monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_numbered_list", lambda items: numbered_lists.append(items))
 
     main.handle_dashboard(data)
+
+    return messages, numbered_lists
+
+
+def test_handle_dashboard_shows_message_when_no_active_habits(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(created_at="2026-05-02"),
+        }
+    )
+
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
 
     assert "\n==== DASHBOARD ====" in messages
     assert "\n📅 Date: Friday, 01 May 2026" in messages
     assert "No habits were active on Friday, 01 May 2026." in messages
+    assert numbered_lists == []
 
 
 def test_handle_dashboard_shows_completed_and_unfinished_habits(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Reading": {
-                "target_per_week": 3,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
         },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-01",
-            }
+        logs=[
+            make_log("Workout", "2026-05-01"),
         ],
-    }
+    )
 
-    messages = []
-    numbered_lists = []
-
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
-    monkeypatch.setattr(helpers, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(helpers, "display_numbered_list", lambda items: numbered_lists.append(items))
-
-    main.handle_dashboard(data)
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
 
     assert "\n==== DASHBOARD ====" in messages
     assert "\n📅 Date: Friday, 01 May 2026" in messages
@@ -1312,33 +1315,23 @@ def test_handle_dashboard_shows_completed_and_unfinished_habits(monkeypatch):
 
 
 def test_handle_dashboard_retries_when_date_is_invalid(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
         },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-01",
-            }
+        logs=[
+            make_log("Workout", "2026-05-01"),
         ],
-    }
+    )
 
-    messages = []
-
-    inputs = iter([
-        "bad-date",    # invalid date
-        "2026-05-01",  # valid date
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-
-    main.handle_dashboard(data)
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "bad-date",
+            "2026-05-01",
+        ],
+    )
 
     assert any("Use format YYYY-MM-DD" in message for message in messages)
     assert "\n==== DASHBOARD ====" in messages
@@ -1348,55 +1341,36 @@ def test_handle_dashboard_retries_when_date_is_invalid(monkeypatch):
 
 
 def test_handle_dashboard_shows_message_when_no_habits_exist(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
+    data = make_data()
 
-    messages = []
-
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-
-    main.handle_dashboard(data)
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+    )
 
     assert "No habits found. Add a habit first." in messages
     assert "\n==== DASHBOARD ====" not in messages
+    assert numbered_lists == []
 
 
 def test_handle_dashboard_shows_previous_day_missed_habits(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Reading": {
-                "target_per_week": 3,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
         },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-02",
-            }
+        logs=[
+            make_log("Workout", "2026-05-02"),
         ],
-    }
+    )
 
-    messages = []
-    numbered_lists = []
-
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-02")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
-
-    monkeypatch.setattr(helpers, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(helpers, "display_numbered_list", lambda items: numbered_lists.append(items))
-
-    main.handle_dashboard(data)
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-02",
+        ],
+    )
 
     assert "\n⚠️ Previous Day Missed" in messages
     assert "Not logged on Friday, 01 May 2026 (2 habits):" in messages
@@ -1404,43 +1378,25 @@ def test_handle_dashboard_shows_previous_day_missed_habits(monkeypatch):
 
 
 def test_handle_dashboard_does_not_show_previous_day_missed_when_yesterday_complete(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Reading": {
-                "target_per_week": 3,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
         },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-01",
-            },
-            {
-                "habit": "Reading",
-                "date": "2026-05-01",
-            },
-            {
-                "habit": "Workout",
-                "date": "2026-05-02",
-            },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+            make_log("Reading", "2026-05-01"),
+            make_log("Workout", "2026-05-02"),
         ],
-    }
+    )
 
-    messages = []
-    numbered_lists = []
-
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-02")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
-
-    main.handle_dashboard(data)
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-02",
+        ],
+    )
 
     assert "\n==== DASHBOARD ====" in messages
     assert "\n⚠️ Previous Day Missed" not in messages
@@ -1451,31 +1407,24 @@ def test_handle_dashboard_does_not_show_previous_day_missed_when_yesterday_compl
 
 
 def test_handle_dashboard_retries_invalid_date_then_shows_no_active_habits(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-02",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(created_at="2026-05-02"),
+        }
+    )
 
-    messages = []
-
-    inputs = iter([
-        "bad-date",    # invalid date
-        "2026-05-01",  # valid date before habit was created
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-
-    main.handle_dashboard(data)
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "bad-date",
+            "2026-05-01",
+        ],
+    )
 
     assert any("Use format YYYY-MM-DD" in message for message in messages)
     assert "\n==== DASHBOARD ====" in messages
     assert "\n📅 Date: Friday, 01 May 2026" in messages
     assert "No habits were active on Friday, 01 May 2026." in messages
 
+    
