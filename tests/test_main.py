@@ -27,8 +27,6 @@ def make_data(habits=None, logs=None):
     }
 
 
-
-
 # ===== runner helpers =====
 
 def run_handle_add(monkeypatch, data, user_inputs):
@@ -173,8 +171,6 @@ def run_handle_dashboard(monkeypatch, data, user_inputs=None):
     main.handle_dashboard(data)
 
     return messages, numbered_lists
-
-
 
 
 # ===== handle_add tests =====
@@ -344,8 +340,6 @@ def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch)
     assert "Reading added." in messages
 
 
-
-
 # ===== handle_toggle_archive tests =====
 
 def test_handle_toggle_archive_can_be_cancelled(monkeypatch):
@@ -462,8 +456,6 @@ def test_handle_toggle_archive_retries_non_numeric_selection_then_archives(monke
     assert handled_results[0]["data"] == data
     assert handled_results[0]["result"]["success"] is True
     assert data["habits"]["Workout"]["archived_at"] is not None
-
-
 
 
 # ===== handle_delete_log tests =====
@@ -724,8 +716,6 @@ def test_handle_delete_log_retries_invalid_confirmation_then_cancels(monkeypatch
     ]
 
 
-
-
 # ===== handle_delete tests =====
 
 def test_handle_delete_can_be_cancelled_at_habit_selection(monkeypatch):
@@ -942,8 +932,6 @@ def test_handle_delete_retries_invalid_confirmation_then_declines(monkeypatch):
     assert data["logs"] == [
         make_log("Workout", "2026-05-01"),
     ]
-
-
 
 
 # ===== handle_log tests =====
@@ -1172,8 +1160,6 @@ def test_handle_log_retries_invalid_confirmation_then_cancels(monkeypatch):
     assert "Logging cancelled." in messages
     assert save_calls == []
     assert data["logs"] == []
-
-
 
 
 # ===== handle_view_logs tests =====

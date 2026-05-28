@@ -47,13 +47,16 @@ def validate_habits_data_structure(data):
 
         if "created_at" not in habit_data:
             return False, f"habits['{habit}'].created_at → missing key."
-
+        
         created_at = habit_data["created_at"]
         try:
             created = validate_date(created_at)
         except ValueError:
             return False, f"habits['{habit}'].created_at → invalid date format (YYYY-MM-DD)." 
 
+        if "archived_at" not in habit_data:
+            return False, f"habits['{habit}'].archived_at → missing key."
+        
         archived_at = habit_data.get("archived_at")
 
         if archived_at is not None:

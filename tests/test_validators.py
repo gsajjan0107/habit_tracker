@@ -270,3 +270,19 @@ def test_validate_data_structure_active_habit_log_success():
     assert success is True
     assert msg is None
     
+
+def test_validate_data_structure_missing_archived_at():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01"
+            }
+        },
+        "logs": []
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "archived_at" in msg
