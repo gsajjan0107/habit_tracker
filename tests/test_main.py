@@ -156,7 +156,12 @@ def run_handle_dashboard(monkeypatch, data, user_inputs=None):
     messages = []
     numbered_lists = []
 
-    if user_inputs is not None:
+    if user_inputs is None:
+        def fake_input(prompt):
+            raise AssertionError("input should not be called")
+
+        monkeypatch.setattr("builtins.input", fake_input)
+    else:
         inputs = iter(user_inputs)
         monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
