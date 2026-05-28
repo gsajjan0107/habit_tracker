@@ -182,3 +182,18 @@ def format_streak_line(habit, current_streak):
 
 def habit_has_logs(data, habit):
     return any(log["habit"] == habit for log in data["logs"])
+
+def get_habit_details(data, habit):
+    if habit not in data["habits"]:
+        raise ValueError("Habit does not exist.")
+
+    habit_data = data["habits"][habit]
+
+    return {
+        "name": habit,
+        "target_per_week": habit_data["target_per_week"],
+        "created_at": habit_data["created_at"],
+        "archived_at": habit_data["archived_at"],
+        "is_archived": habit_data["archived_at"] is not None,
+        "total_logs": count_logs_for_habit(data, habit),
+    }

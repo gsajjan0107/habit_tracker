@@ -18,6 +18,7 @@ from helpers import (
     format_logged_success_message,
     format_streak_line,
     habit_has_logs,
+    get_habit_details,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -551,3 +552,64 @@ def test_habit_has_logs_returns_false_when_habit_has_no_logs():
     }
 
     assert habit_has_logs(data, "Workout") is False
+
+
+def test_get_habit_details_for_active_habit():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Workout",
+                "date": "2026-05-02",
+            },
+        ],
+    }
+
+    details = get_habit_details(data, "Workout")
+
+    assert details == {
+        "name": "Workout",
+        "target_per_week": 5,
+        "created_at": "2026-05-01",
+        "archived_at": None,
+        "is_archived": False,
+        "total_logs": 2,
+    }
+
+
+def test_get_habit_details_for_archived_habit():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": "2026-05-10",
+            }
+        },
+        "logs": [],
+    }
+
+    details = get_habit_details(data, "Workout")
+
+    assert details["is_archived"] is True
+    assert details["total_logs"] == 0
+
+
+def test_get_habit_details_for_missing_habit_raises_error():
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    with pytest.raises(ValueError, match="Habit does not exist"):
+        get_habit_details(data, "Workout")
