@@ -168,3 +168,27 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
     assert saved_data == new_data
 
 
+def test_save_data_does_not_create_backup_when_file_does_not_exist(tmp_path, monkeypatch):
+    test_file = tmp_path / "data.json"
+    monkeypatch.setattr(storage, "DATA_FILE", test_file)
+
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    storage.save_data(data)
+
+    saved_data = json.loads(test_file.read_text())
+    backup_files = list(tmp_path.glob("data_backup_*.json"))
+
+    assert saved_data == data
+    assert backup_files == []
+
+
