@@ -1632,41 +1632,6 @@ def test_handle_log_retries_invalid_date_then_cancels(monkeypatch):
     assert data["logs"] == []
 
 
-def test_handle_log_retries_invalid_date_then_cancels(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
-
-    messages = []
-
-    inputs = iter([
-        "bad-date",
-        "2026-05-01",
-        "q",
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(data):
-        raise AssertionError("save_data should not be called when logging is cancelled")
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
-
-    assert any("Use format YYYY-MM-DD" in message for message in messages)
-    assert "Logging cancelled." in messages
-    assert data["logs"] == []
-
-
 def test_handle_log_ignores_duplicate_selected_numbers(monkeypatch):
     data = {
         "habits": {
