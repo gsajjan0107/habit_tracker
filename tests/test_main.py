@@ -1062,3 +1062,18 @@ def test_handle_dashboard_retries_when_date_is_invalid(monkeypatch):
     assert "\n✅ Dashboard loaded." in messages
 
 
+def test_handle_dashboard_shows_message_when_no_habits_exist(monkeypatch):
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    messages = []
+
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+
+    main.handle_dashboard(data)
+
+    assert "No habits found. Add a habit first." in messages
+    assert "\n==== DASHBOARD ====" not in messages
