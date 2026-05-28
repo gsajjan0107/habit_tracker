@@ -1380,3 +1380,48 @@ def test_handle_delete_log_shows_message_when_no_logs_for_selected_date(monkeypa
     ]
     
 
+def test_handle_delete_log_retries_when_date_is_invalid(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+
+    inputs = iter([
+        "bad-date",    # invalid date
+        "2026-05-01",  # valid date
+        "q",           # cancel after logs are shown
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when deletion is cancelled")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete_log(data)
+
+    assert any("Use format YYYY-MM-DD" in message for message in messages)
+    assert "Log deletion cancelled." in messages
+    assert data["logs"] == [
+        {
+            "habit": "Workout",
+            "date": "2026-05-01",
+        }
+    ]
+
+
