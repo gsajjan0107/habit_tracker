@@ -1026,3 +1026,39 @@ def test_handle_dashboard_shows_completed_and_unfinished_habits(monkeypatch):
     assert "\n✅ Dashboard loaded." in messages
 
 
+def test_handle_dashboard_retries_when_date_is_invalid(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+
+    inputs = iter([
+        "bad-date",    # invalid date
+        "2026-05-01",  # valid date
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    main.handle_dashboard(data)
+
+    assert any("Use format YYYY-MM-DD" in message for message in messages)
+    assert "\n==== DASHBOARD ====" in messages
+    assert "\n📅 Date: Friday, 01 May 2026" in messages
+    assert "\n📌 Daily Summary" in messages
+    assert "\n✅ Dashboard loaded." in messages
+
+
