@@ -1246,3 +1246,29 @@ def test_handle_log_shows_message_when_all_habits_completed(monkeypatch):
     ]
 
 
+def test_handle_log_shows_message_when_no_habits_active_on_selected_date(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-02",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when no habits are active")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_log(data)
+
+    assert "No habits were active on Friday, 01 May 2026." in messages
+    assert data["logs"] == []
