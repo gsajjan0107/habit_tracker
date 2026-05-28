@@ -834,3 +834,52 @@ def test_handle_add_retries_when_habit_name_is_invalid(monkeypatch):
     assert "Workout added." in messages
 
 
+def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Coding": {
+                "target_per_week": 4,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Reading",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Coding",
+                "date": "2026-05-02",
+            },
+        ],
+    }
+
+    messages = []
+    numbered_lists = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
+
+    main.handle_view_logs(data)
+
+    assert "\n==== VIEW LOGS ====" in messages
+    assert "\n✅ Logged habits (2):" in messages
+    assert numbered_lists == [["Reading", "Workout"]]
+
+
