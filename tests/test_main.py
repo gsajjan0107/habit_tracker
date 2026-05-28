@@ -1497,3 +1497,39 @@ def test_handle_view_logs_shows_message_when_no_habits_exist(monkeypatch):
     }
 
 
+def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    messages = []
+    save_calls = []
+
+    inputs = iter([
+        "ab",       # invalid habit name
+        "Workout",  # valid habit name
+        "0",        # invalid target
+        "5",        # valid target
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("validators.display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(updated_data):
+        save_calls.append(updated_data.copy())
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_add(data)
+
+    assert any("Minimum 3 characters required." in message for message in messages)
+    assert any("Input number must be >= 1" in message for message in messages)
+
+    assert len(save_calls) == 1
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["target_per_week"] == 5
+    assert "Workout added." in messages
+
+
