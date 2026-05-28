@@ -1130,49 +1130,43 @@ def test_handle_log_retries_invalid_confirmation_then_cancels(monkeypatch):
 
 # ===== handle_view_logs tests =====
 
-def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Reading": {
-                "target_per_week": 3,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Coding": {
-                "target_per_week": 4,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-        },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-01",
-            },
-            {
-                "habit": "Reading",
-                "date": "2026-05-01",
-            },
-            {
-                "habit": "Coding",
-                "date": "2026-05-02",
-            },
-        ],
-    }
-
+def run_handle_view_logs(monkeypatch, data, user_inputs):
     messages = []
     numbered_lists = []
 
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+    inputs = iter(user_inputs)
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
 
     main.handle_view_logs(data)
+
+    return messages, numbered_lists
+
+
+def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
+            "Coding": make_habit(target=4),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+            make_log("Reading", "2026-05-01"),
+            make_log("Coding", "2026-05-02"),
+        ],
+    )
+
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
 
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (2):" in messages
@@ -1180,30 +1174,22 @@ def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
 
 
 def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
         },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-01",
-            }
+        logs=[
+            make_log("Workout", "2026-05-01"),
         ],
-    }
+    )
 
-    messages = []
-    numbered_lists = []
-
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-02")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
-
-    main.handle_view_logs(data)
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-02",
+        ],
+    )
 
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n📅 Date: Saturday, 02 May 2026" in messages
@@ -1212,35 +1198,23 @@ def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypat
 
 
 def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
         },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-01",
-            }
+        logs=[
+            make_log("Workout", "2026-05-01"),
         ],
-    }
+    )
 
-    messages = []
-    numbered_lists = []
-
-    inputs = iter([
-        "bad-date",    # invalid date
-        "2026-05-01",  # valid date
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
-
-    main.handle_view_logs(data)
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "bad-date",
+            "2026-05-01",
+        ],
+    )
 
     assert any("Use format YYYY-MM-DD" in message for message in messages)
     assert "\n==== VIEW LOGS ====" in messages
@@ -1249,29 +1223,17 @@ def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
 
 
 def test_handle_view_logs_shows_message_when_no_habits_exist(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
+    data = make_data()
 
-    messages = []
-
-    def fake_input(prompt):
-        raise AssertionError("input should not be called when no habits exist")
-
-    monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-
-    main.handle_view_logs(data)
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[],
+    )
 
     assert "No habits found. Add a habit first." in messages
-    assert data == {
-        "habits": {},
-        "logs": [],
-    }
-
-
+    assert numbered_lists == []
+    assert data == make_data()
 
 
 # ===== handle_dashboard tests =====
