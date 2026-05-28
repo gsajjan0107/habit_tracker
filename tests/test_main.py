@@ -877,383 +877,255 @@ def test_handle_delete_retries_invalid_confirmation_then_declines(monkeypatch):
     ]
 
 
+
+
 # ===== handle_log tests =====
 
-def test_handle_log_can_be_cancelled_at_habit_selection(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
-
+def run_handle_log(monkeypatch, data, user_inputs):
     messages = []
+    save_calls = []
 
-    inputs = iter([
-        "2026-05-01",  # select date
-        "q",           # cancel habit selection
-    ])
+    inputs = iter(user_inputs)
 
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
-    def fake_save_data(data):
-        raise AssertionError("save_data should not be called when logging is cancelled")
+    def fake_save_data(updated_data):
+        save_calls.append(updated_data.copy())
 
     monkeypatch.setattr(main, "save_data", fake_save_data)
 
     main.handle_log(data)
 
+    return messages, save_calls
+
+
+def test_handle_log_can_be_cancelled_at_habit_selection(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
+
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+            "q",
+        ],
+    )
+
     assert "Logging cancelled." in messages
+    assert save_calls == []
     assert data["logs"] == []
 
 
 def test_handle_log_logs_selected_habit_after_confirmation(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
-
-    messages = []
-    saved = {"called": False}
-
-    inputs = iter([
-        "2026-05-01",  # select date
-        "1",           # select Workout
-        "y",           # confirm logging
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
-
-    assert saved["called"] is True
-    assert data["logs"] == [
-        {
-            "habit": "Workout",
-            "date": "2026-05-01",
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
         }
+    )
+
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+            "1",
+            "y",
+        ],
+    )
+
+    assert len(save_calls) == 1
+    assert data["logs"] == [
+        make_log("Workout", "2026-05-01"),
     ]
     assert any("Logged" in message for message in messages)
 
 
 def test_handle_log_cancels_when_user_declines_confirmation(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
 
-    messages = []
-
-    inputs = iter([
-        "2026-05-01",  # select date
-        "1",           # select Workout
-        "n",           # decline confirmation
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(data):
-        raise AssertionError("save_data should not be called when logging is declined")
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+            "1",
+            "n",
+        ],
+    )
 
     assert "Logging cancelled." in messages
+    assert save_calls == []
     assert data["logs"] == []
 
 
 def test_handle_log_logs_all_pending_habits_after_confirmation(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Reading": {
-                "target_per_week": 3,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
+        }
+    )
 
-    messages = []
-    saved = {"called": False}
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+            "all",
+            "y",
+        ],
+    )
 
-    inputs = iter([
-        "2026-05-01",  # select date
-        "all",         # select all pending habits
-        "y",           # confirm logging
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
-
+    assert len(save_calls) == 1
     assert data["logs"] == [
-        {
-            "habit": "Reading",
-            "date": "2026-05-01",
-        },
-        {
-            "habit": "Workout",
-            "date": "2026-05-01",
-        },
+        make_log("Reading", "2026-05-01"),
+        make_log("Workout", "2026-05-01"),
     ]
     assert any("Logged" in message for message in messages)
 
 
 def test_handle_log_shows_message_when_all_habits_completed(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Reading": {
-                "target_per_week": 3,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
         },
-        "logs": [
-            {
-                "habit": "Workout",
-                "date": "2026-05-01",
-            },
-            {
-                "habit": "Reading",
-                "date": "2026-05-01",
-            },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+            make_log("Reading", "2026-05-01"),
         ],
-    }
+    )
 
-    messages = []
-
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(data):
-        raise AssertionError("save_data should not be called when all habits are already completed")
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
 
     assert "\n🎉 All habits completed for Friday, 01 May 2026!" in messages
+    assert save_calls == []
     assert data["logs"] == [
-        {
-            "habit": "Workout",
-            "date": "2026-05-01",
-        },
-        {
-            "habit": "Reading",
-            "date": "2026-05-01",
-        },
+        make_log("Workout", "2026-05-01"),
+        make_log("Reading", "2026-05-01"),
     ]
 
 
 def test_handle_log_shows_message_when_no_habits_active_on_selected_date(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-02",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(created_at="2026-05-02"),
+        }
+    )
 
-    messages = []
-
-    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(data):
-        raise AssertionError("save_data should not be called when no habits are active")
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
 
     assert "No habits were active on Friday, 01 May 2026." in messages
+    assert save_calls == []
     assert data["logs"] == []
 
 
 def test_handle_log_shows_message_when_no_habits_exist(monkeypatch):
-    data = {
-        "habits": {},
-        "logs": [],
-    }
+    data = make_data()
 
-    messages = []
-
-    def fake_input(prompt):
-        raise AssertionError("input should not be called when no habits exist")
-
-    monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-
-    main.handle_log(data)
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[],
+    )
 
     assert "No habits found. Add a habit first." in messages
+    assert save_calls == []
     assert data["logs"] == []
 
 
 def test_handle_log_retries_invalid_date_then_cancels(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
 
-    messages = []
-
-    inputs = iter([
-        "bad-date",
-        "2026-05-01",
-        "q",
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(data):
-        raise AssertionError("save_data should not be called when logging is cancelled")
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "bad-date",
+            "2026-05-01",
+            "q",
+        ],
+    )
 
     assert any("Use format YYYY-MM-DD" in message for message in messages)
     assert "Logging cancelled." in messages
+    assert save_calls == []
     assert data["logs"] == []
 
 
 def test_handle_log_ignores_duplicate_selected_numbers(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-            "Reading": {
-                "target_per_week": 3,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            },
-        },
-        "logs": [],
-    }
-
-    saved = {"called": False}
-
-    inputs = iter([
-        "2026-05-01",
-        "1 1",
-        "y",
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-
-    def fake_save_data(updated_data):
-        saved["called"] = True
-        assert updated_data == data
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
-
-    assert saved["called"] is True
-    assert data["logs"] == [
-        {
-            "habit": "Reading",
-            "date": "2026-05-01",
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
         }
+    )
+
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+            "1 1",
+            "y",
+        ],
+    )
+
+    assert len(save_calls) == 1
+    assert data["logs"] == [
+        make_log("Reading", "2026-05-01"),
     ]
 
 
 def test_handle_log_retries_invalid_confirmation_then_cancels(monkeypatch):
-    data = {
-        "habits": {
-            "Workout": {
-                "target_per_week": 5,
-                "created_at": "2026-05-01",
-                "archived_at": None,
-            }
-        },
-        "logs": [],
-    }
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        }
+    )
 
-    messages = []
-
-    inputs = iter([
-        "2026-05-01",
-        "1",
-        "maybe",
-        "n",
-    ])
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(helpers, "display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(data):
-        raise AssertionError("save_data should not be called when logging is cancelled")
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+            "1",
+            "maybe",
+            "n",
+        ],
+    )
 
     assert any("Please enter y/yes or n/no." in message for message in messages)
     assert "Logging cancelled." in messages
+    assert save_calls == []
     assert data["logs"] == []
-
-
 
 
 # ===== handle_view_logs tests =====
