@@ -764,3 +764,38 @@ def test_handle_add_retries_when_habit_exists_but_is_archived(monkeypatch):
     assert "Reading added." in messages
 
 
+def test_handle_add_retries_when_target_is_invalid(monkeypatch):
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    messages = []
+    saved = {"called": False}
+
+    inputs = iter([
+        "Workout",  # valid habit name
+        "0",        # invalid target
+        "5",        # valid target
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+    monkeypatch.setattr("validators.display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(updated_data):
+        saved["called"] = True
+        assert updated_data == data
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_add(data)
+
+    assert "Error: Input number must be >= 1" in messages
+    assert saved["called"] is True
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["target_per_week"] == 5
+    assert data["habits"]["Workout"]["archived_at"] is None
+    assert "Workout added." in messages
+
+
