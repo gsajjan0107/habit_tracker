@@ -86,6 +86,9 @@ def validate_logs_data_structure(data):
 
         habit = log["habit"]
 
+        if habit not in data["habits"]:
+            return False, f"logs[{i}].habit → habit '{habit}' does not exist."
+
         if not isinstance(habit, str) or not habit:
             return False, f"logs[{i}].habit → expected non-empty string."
         

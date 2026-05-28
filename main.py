@@ -7,8 +7,7 @@ from stats import daily_stats, habit_weekly_completion, streaks
 from utils import (
     get_selected_habits,
     display_habit_archive_menu,
-    handle_operation_result
-)
+    handle_operation_result)
 
 from helpers import (
     show_habits_status,
@@ -30,8 +29,7 @@ from helpers import (
     get_previous_day_missed_habits,
     format_log_confirmation_message,
     format_logged_success_message,
-    format_streak_line,
-)
+    format_streak_line,)
 
 commands = {
     "1" : "Add habit",
