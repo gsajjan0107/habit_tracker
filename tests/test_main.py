@@ -952,3 +952,27 @@ def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
     assert numbered_lists == [["Workout"]]
 
 
+def test_handle_dashboard_shows_message_when_no_active_habits(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-02",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "2026-05-01")
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    main.handle_dashboard(data)
+
+    assert "\n==== DASHBOARD ====" in messages
+    assert "\n📅 Date: Friday, 01 May 2026" in messages
+    assert "No habits were active on Friday, 01 May 2026." in messages
+
+
