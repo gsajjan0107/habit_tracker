@@ -681,3 +681,42 @@ def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
     assert "Workout added." in messages
 
 
+def test_handle_add_retries_when_habit_already_exists(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+    saved = {"called": False}
+
+    inputs = iter([
+        "Workout",  # duplicate existing habit
+        "Reading",  # new valid habit
+        "3",        # target per week
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(updated_data):
+        saved["called"] = True
+        assert updated_data == data
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_add(data)
+
+    assert "Habit already exists." in messages
+    assert saved["called"] is True
+    assert "Workout" in data["habits"]
+    assert "Reading" in data["habits"]
+    assert data["habits"]["Reading"]["target_per_week"] == 3
+    assert data["habits"]["Reading"]["archived_at"] is None
+    assert "Reading added." in messages
