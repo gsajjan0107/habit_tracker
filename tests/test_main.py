@@ -1449,3 +1449,27 @@ def test_handle_delete_shows_message_when_no_habits_exist(monkeypatch):
     }
 
 
+def test_handle_toggle_archive_shows_message_when_no_habits_exist(monkeypatch):
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    messages = []
+
+    def fake_input(prompt):
+        raise AssertionError("input should not be called when no habits exist")
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+
+    main.handle_toggle_archive(data)
+
+    assert "No habits found. Add a habit first." in messages
+    assert data == {
+        "habits": {},
+        "logs": [],
+    }
+
+
