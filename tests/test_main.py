@@ -649,3 +649,35 @@ def test_handle_delete_log_deletes_all_logs_for_date_after_confirmation(monkeypa
     assert any("Deleted" in message for message in messages)
 
 
+def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    messages = []
+    saved = {"called": False}
+
+    inputs = iter([
+        "Workout",  # habit name
+        "5",        # target per week
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(updated_data):
+        saved["called"] = True
+        assert updated_data == data
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_add(data)
+
+    assert saved["called"] is True
+    assert "Workout" in data["habits"]
+    assert data["habits"]["Workout"]["target_per_week"] == 5
+    assert data["habits"]["Workout"]["archived_at"] is None
+    assert "Workout added." in messages
+
+
