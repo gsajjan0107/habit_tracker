@@ -274,12 +274,13 @@ def handle_delete(data):
             display_message(f"Error: {e}")
     
     habit = menu_entries[selected_index - 1]["habit"]
-    log_count = count_logs_for_habit(data, habit)
-    log_word = pluralize(log_count, "log")
 
-    confirmed = get_confirmation(
-        f"The habit [{habit}] will be deleted permanently along with "
-        f"{log_count} {log_word}. Confirm? (y/n): ")
+    if any(log["habit"] == habit for log in data["logs"]):
+        display_message("Cannot permanently delete a habit with existing logs. Archive it instead.")
+        return
+
+
+    confirmed = get_confirmation(f"The habit [{habit}] will be deleted permanently. Confirm? (y/n): ")
 
     if not confirmed:
         display_message("Deletion cancelled.")

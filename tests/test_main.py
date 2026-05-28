@@ -753,9 +753,7 @@ def test_handle_delete_cancels_when_typed_habit_name_does_not_match(monkeypatch)
         habits={
             "Workout": make_habit(),
         },
-        logs=[
-            make_log("Workout", "2026-05-01"),
-        ],
+        logs=[],
     )
 
     messages, save_calls = run_handle_delete(
@@ -774,9 +772,7 @@ def test_handle_delete_cancels_when_typed_habit_name_does_not_match(monkeypatch)
         habits={
             "Workout": make_habit(),
         },
-        logs=[
-            make_log("Workout", "2026-05-01"),
-        ],
+        logs=[],
     )
 
 
@@ -785,9 +781,7 @@ def test_handle_delete_cancels_when_user_declines_confirmation(monkeypatch):
         habits={
             "Workout": make_habit(),
         },
-        logs=[
-            make_log("Workout", "2026-05-01"),
-        ],
+        logs=[],
     )
 
     messages, save_calls = run_handle_delete(
@@ -805,9 +799,7 @@ def test_handle_delete_cancels_when_user_declines_confirmation(monkeypatch):
         habits={
             "Workout": make_habit(),
         },
-        logs=[
-            make_log("Workout", "2026-05-01"),
-        ],
+        logs=[],
     )
 
 
@@ -912,9 +904,7 @@ def test_handle_delete_retries_invalid_confirmation_then_declines(monkeypatch):
         habits={
             "Workout": make_habit(),
         },
-        logs=[
-            make_log("Workout", "2026-05-01"),
-        ],
+        logs=[],
     )
 
     messages, save_calls = run_handle_delete(
@@ -931,9 +921,33 @@ def test_handle_delete_retries_invalid_confirmation_then_declines(monkeypatch):
     assert "Deletion cancelled." in messages
     assert save_calls == []
     assert "Workout" in data["habits"]
+    assert data["logs"] == []
+
+
+def test_handle_delete_refuses_logged_habit_before_confirmation(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, save_calls = run_handle_delete(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "1",
+        ],
+    )
+
+    assert any("existing logs" in str(message) for message in messages)
+    assert "Workout" in data["habits"]
     assert data["logs"] == [
         make_log("Workout", "2026-05-01"),
     ]
+    assert save_calls == []
 
 
 # ===== handle_log tests =====
