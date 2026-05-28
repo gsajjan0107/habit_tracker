@@ -915,3 +915,40 @@ def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypat
     assert numbered_lists == []
 
 
+def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+    numbered_lists = []
+
+    inputs = iter([
+        "bad-date",    # invalid date
+        "2026-05-01",  # valid date
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
+
+    main.handle_view_logs(data)
+
+    assert any("Use format YYYY-MM-DD" in message for message in messages)
+    assert "\n==== VIEW LOGS ====" in messages
+    assert "\n✅ Logged habits (1):" in messages
+    assert numbered_lists == [["Workout"]]
+
+
