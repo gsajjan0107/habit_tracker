@@ -2,6 +2,9 @@ import main
 import helpers
 
 
+
+# ===== data helpers =====
+
 def make_habit(target=5, created_at="2026-05-01", archived_at=None):
     return {
         "target_per_week": target,
@@ -19,14 +22,78 @@ def make_log(habit="Workout", date="2026-05-01"):
 
 def make_data(habits=None, logs=None):
     return {
-        "habits": habits or {},
-        "logs": logs or [],
+        "habits": habits if habits is not None else {},
+        "logs": logs if logs is not None else [],
     }
 
 
 
 
-# ===== handle_add tests =====
+# ===== runner helpers =====
+
+def run_handle_add(monkeypatch, data, user_inputs):
+    messages = []
+    save_calls = []
+
+    inputs = iter(user_inputs)
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("validators.display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(updated_data):
+        save_calls.append(updated_data.copy())
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_add(data)
+
+    return messages, save_calls
+
+
+def run_handle_toggle_archive(monkeypatch, data, user_inputs):
+    messages = []
+    handled_results = []
+
+    inputs = iter(user_inputs)
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_handle_operation_result(updated_data, result):
+        handled_results.append({
+            "data": updated_data,
+            "result": result,
+        })
+
+    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
+
+    main.handle_toggle_archive(data)
+
+    return messages, handled_results
+
+
+def run_handle_delete_log(monkeypatch, data, user_inputs):
+    messages = []
+    save_calls = []
+
+    inputs = iter(user_inputs)
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(updated_data):
+        save_calls.append(updated_data.copy())
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete_log(data)
+
+    return messages, save_calls
+
 
 def run_handle_delete(monkeypatch, data, user_inputs):
     messages = []
@@ -48,7 +115,7 @@ def run_handle_delete(monkeypatch, data, user_inputs):
     return messages, save_calls
 
 
-def run_handle_add(monkeypatch, data, user_inputs):
+def run_handle_log(monkeypatch, data, user_inputs):
     messages = []
     save_calls = []
 
@@ -56,17 +123,56 @@ def run_handle_add(monkeypatch, data, user_inputs):
 
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("validators.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
         save_calls.append(updated_data.copy())
 
     monkeypatch.setattr(main, "save_data", fake_save_data)
 
-    main.handle_add(data)
+    main.handle_log(data)
 
     return messages, save_calls
 
+
+def run_handle_view_logs(monkeypatch, data, user_inputs):
+    messages = []
+    numbered_lists = []
+
+    inputs = iter(user_inputs)
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
+
+    main.handle_view_logs(data)
+
+    return messages, numbered_lists
+
+
+def run_handle_dashboard(monkeypatch, data, user_inputs=None):
+    messages = []
+    numbered_lists = []
+
+    if user_inputs is not None:
+        inputs = iter(user_inputs)
+        monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_numbered_list", lambda items: numbered_lists.append(items))
+
+    main.handle_dashboard(data)
+
+    return messages, numbered_lists
+
+
+
+
+# ===== handle_add tests =====
 
 def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
     data = make_data()
@@ -237,29 +343,6 @@ def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch)
 
 # ===== handle_toggle_archive tests =====
 
-def run_handle_toggle_archive(monkeypatch, data, user_inputs):
-    messages = []
-    handled_results = []
-
-    inputs = iter(user_inputs)
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_handle_operation_result(updated_data, result):
-        handled_results.append({
-            "data": updated_data,
-            "result": result,
-        })
-
-    monkeypatch.setattr(main, "handle_operation_result", fake_handle_operation_result)
-
-    main.handle_toggle_archive(data)
-
-    return messages, handled_results
-
-
 def test_handle_toggle_archive_can_be_cancelled(monkeypatch):
     data = make_data(
         habits={
@@ -379,27 +462,6 @@ def test_handle_toggle_archive_retries_non_numeric_selection_then_archives(monke
 
 
 # ===== handle_delete_log tests =====
-
-def run_handle_delete_log(monkeypatch, data, user_inputs):
-    messages = []
-    save_calls = []
-
-    inputs = iter(user_inputs)
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(updated_data):
-        save_calls.append(updated_data.copy())
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_delete_log(data)
-
-    return messages, save_calls
-
 
 def test_handle_delete_log_can_be_cancelled_after_selecting_date(monkeypatch):
     data = make_data(
@@ -881,27 +943,6 @@ def test_handle_delete_retries_invalid_confirmation_then_declines(monkeypatch):
 
 # ===== handle_log tests =====
 
-def run_handle_log(monkeypatch, data, user_inputs):
-    messages = []
-    save_calls = []
-
-    inputs = iter(user_inputs)
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
-
-    def fake_save_data(updated_data):
-        save_calls.append(updated_data.copy())
-
-    monkeypatch.setattr(main, "save_data", fake_save_data)
-
-    main.handle_log(data)
-
-    return messages, save_calls
-
-
 def test_handle_log_can_be_cancelled_at_habit_selection(monkeypatch):
     data = make_data(
         habits={
@@ -1132,22 +1173,6 @@ def test_handle_log_retries_invalid_confirmation_then_cancels(monkeypatch):
 
 # ===== handle_view_logs tests =====
 
-def run_handle_view_logs(monkeypatch, data, user_inputs):
-    messages = []
-    numbered_lists = []
-
-    inputs = iter(user_inputs)
-
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
-
-    main.handle_view_logs(data)
-
-    return messages, numbered_lists
-
-
 def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
     data = make_data(
         habits={
@@ -1239,24 +1264,6 @@ def test_handle_view_logs_shows_message_when_no_habits_exist(monkeypatch):
 
 
 # ===== handle_dashboard tests =====
-
-def run_handle_dashboard(monkeypatch, data, user_inputs=None):
-    messages = []
-    numbered_lists = []
-
-    if user_inputs is not None:
-        inputs = iter(user_inputs)
-        monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr(main, "display_numbered_list", lambda items: numbered_lists.append(items))
-    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("helpers.display_numbered_list", lambda items: numbered_lists.append(items))
-
-    main.handle_dashboard(data)
-
-    return messages, numbered_lists
-
 
 def test_handle_dashboard_shows_message_when_no_active_habits(monkeypatch):
     data = make_data(
@@ -1427,4 +1434,3 @@ def test_handle_dashboard_retries_invalid_date_then_shows_no_active_habits(monke
     assert "\n📅 Date: Friday, 01 May 2026" in messages
     assert "No habits were active on Friday, 01 May 2026." in messages
 
-    
