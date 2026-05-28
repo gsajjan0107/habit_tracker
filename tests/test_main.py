@@ -540,3 +540,45 @@ def test_handle_delete_log_deletes_selected_log_after_confirmation(monkeypatch):
     assert any("Deleted" in message for message in messages)
 
 
+def test_handle_delete_log_cancels_when_user_declines_confirmation(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    messages = []
+
+    inputs = iter([
+        "2026-05-01",  # select date
+        "1",           # select Workout
+        "n",           # decline deletion
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(data):
+        raise AssertionError("save_data should not be called when delete log is declined")
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete_log(data)
+
+    assert "Log deletion cancelled." in messages
+    assert data["logs"] == [
+        {
+            "habit": "Workout",
+            "date": "2026-05-01",
+        }
+    ]
