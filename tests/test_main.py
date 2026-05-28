@@ -1442,3 +1442,51 @@ def test_handle_dashboard_retries_invalid_date_then_shows_no_active_habits(monke
     assert "No habits were active on Friday, 01 May 2026." in messages
 
 
+# ===== handle_view_habit tests =====
+
+def test_handle_view_habit_details_shows_selected_habit(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+            make_log("Workout", "2026-05-02"),
+        ],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert any("==== HABIT DETAILS ====" in message for message in messages)
+    assert "Habit: Workout" in messages
+    assert "Target: 5/week" in messages
+    assert "Created: 2026-05-01" in messages
+    assert "Status: Active" in messages
+    assert "Total logs: 2" in messages
+
+
+def test_handle_view_habit_details_can_cancel(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "q")
+
+    main.handle_view_habit_details(data)
+
+    assert "View habit details cancelled." in messages

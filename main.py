@@ -29,17 +29,20 @@ from helpers import (
     format_log_confirmation_message,
     format_logged_success_message,
     format_streak_line,
-    habit_has_logs,)
+    habit_has_logs,
+    get_habit_details,
+    )
 
 commands = {
     "1" : "Add habit",
     "2" : "Log habit",
-    "3" : "View logs",
-    "4" : "Delete log",
-    "5" : "Delete habit permanently",
-    "6" : "Archive / Unarchive habit",
-    "7" : "Dashboard",
-    "8" : "Exit"
+    "3" : "View habit details",
+    "4" : "View logs",
+    "5" : "Delete log",
+    "6" : "Delete habit permanently",
+    "7" : "Archive / Unarchive habit",
+    "8" : "Dashboard",
+    "9" : "Exit"
 }
 
 def handle_add(data):
@@ -333,6 +336,46 @@ def handle_toggle_archive(data):
     result = toggle_archive_habit(data, habit_name)
     handle_operation_result(data, result)
 
+def handle_view_habit_details(data):
+    if not ensure_habits_exist(data):
+        return
+
+    habits = sorted(data["habits"])
+    menu_entries = display_habit_archive_menu(data, habits)
+
+    while True:
+        choice = input("\nSelect a habit number, or 'q' to cancel: ").strip().lower()
+
+        if choice == "q":
+            display_message("View habit details cancelled.")
+            return
+
+        try:
+            selected_index = validate_int(choice, 1, len(menu_entries))
+            break
+        except ValueError as e:
+            display_message(f"Error: {e}")
+
+    habit = menu_entries[selected_index - 1]["habit"]
+
+    try:
+        details = get_habit_details(data, habit)
+    except ValueError as e:
+        display_message(e)
+        return
+
+    status = "Archived" if details["is_archived"] else "Active"
+
+    display_message("\n==== HABIT DETAILS ====")
+    display_message(f"Habit: {details['name']}")
+    display_message(f"Target: {details['target_per_week']}/week")
+    display_message(f"Created: {details['created_at']}")
+    display_message(f"Status: {status}")
+    display_message(f"Total logs: {details['total_logs']}")
+
+    if details["archived_at"] is not None:
+        display_message(f"Archived: {details['archived_at']}")
+
 def handle_dashboard(data):
     if not ensure_habits_exist(data):
         return
@@ -398,12 +441,13 @@ def handle_exit(data):
 handlers = {
     "1": handle_add,
     "2": handle_log,
-    "3": handle_view_logs,
-    "4": handle_delete_log,
-    "5": handle_delete,
-    "6": handle_toggle_archive,
-    "7": handle_dashboard,
-    "8": handle_exit,
+    "3": handle_view_habit_details,
+    "4": handle_view_logs,
+    "5": handle_delete_log,
+    "6": handle_delete,
+    "7": handle_toggle_archive,
+    "8": handle_dashboard,
+    "9": handle_exit,
 }
 
 def main(data):
