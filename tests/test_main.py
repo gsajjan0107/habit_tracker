@@ -582,3 +582,70 @@ def test_handle_delete_log_cancels_when_user_declines_confirmation(monkeypatch):
             "date": "2026-05-01",
         }
     ]
+
+
+def test_handle_delete_log_deletes_all_logs_for_date_after_confirmation(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Coding": {
+                "target_per_week": 4,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [
+            {
+                "habit": "Reading",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            },
+            {
+                "habit": "Coding",
+                "date": "2026-05-02",
+            },
+        ],
+    }
+
+    messages = []
+    saved = {"called": False}
+
+    inputs = iter([
+        "2026-05-01",  # select date
+        "all",         # select all logs on that date
+        "y",           # confirm deletion
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(msg))
+
+    def fake_save_data(updated_data):
+        saved["called"] = True
+        assert updated_data == data
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_delete_log(data)
+
+    assert saved["called"] is True
+    assert data["logs"] == [
+        {
+            "habit": "Coding",
+            "date": "2026-05-02",
+        }
+    ]
+    assert any("Deleted" in message for message in messages)
+
+
