@@ -1,7 +1,7 @@
 import copy
 import main
 import helpers
-
+import pytest
 
 # ===== data helpers =====
 
@@ -1518,4 +1518,26 @@ def test_handle_view_habit_details_shows_archived_habit(monkeypatch):
     assert "Archived: 2026-05-10" in messages
     assert "Total logs: 1" in messages
 
+
+def test_main_menu_option_3_opens_habit_details(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.save_data", lambda data: None)
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    inputs = iter(["3", "1", "9"])
+
+    with pytest.raises(SystemExit):
+        main.main(data)
+
+    assert any("==== HABIT DETAILS ====" in message for message in messages)
+    assert "Habit: Workout" in messages
 
