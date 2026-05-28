@@ -1533,3 +1533,45 @@ def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
     assert "Workout added." in messages
 
 
+def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": "2026-05-10",
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+    save_calls = []
+
+    inputs = iter([
+        "Workout",  # existing archived habit
+        "Reading",  # new valid habit
+        "3",        # valid target
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    def fake_save_data(updated_data):
+        save_calls.append(updated_data.copy())
+
+    monkeypatch.setattr(main, "save_data", fake_save_data)
+
+    main.handle_add(data)
+
+    assert "Habit exists but is archived. Unarchive it instead." in messages
+
+    assert len(save_calls) == 1
+    assert data["habits"]["Workout"]["archived_at"] == "2026-05-10"
+
+    assert "Reading" in data["habits"]
+    assert data["habits"]["Reading"]["target_per_week"] == 3
+    assert data["habits"]["Reading"]["archived_at"] is None
+    assert "Reading added." in messages
+
+
