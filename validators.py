@@ -35,29 +35,35 @@ def validate_habits_data_structure(data):
 
     for habit, habit_data in habits.items():
 
+
         if not isinstance(habit_data, dict):
             return False, f"habits['{habit}'] → expected dict."
         
         if "target_per_week" not in habit_data:
             return False, f"habits['{habit}'].target_per_week → missing key."
 
-        target = habit_data["target_per_week"]
-        if not isinstance(target, int) or target <= 0:
-            return False, f"habits['{habit}'].target_per_week → expected int > 0."
-
         if "created_at" not in habit_data:
             return False, f"habits['{habit}'].created_at → missing key."
         
+        if "archived_at" not in habit_data:
+            return False, f"habits['{habit}'].archived_at → missing key."
+        
+        target = habit_data["target_per_week"]
         created_at = habit_data["created_at"]
+        archived_at = habit_data["archived_at"]
+
+        required_keys = {"target_per_week", "created_at", "archived_at"}
+        
+        if set(habit_data.keys()) != required_keys:
+            return False, f"habits['{habit}'] → invalid keys."
+        
+        if not isinstance(target, int) or target <= 0:
+            return False, f"habits['{habit}'].target_per_week → expected int > 0."
+        
         try:
             created = validate_date(created_at)
         except ValueError:
             return False, f"habits['{habit}'].created_at → invalid date format (YYYY-MM-DD)." 
-
-        if "archived_at" not in habit_data:
-            return False, f"habits['{habit}'].archived_at → missing key."
-        
-        archived_at = habit_data.get("archived_at")
 
         if archived_at is not None:
             try:

@@ -309,3 +309,22 @@ def test_validate_data_structure_log_references_missing_habit():
 
     assert success is False
     assert "does not exist" in msg
+
+
+def test_validate_data_structure_habit_with_extra_key_fails():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+                "wrong_key": None,
+            }
+        },
+        "logs": [],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "invalid keys" in msg

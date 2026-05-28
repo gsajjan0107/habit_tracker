@@ -1441,3 +1441,4 @@ def test_handle_dashboard_retries_invalid_date_then_shows_no_active_habits(monke
     assert "\n📅 Date: Friday, 01 May 2026" in messages
     assert "No habits were active on Friday, 01 May 2026." in messages
 
+
