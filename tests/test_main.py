@@ -1165,3 +1165,31 @@ def test_handle_dashboard_does_not_show_previous_day_missed_when_yesterday_compl
     )
 
 
+def test_handle_dashboard_retries_invalid_date_then_shows_no_active_habits(monkeypatch):
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-02",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    messages = []
+
+    inputs = iter([
+        "bad-date",    # invalid date
+        "2026-05-01",  # valid date before habit was created
+    ])
+
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+
+    main.handle_dashboard(data)
+
+    assert any("Use format YYYY-MM-DD" in message for message in messages)
+    assert "\n==== DASHBOARD ====" in messages
+    assert "\n📅 Date: Friday, 01 May 2026" in messages
+    assert "No habits were active on Friday, 01 May 2026." in messages
