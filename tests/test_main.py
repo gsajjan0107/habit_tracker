@@ -1272,3 +1272,26 @@ def test_handle_log_shows_message_when_no_habits_active_on_selected_date(monkeyp
 
     assert "No habits were active on Friday, 01 May 2026." in messages
     assert data["logs"] == []
+
+
+def test_handle_log_shows_message_when_no_habits_exist(monkeypatch):
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    messages = []
+
+    def fake_input(prompt):
+        raise AssertionError("input should not be called when no habits exist")
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+
+    main.handle_log(data)
+
+    assert "No habits found. Add a habit first." in messages
+    assert data["logs"] == []
+
+
