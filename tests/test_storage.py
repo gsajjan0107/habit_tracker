@@ -16,6 +16,7 @@ def test_load_data_creates_file_if_missing(tmp_path, monkeypatch):
     assert test_file.exists()
 
     # structure must be correct
+    assert data["schema_version"] == 1
     assert "habits" in data
     assert "logs" in data
     assert isinstance(data["habits"], dict)
@@ -34,6 +35,7 @@ def test_load_data_handles_invalid_json_creates_backup(tmp_path, monkeypatch):
     assert test_file.exists()
 
     # verify system recovered structure
+    assert data["schema_version"] == 1
     assert "habits" in data
     assert "logs" in data
 
@@ -47,6 +49,7 @@ def test_save_data_writes_valid_data(tmp_path, monkeypatch):
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -92,6 +95,7 @@ def test_save_data_does_not_overwrite_existing_file_when_data_is_invalid(tmp_pat
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     existing_data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -127,6 +131,7 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     existing_data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -138,6 +143,7 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
     }
 
     new_data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -173,6 +179,7 @@ def test_save_data_does_not_create_backup_when_file_does_not_exist(tmp_path, mon
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -192,3 +199,39 @@ def test_save_data_does_not_create_backup_when_file_does_not_exist(tmp_path, mon
     assert backup_files == []
 
 
+def test_migrate_data_adds_schema_version_to_old_data():
+    data = {
+        "habits": {},
+        "logs": []
+    }
+
+    result = storage.migrate_data(data)
+
+    assert result["schema_version"] == 1
+
+
+def test_migrate_data_preserves_existing_schema_version():
+    data = {
+        "schema_version": 1,
+        "habits": {},
+        "logs": []
+    }
+
+    result = storage.migrate_data(data)
+
+    assert result["schema_version"] == 1
+
+
+def test_load_data_accepts_old_data(tmp_path, monkeypatch):
+    test_file = tmp_path / "data.json"
+    monkeypatch.setattr(storage, "DATA_FILE", test_file)
+
+    data = {
+        "habits": {},
+        "logs": []
+    }
+
+    test_file.write_text(json.dumps(data, indent=4))
+    data = storage.load_data()
+
+    assert data["schema_version"] == 1

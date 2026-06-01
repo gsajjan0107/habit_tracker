@@ -7,8 +7,9 @@ from config import DATA_FILE
 
 def create_default_data():
     return {
+        "schema_version": 1,
         "habits": {},
-        "logs": []
+        "logs": [],
     }
 
 HabitData = dict[str, Any]
@@ -18,6 +19,12 @@ def create_data_file() -> HabitData:
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
+
+    return data
+
+def migrate_data(data):
+    if isinstance(data, dict) and "schema_version" not in data:
+        data["schema_version"] = 1
 
     return data
 
@@ -40,6 +47,8 @@ def load_data() -> HabitData:
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
+
+        data = migrate_data(data)
         
         is_valid, msg = validate_data_structure(data) 
         if not is_valid:

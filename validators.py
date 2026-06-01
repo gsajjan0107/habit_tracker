@@ -7,11 +7,25 @@ def validate_data_structure(data):
     if not isinstance(data, dict):
         return False, "data → expected dict, got something else."
 
+    if "schema_version" not in data:
+        return False, "schema_version → missing key."
+
     if "habits" not in data:
         return False, "data.habits → missing key."
     
     if "logs" not in data:
         return False, "data.logs → missing key."
+
+    required_keys = {"schema_version", "habits", "logs"}
+
+    if set(data.keys()) != required_keys:
+        return False, "data → invalid keys."
+
+    if not isinstance(data["schema_version"], int):
+        return False, "schema_version → expected int."
+
+    if data["schema_version"] != 1:
+        return False, "schema_version → unsupported version."
 
     if not isinstance(data["habits"], dict):
         return False, "data.habits → expected dict."

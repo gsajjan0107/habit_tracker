@@ -126,6 +126,7 @@ def test_validate_date_false_input():
 
 def test_validate_data_structure_missing_target_per_week():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "created_at": "2026-05-01",
@@ -144,6 +145,7 @@ def test_validate_data_structure_missing_target_per_week():
 
 def test_validate_data_structure_missing_created_at():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -161,6 +163,7 @@ def test_validate_data_structure_missing_created_at():
 
 def test_validate_data_structure_missing_log_date():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -183,6 +186,7 @@ def test_validate_data_structure_missing_log_date():
 
 def test_validate_data_structure_missing_log_habit():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -205,6 +209,7 @@ def test_validate_data_structure_missing_log_habit():
 
 def test_validate_data_structure_log_entry_not_dict():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -226,6 +231,7 @@ def test_validate_data_structure_log_entry_not_dict():
 
 def test_validate_data_structure_log_after_archive_date():
     data = {
+        "schema_version": 1,
         "habits": {
             "Reading": {
                 "target_per_week": 5,
@@ -250,6 +256,7 @@ def test_validate_data_structure_log_after_archive_date():
 
 def test_validate_data_structure_active_habit_log_success():
     data = {
+        "schema_version": 1,
         "habits": {
             "Reading": {
                 "target_per_week": 5,
@@ -273,6 +280,7 @@ def test_validate_data_structure_active_habit_log_success():
 
 def test_validate_data_structure_missing_archived_at():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -290,6 +298,7 @@ def test_validate_data_structure_missing_archived_at():
 
 def test_validate_data_structure_log_references_missing_habit():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -313,6 +322,7 @@ def test_validate_data_structure_log_references_missing_habit():
 
 def test_validate_data_structure_habit_with_extra_key_fails():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -332,6 +342,7 @@ def test_validate_data_structure_habit_with_extra_key_fails():
 
 def test_validate_data_structure_log_with_extra_key_fails():
     data = {
+        "schema_version": 1,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
@@ -352,3 +363,43 @@ def test_validate_data_structure_log_with_extra_key_fails():
 
     assert success is False
     assert "invalid keys" in msg
+
+
+def test_validate_data_structure_missing_schema_version():
+    data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "schema_version" in msg
+
+
+def test_validate_data_structure_invalid_schema_version_type():
+    data = {
+        "schema_version": "1",
+        "habits": {},
+        "logs": [],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "schema_version" in msg
+
+
+def test_validate_data_structure_unsupported_schema_version():
+    data = {
+        "schema_version": 999,
+        "habits": {},
+        "logs": [],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "unsupported" in msg
+
+
