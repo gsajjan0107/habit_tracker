@@ -23,10 +23,13 @@ def create_data_file() -> HabitData:
     return data
 
 def migrate_data(data):
+    was_migrated = False
+
     if isinstance(data, dict) and "schema_version" not in data:
         data["schema_version"] = 1
+        was_migrated = True
 
-    return data
+    return data, was_migrated
 
 def backup_and_reset() -> HabitData:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
@@ -48,12 +51,15 @@ def load_data() -> HabitData:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        data = migrate_data(data)
-        
+        data, was_migrated = migrate_data(data)
+
         is_valid, msg = validate_data_structure(data) 
         if not is_valid:
             return backup_and_reset()
              
+        if was_migrated:
+            save_data(data)
+
         return data
 
     except FileNotFoundError:

@@ -205,9 +205,10 @@ def test_migrate_data_adds_schema_version_to_old_data():
         "logs": []
     }
 
-    result = storage.migrate_data(data)
+    result, was_migrated = storage.migrate_data(data)
 
     assert result["schema_version"] == 1
+    assert was_migrated is True
 
 
 def test_migrate_data_preserves_existing_schema_version():
@@ -217,9 +218,10 @@ def test_migrate_data_preserves_existing_schema_version():
         "logs": []
     }
 
-    result = storage.migrate_data(data)
+    result, was_migrated = storage.migrate_data(data)
 
     assert result["schema_version"] == 1
+    assert was_migrated is False
 
 
 def test_load_data_accepts_old_data(tmp_path, monkeypatch):
@@ -235,3 +237,56 @@ def test_load_data_accepts_old_data(tmp_path, monkeypatch):
     data = storage.load_data()
 
     assert data["schema_version"] == 1
+
+
+def test_migrate_data_returns_non_dict_unchanged():
+    data = ["not", "a", "dict"]
+
+    result, was_migrated = storage.migrate_data(data)
+
+    assert result == data
+    assert was_migrated is False
+
+
+def test_migrate_data_preserves_old_data_content():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            }
+        ],
+    }
+
+    result, was_migrated = storage.migrate_data(data)
+
+    assert result["schema_version"] == 1
+    assert result["habits"] == data["habits"]
+    assert result["logs"] == data["logs"]
+
+
+def test_load_data_saves_migrated_old_data(tmp_path, monkeypatch):
+    test_file = tmp_path / "data.json"
+    monkeypatch.setattr(storage, "DATA_FILE", test_file)
+
+    old_data = {
+        "habits": {},
+        "logs": [],
+    }
+
+    test_file.write_text(json.dumps(old_data, indent=4))
+
+    data = storage.load_data()
+    saved_data = json.loads(test_file.read_text())
+
+    assert data["schema_version"] == 1
+    assert saved_data["schema_version"] == 1
+
+
