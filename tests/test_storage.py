@@ -290,3 +290,30 @@ def test_load_data_saves_migrated_old_data(tmp_path, monkeypatch):
     assert saved_data["schema_version"] == 1
 
 
+def test_load_data_handles_invalid_structure_creates_backup(tmp_path, monkeypatch):
+    test_file = tmp_path / "data.json"
+    monkeypatch.setattr(storage, "DATA_FILE", test_file)
+
+    invalid_data = {
+        "schema_version": 1,
+        "habits": [],
+        "logs": [],
+    }
+
+    test_file.write_text(json.dumps(invalid_data, indent=4))
+
+    data = storage.load_data()
+
+    backup_files = list(tmp_path.glob("data_backup_*.json"))
+
+    assert test_file.exists()
+    assert len(backup_files) == 1
+
+    assert data["schema_version"] == 1
+    assert data["habits"] == {}
+    assert data["logs"] == []
+
+    backup_data = json.loads(backup_files[0].read_text())
+    assert backup_data == invalid_data
+
+
