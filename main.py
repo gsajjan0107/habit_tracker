@@ -32,6 +32,7 @@ from helpers import (
     get_today_focus_habits,
     display_today_focus_section,
     display_weekly_progress_section,
+    get_dashboard_data,
     )
 
 commands = {
@@ -408,9 +409,11 @@ def handle_dashboard(data):
             date = input("\nEnter date (Press enter for today): ")
             selected_date = validate_date(date)
 
-            result = daily_stats(data, selected_date)
-            weekly_stats = habit_weekly_completion(data, selected_date)
-            habit_streaks = streaks(data, selected_date)
+            dashboard_data = get_dashboard_data(data, selected_date)
+
+            result = dashboard_data["daily"]
+            weekly_stats = dashboard_data["weekly"]
+            habit_streaks = dashboard_data["streaks"]
             
             break
 

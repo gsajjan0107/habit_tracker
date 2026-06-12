@@ -282,3 +282,12 @@ def display_weekly_progress_section(active_habits, weekly_stats, habit_streaks):
 
         for line in format_weekly_progress_lines(habit, info, streak_info):
             display_message(line)
+
+def get_dashboard_data(data, selected_date):
+    from stats import daily_stats, habit_weekly_completion, streaks
+
+    return {
+        "daily": daily_stats(data, selected_date),
+        "weekly": habit_weekly_completion(data, selected_date),
+        "streaks": streaks(data, selected_date),
+    }

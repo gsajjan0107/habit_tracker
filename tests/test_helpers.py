@@ -23,6 +23,7 @@ from helpers import (
     is_habit_at_risk,
     format_today_focus_message,
     format_weekly_progress_lines,
+    get_dashboard_data,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -790,3 +791,43 @@ def test_format_weekly_progress_lines_for_at_risk_target():
         "  Streak : 🔥 0",
         "  Best   : 🏆 6",
     ]
+
+
+def test_get_dashboard_data_returns_daily_weekly_and_streaks():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [
+            {
+                "habit": "Workout",
+                "date": "2026-05-01",
+            },
+        ],
+    }
+
+    result = get_dashboard_data(data, "2026-05-01")
+
+    assert set(result.keys()) == {"daily", "weekly", "streaks"}
+
+    assert result["daily"]["date"] == "2026-05-01"
+    assert result["daily"]["completed"] == ["Workout"]
+    assert result["daily"]["pending"] == ["Reading"]
+
+    assert "Workout" in result["weekly"]
+    assert "Reading" in result["weekly"]
+
+    assert "Workout" in result["streaks"]
+    assert "Reading" in result["streaks"]
+
+
