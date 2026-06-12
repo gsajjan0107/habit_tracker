@@ -447,11 +447,15 @@ def handle_dashboard(data):
     if focus_habits:
         for habit, info in focus_habits:
             day_word = pluralize(info["available_days_left"], "day")
+            risk_note = ""
+
+            if info["remaining"] > info["available_days_left"]:
+                risk_note = " ⚠️  At risk"
 
             display_message(
                 f"- {habit}: {info['remaining']} more needed this week, "
                 f"{info['available_days_left']} {day_word} available"
-            )
+                f"{risk_note}")
     else:
         display_message("All weekly targets are currently on track.")
 
