@@ -153,7 +153,12 @@ def handle_view_logs(data):
 
     while True:
         try:
-            date = input("\nEnter date (Press enter for today): ")
+            date = input("\nEnter date (Press enter for today, or 'q' to cancel): ").strip()
+
+            if date.lower() == "q":
+                display_message("View logs cancelled.")
+                return
+
             selected_date = validate_date(date)
             result = daily_stats(data, selected_date)
             completed = sorted(result["completed"])

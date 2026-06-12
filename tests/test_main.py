@@ -1180,6 +1180,29 @@ def test_handle_log_retries_invalid_confirmation_then_cancels(monkeypatch):
 
 # ===== handle_view_logs tests =====
 
+def test_handle_view_logs_can_be_cancelled_at_date_input(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "q",
+        ],
+    )
+
+    assert "View logs cancelled." in messages
+    assert "\n==== VIEW LOGS ====" not in messages
+    assert numbered_lists == []
+
+
 def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
     data = make_data(
         habits={
