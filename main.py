@@ -30,8 +30,8 @@ from helpers import (
     habit_has_logs,
     get_habit_details,
     get_today_focus_habits,
-    format_weekly_progress_lines,
     display_today_focus_section,
+    display_weekly_progress_section,
     )
 
 commands = {
@@ -434,19 +434,7 @@ def handle_dashboard(data):
     display_today_focus_section(focus_habits)
 
     active_habits = get_sorted_active_habits_from_stats(result)
-    habit_word = pluralize(len(active_habits), "habit")
-
-    display_message(f"\n📊 Weekly Progress ({len(active_habits)} {habit_word}):")
-
-    for habit in active_habits:
-        info = weekly_stats[habit]
-        streak_info = habit_streaks.get(
-            habit,
-            {"current_streak": 0, "longest_streak": 0},
-        )
-
-        for line in format_weekly_progress_lines(habit, info, streak_info):
-            display_message(line)
+    display_weekly_progress_section(active_habits, weekly_stats, habit_streaks)
 
     display_message("\n✅ Dashboard loaded.")
 

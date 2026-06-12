@@ -267,3 +267,18 @@ def display_today_focus_section(focus_habits):
             display_message(format_today_focus_message(habit, info))
     else:
         display_message(TODAYS_FOCUS_ON_TRACK_MESSAGE)
+
+def display_weekly_progress_section(active_habits, weekly_stats, habit_streaks):
+    habit_word = pluralize(len(active_habits), "habit")
+
+    display_message(f"\n📊 Weekly Progress ({len(active_habits)} {habit_word}):")
+
+    for habit in active_habits:
+        info = weekly_stats[habit]
+        streak_info = habit_streaks.get(
+            habit,
+            {"current_streak": 0, "longest_streak": 0},
+        )
+
+        for line in format_weekly_progress_lines(habit, info, streak_info):
+            display_message(line)
