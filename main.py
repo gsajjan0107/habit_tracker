@@ -442,15 +442,18 @@ def handle_dashboard(data):
             -item[1]["remaining"],
             item[0].lower()))
 
-    if focus_habits:
-        display_message("\n🎯 Today's Focus")
+    display_message("\n🎯 Today's Focus")
 
+    if focus_habits:
         for habit, info in focus_habits:
             day_word = pluralize(info["available_days_left"], "day")
 
             display_message(
                 f"- {habit}: {info['remaining']} more needed this week, "
-                f"{info['available_days_left']} {day_word} available")
+                f"{info['available_days_left']} {day_word} available"
+            )
+    else:
+        display_message("All weekly targets are currently on track.")
 
     active_habits = get_sorted_active_habits_from_stats(result)
     habit_word = pluralize(len(active_habits), "habit")
