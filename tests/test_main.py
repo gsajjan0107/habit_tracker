@@ -1608,3 +1608,22 @@ def test_handle_dashboard_shows_sections_in_decision_focused_order(monkeypatch):
     weekly_progress_index = messages.index("\n📊 Weekly Progress (2 habits):")
 
     assert daily_summary_index < todays_focus_index < weekly_progress_index
+
+
+def test_handle_view_habit_details_can_be_cancelled_at_selection(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "q")
+
+    main.handle_view_habit_details(data)
+
+    assert "View habit details cancelled." in messages
+    assert not any("Habit: Workout" in message for message in messages)
