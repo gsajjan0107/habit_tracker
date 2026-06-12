@@ -52,8 +52,17 @@ commands = {
 
 def handle_add(data):
     while True:
-        habit_name = get_valid_input("Enter habit name: ",
-                lambda v: validate_string(v, 3, 20))
+        habit_name = input("Enter habit name, or 'q' to cancel: ").strip()
+
+        if habit_name.lower() == "q":
+            display_message("Habit creation cancelled.")
+            return
+
+        try:
+            habit_name = validate_string(habit_name, 3, 20)
+        except ValueError as e:
+            display_message(f"Error: {e}")
+            continue
 
         if habit_exists(data, habit_name):
 

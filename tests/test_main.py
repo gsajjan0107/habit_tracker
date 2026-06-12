@@ -175,6 +175,23 @@ def run_handle_dashboard(monkeypatch, data, user_inputs=None):
 
 # ===== handle_add tests =====
 
+def test_handle_add_can_be_cancelled_at_name_input(monkeypatch):
+    data = make_data()
+
+    messages = []
+    save_calls = []
+
+    monkeypatch.setattr("builtins.input", lambda _: "q")
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.save_data", lambda data: save_calls.append(data))
+
+    main.handle_add(data)
+
+    assert "Habit creation cancelled." in messages
+    assert data["habits"] == {}
+    assert save_calls == []
+
+
 def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
     data = make_data()
 
