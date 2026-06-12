@@ -33,6 +33,7 @@ from helpers import (
     display_today_focus_section,
     display_weekly_progress_section,
     get_dashboard_data,
+    format_no_active_habits_message,
     )
 
 commands = {
@@ -53,12 +54,12 @@ def handle_add(data):
                 lambda v: validate_string(v, 3, 20))
 
         if habit_exists(data, habit_name):
-            
+
             if is_habit_archived(data, habit_name):
                 display_message("Habit exists but is archived. Unarchive it instead.")
             else:
                 display_message("Habit already exists.")
-            
+
             continue
 
         # VALIDATE TARGET
@@ -74,8 +75,8 @@ def handle_add(data):
 def handle_log(data):
     if not ensure_habits_exist(data):
         return
-    
-    while True: 
+
+    while True:
         try:
             log_date = input("\nEnter date (Press enter for today): ")
             log_date = validate_date(log_date)
@@ -85,9 +86,9 @@ def handle_log(data):
 
             if result["total_habits"] == 0:
                 formatted_date = format_display_date(log_date)
-                display_message(f"No habits were active on {formatted_date}.")
+                display_message(format_no_active_habits_message(formatted_date))
                 return
-            
+
 
             show_habits_status(result) # show pending and completed habits
 
@@ -103,12 +104,12 @@ def handle_log(data):
             if selected_habits is None:
                 display_message("Logging cancelled.")
                 return
-            
+
 
             if not selected_habits:
                 display_message("No habits selected.")
                 return
-            
+
 
             formatted_date = format_display_date(log_date)
             display_message(format_log_confirmation_message(selected_habits, formatted_date))
@@ -121,11 +122,11 @@ def handle_log(data):
             if not confirmed:
                 display_message("Logging cancelled.")
                 return
-            
+
 
             logged = log_multiple_habits(data, log_date, selected_habits)
             save_data(data)
-            
+
             habit_streaks = streaks(data, log_date)
 
             formatted_date = format_display_date(log_date)
@@ -166,19 +167,19 @@ def handle_view_logs(data):
     if not completed:
         display_message(f"No habits logged on {formatted_date}.")
         return
-    
+
     display_message(f"\n✅ Logged habits ({len(completed)}):")
     display_numbered_list(completed)
 
 def handle_delete_log(data):
     if not ensure_habits_exist(data):
         return
-    
+
 
     if not data["logs"]:
         display_message("No logs found yet. Log a habit first.")
         return
-    
+
 
     while True:
         try:
@@ -195,7 +196,7 @@ def handle_delete_log(data):
     if not completed:
         display_message(f"No logs found for {formatted_date}.")
         return
-        
+
 
     display_message(f"\n📅 Date: {formatted_date}")
     display_message("\n✅ Logged:")
@@ -211,7 +212,7 @@ def handle_delete_log(data):
     if not selected_habits:
         display_message("No habits selected.")
         return
-    
+
     log_word = pluralize(len(selected_habits), "log")
 
     display_message(
@@ -245,7 +246,7 @@ def handle_delete_log(data):
     if not deleted:
         display_message("No logs were deleted.")
         return
-        
+
     save_data(data)
 
     deleted_log_word = pluralize(len(deleted), "log")
@@ -260,7 +261,7 @@ def handle_delete_log(data):
 def handle_delete(data):
     if not ensure_habits_exist(data):
         return
-    
+
 
     habits = sorted(data["habits"])
     menu_entries = display_habit_archive_menu(data, habits)
@@ -277,7 +278,7 @@ def handle_delete(data):
             break
         except ValueError as e:
             display_message(f"Error: {e}")
-    
+
     habit = menu_entries[selected_index - 1]["habit"]
 
     if habit_has_logs(data, habit):
@@ -290,7 +291,7 @@ def handle_delete(data):
     if not confirmed:
         display_message("Deletion cancelled.")
         return
-    
+
 
     typed_name = input(f"Type the habit name [{habit}] to confirm permanent deletion: ").strip()
 
@@ -308,11 +309,11 @@ def handle_delete(data):
 
     save_data(data)
     display_message(result)
- 
+
 def handle_toggle_archive(data):
     if not ensure_habits_exist(data):
         return
-    
+
 
     habits = sorted(data["habits"])
 
@@ -330,10 +331,10 @@ def handle_toggle_archive(data):
             break
         except ValueError as e:
             display_message(f"Error: {e}")
-    
+
     entry = menu_entries[selected_index - 1]
     habit_name = entry["habit"]
-    
+
     # TOGGLE ARCHIVE
     result = toggle_archive_habit(data, habit_name)
     handle_operation_result(data, result)
@@ -395,7 +396,7 @@ def handle_view_habit_details(data):
         display_message(
             f"This week: {info['done']}/{info['target']} "
             f"completed ({info['percentage']:.2f}%) - {weekly_message}")
-        
+
     if details["archived_at"] is not None:
         display_message(f"Archived: {details['archived_at']}")
 
@@ -413,18 +414,18 @@ def handle_dashboard(data):
             result = dashboard_data["daily"]
             weekly_stats = dashboard_data["weekly"]
             habit_streaks = dashboard_data["streaks"]
-            
+
             break
 
         except ValueError as e:
             display_message(e)
-    
+
     display_message("\n==== DASHBOARD ====")
     formatted_date = format_display_date(result["date"])
     display_message(f"\n📅 Date: {formatted_date}")
 
     if result["total_habits"] == 0:
-        display_message(f"No habits were active on {formatted_date}.")
+        display_message(format_no_active_habits_message(formatted_date))
         return
 
     display_message("\n📌 Daily Summary")
@@ -441,7 +442,7 @@ def handle_dashboard(data):
 
 def handle_exit(data):
     sys.exit()
-    
+
 handlers = {
     "1": handle_add,
     "2": handle_log,

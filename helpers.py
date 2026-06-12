@@ -100,7 +100,7 @@ def count_logs_for_habit(data, habit):
 def get_logged_habits_for_date(data, selected_date):
     selected_date = selected_date.isoformat()
 
-    logged_habits = {log["habit"] for log in data["logs"] 
+    logged_habits = {log["habit"] for log in data["logs"]
                     if log["date"] == selected_date}
 
     return sorted(logged_habits)
@@ -170,7 +170,7 @@ def get_previous_day_missed_habits(data, selected_date, daily_stats_func):
 
     except ValueError:
         return previous_day, []
-    
+
 def format_log_confirmation_message(selected_habits, formatted_date):
     habit_word = pluralize(len(selected_habits), "habit")
 
@@ -291,3 +291,6 @@ def get_dashboard_data(data, selected_date):
         "weekly": habit_weekly_completion(data, selected_date),
         "streaks": streaks(data, selected_date),
     }
+
+def format_no_active_habits_message(formatted_date):
+    return f"No habits were active on {formatted_date}."

@@ -27,6 +27,7 @@ from helpers import (
     display_today_focus_section,
     TODAYS_FOCUS_ON_TRACK_MESSAGE,
     display_weekly_progress_section,
+    format_no_active_habits_message,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -931,3 +932,9 @@ def test_display_weekly_progress_section_uses_zero_streaks_when_missing(capsys):
     assert "2 more needed, 3 days available" in output
     assert "Streak : 🔥 0" in output
     assert "Best   : 🏆 0" in output
+
+
+def test_format_no_active_habits_message():
+    result = format_no_active_habits_message("Friday, 01 May 2026")
+
+    assert result == "No habits were active on Friday, 01 May 2026."
