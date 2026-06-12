@@ -19,6 +19,7 @@ from helpers import (
     format_streak_line,
     habit_has_logs,
     get_habit_details,
+    get_today_focus_habits,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -613,3 +614,73 @@ def test_get_habit_details_for_missing_habit_raises_error():
 
     with pytest.raises(ValueError, match="Habit does not exist"):
         get_habit_details(data, "Workout")
+
+
+def test_get_today_focus_habits_only_includes_pending_habits_with_remaining_work():
+    pending_habits = ["Workout", "Reading", "Coding"]
+
+    weekly_stats = {
+        "Workout": {
+            "remaining": 0,
+            "available_days_left": 3,
+        },
+        "Reading": {
+            "remaining": 2,
+            "available_days_left": 3,
+        },
+        "Coding": {
+            "remaining": 1,
+            "available_days_left": 3,
+        },
+    }
+
+    result = get_today_focus_habits(pending_habits, weekly_stats)
+
+    assert result == [
+        ("Reading", weekly_stats["Reading"]),
+        ("Coding", weekly_stats["Coding"]),
+    ]
+
+
+def test_get_today_focus_habits_sorts_by_urgency():
+    pending_habits = ["Reading", "Workout", "Coding"]
+
+    weekly_stats = {
+        "Reading": {
+            "remaining": 1,
+            "available_days_left": 4,
+        },
+        "Workout": {
+            "remaining": 3,
+            "available_days_left": 2,
+        },
+        "Coding": {
+            "remaining": 1,
+            "available_days_left": 2,
+        },
+    }
+
+    result = get_today_focus_habits(pending_habits, weekly_stats)
+
+    assert result == [
+        ("Workout", weekly_stats["Workout"]),
+        ("Coding", weekly_stats["Coding"]),
+        ("Reading", weekly_stats["Reading"]),
+    ]
+
+
+def test_get_today_focus_habits_ignores_pending_habits_missing_from_weekly_stats():
+    pending_habits = ["Workout", "Reading"]
+
+    weekly_stats = {
+        "Workout": {
+            "remaining": 1,
+            "available_days_left": 3,
+        },
+    }
+
+    result = get_today_focus_habits(pending_habits, weekly_stats)
+
+    assert result == [
+        ("Workout", weekly_stats["Workout"]),
+    ]
