@@ -239,3 +239,17 @@ def format_today_focus_message(habit, info):
         f"{info['available_days_left']} {day_word} available"
         f"{risk_note}"
     )
+
+def format_weekly_progress_lines(habit, info, streak_info):
+    status = format_weekly_status(info["status"])
+    weekly_message = format_weekly_message(info, status)
+
+    return [
+        f"\n{habit:<15}",
+        (
+            f"  Weekly : {info['done']:>2}/{info['target']:<2} "
+            f"({info['percentage']:.2f}%) - {weekly_message}"
+        ),
+        f"  Streak : 🔥 {streak_info['current_streak']}",
+        f"  Best   : 🏆 {streak_info['longest_streak']}",
+    ]

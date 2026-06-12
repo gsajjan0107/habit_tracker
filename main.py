@@ -30,7 +30,7 @@ from helpers import (
     habit_has_logs,
     get_habit_details,
     get_today_focus_habits,
-    is_habit_at_risk,
+    format_weekly_progress_lines,
     format_today_focus_message,
     )
 
@@ -446,17 +446,13 @@ def handle_dashboard(data):
 
     for habit in active_habits:
         info = weekly_stats[habit]
+        streak_info = habit_streaks.get(
+            habit,
+            {"current_streak": 0, "longest_streak": 0},
+        )
 
-        streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
-        status = format_weekly_status(info["status"])
-        weekly_message = format_weekly_message(info, status)
-
-        display_message(f"\n{habit:<15}")
-        display_message(
-            f"  Weekly : {info['done']:>2}/{info['target']:<2} "
-            f"({info['percentage']:.2f}%) - {weekly_message}")
-        display_message(f"  Streak : 🔥 {streak_info['current_streak']}")
-        display_message(f"  Best   : 🏆 {streak_info['longest_streak']}")
+        for line in format_weekly_progress_lines(habit, info, streak_info):
+            display_message(line)
 
     display_message("\n✅ Dashboard loaded.")
 

@@ -22,6 +22,7 @@ from helpers import (
     get_today_focus_habits,
     is_habit_at_risk,
     format_today_focus_message,
+    format_weekly_progress_lines,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -739,3 +740,53 @@ def test_format_today_focus_message_uses_singular_day():
     assert result == "- Workout: 1 more needed this week, 1 day available"
 
 
+def test_format_weekly_progress_lines_for_completed_target():
+    info = {
+        "done": 5,
+        "target": 5,
+        "percentage": 100.0,
+        "status": "completed",
+        "remaining": 0,
+        "available_days_left": 3,
+        "is_possible": True,
+    }
+
+    streak_info = {
+        "current_streak": 4,
+        "longest_streak": 10,
+    }
+
+    result = format_weekly_progress_lines("Coding", info, streak_info)
+
+    assert result == [
+        "\nCoding         ",
+        "  Weekly :  5/5  (100.00%) - ✅  Target met",
+        "  Streak : 🔥 4",
+        "  Best   : 🏆 10",
+    ]
+
+
+def test_format_weekly_progress_lines_for_at_risk_target():
+    info = {
+        "done": 1,
+        "target": 5,
+        "percentage": 20.0,
+        "status": "behind",
+        "remaining": 4,
+        "available_days_left": 3,
+        "is_possible": False,
+    }
+
+    streak_info = {
+        "current_streak": 0,
+        "longest_streak": 6,
+    }
+
+    result = format_weekly_progress_lines("Reading", info, streak_info)
+
+    assert result == [
+        "\nReading        ",
+        "  Weekly :  1/5  (20.00%) - ⚠️  Not possible this week (4 more needed, 3 days available)",
+        "  Streak : 🔥 0",
+        "  Best   : 🏆 6",
+    ]
