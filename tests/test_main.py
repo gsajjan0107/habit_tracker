@@ -1293,7 +1293,7 @@ def test_handle_dashboard_shows_message_when_no_active_habits(monkeypatch):
     assert numbered_lists == []
 
 
-def test_handle_dashboard_shows_completed_and_unfinished_habits(monkeypatch):
+def test_handle_dashboard_shows_daily_summary_and_todays_focus(monkeypatch):
     data = make_data(
         habits={
             "Workout": make_habit(),
@@ -1312,20 +1312,11 @@ def test_handle_dashboard_shows_completed_and_unfinished_habits(monkeypatch):
         ],
     )
 
-    assert "\n==== DASHBOARD ====" in messages
-    assert "\n📅 Date: Friday, 01 May 2026" in messages
-
-    assert "\n✅ Completed (1 habit):" in messages
-    assert "\n🚫 Unfinished (1 habit):" in messages
-
-    assert ["Workout"] in numbered_lists
-    assert ["Reading"] in numbered_lists
-
     assert "\n📌 Daily Summary" in messages
     assert "1/2 habits completed (50.00%) on Friday, 01 May 2026." in messages
-
+    assert "\n🎯 Today's Focus" in messages
+    assert "- Reading: 3 more needed this week, 3 days available" in messages
     assert "\n📊 Weekly Progress (2 habits):" in messages
-    assert "\n✅ Dashboard loaded." in messages
 
 
 def test_handle_dashboard_retries_when_date_is_invalid(monkeypatch):
@@ -1367,7 +1358,7 @@ def test_handle_dashboard_shows_message_when_no_habits_exist(monkeypatch):
     assert numbered_lists == []
 
 
-def test_handle_dashboard_shows_previous_day_missed_habits(monkeypatch):
+def test_handle_dashboard_does_not_show_previous_day_missed_section(monkeypatch):
     data = make_data(
         habits={
             "Workout": make_habit(),
@@ -1386,9 +1377,10 @@ def test_handle_dashboard_shows_previous_day_missed_habits(monkeypatch):
         ],
     )
 
-    assert "\n⚠️ Previous Day Missed" in messages
-    assert "Not logged on Friday, 01 May 2026 (2 habits):" in messages
-    assert ["Reading", "Workout"] in numbered_lists
+    assert "\n⚠️ Previous Day Missed" not in messages
+    assert "\n📌 Daily Summary" in messages
+    assert "\n🎯 Today's Focus" in messages
+    assert "\n📊 Weekly Progress (2 habits):" in messages
 
 
 def test_handle_dashboard_does_not_show_previous_day_missed_when_yesterday_complete(monkeypatch):

@@ -424,20 +424,9 @@ def handle_dashboard(data):
         display_message(f"No habits were active on {formatted_date}.")
         return
 
-    show_habits_status(result)
-
-    previous_day, missed = get_previous_day_missed_habits(data, selected_date, daily_stats)
-
-    if missed:
-        display_message("\n⚠️ Previous Day Missed")
-        display_message(format_previous_day_missed_message(previous_day, missed))
-        display_numbered_list(missed)
 
     display_message("\n📌 Daily Summary")
     display_message(format_daily_summary(result, formatted_date))
-
-    active_habits = get_sorted_active_habits_from_stats(result)
-    habit_word = pluralize(len(active_habits), "habit")
 
     focus_habits = []
 
@@ -446,6 +435,12 @@ def handle_dashboard(data):
 
         if info and info["remaining"] > 0:
             focus_habits.append((habit, info))
+
+    focus_habits.sort(
+        key=lambda item: (
+            item[1]["available_days_left"],
+            -item[1]["remaining"],
+            item[0].lower()))
 
     if focus_habits:
         display_message("\n🎯 Today's Focus")
@@ -457,8 +452,10 @@ def handle_dashboard(data):
                 f"- {habit}: {info['remaining']} more needed this week, "
                 f"{info['available_days_left']} {day_word} available")
 
-    display_message(f"\n📊 Weekly Progress ({len(active_habits)} {habit_word}):")
+    active_habits = get_sorted_active_habits_from_stats(result)
+    habit_word = pluralize(len(active_habits), "habit")
 
+    display_message(f"\n📊 Weekly Progress ({len(active_habits)} {habit_word}):")
 
     for habit in active_habits:
         info = weekly_stats[habit]
