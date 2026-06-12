@@ -30,6 +30,7 @@ from helpers import (
     habit_has_logs,
     get_habit_details,
     get_today_focus_habits,
+    is_habit_at_risk,
     )
 
 commands = {
@@ -436,8 +437,8 @@ def handle_dashboard(data):
             day_word = pluralize(info["available_days_left"], "day")
             risk_note = ""
 
-            if info["remaining"] > info["available_days_left"]:
-                risk_note = " ⚠️  At risk"
+            if is_habit_at_risk(info):
+                risk_note = " ⚠️ At risk"
 
             display_message(
                 f"- {habit}: {info['remaining']} more needed this week, "

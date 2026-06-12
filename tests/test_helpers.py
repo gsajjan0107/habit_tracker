@@ -20,6 +20,7 @@ from helpers import (
     habit_has_logs,
     get_habit_details,
     get_today_focus_habits,
+    is_habit_at_risk,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -684,3 +685,23 @@ def test_get_today_focus_habits_ignores_pending_habits_missing_from_weekly_stats
     assert result == [
         ("Workout", weekly_stats["Workout"]),
     ]
+
+
+def test_is_habit_at_risk_returns_true_when_remaining_exceeds_available_days():
+    info = {
+        "remaining": 4,
+        "available_days_left": 3,
+    }
+
+    assert is_habit_at_risk(info) is True
+
+
+def test_is_habit_at_risk_returns_false_when_remaining_can_fit_available_days():
+    info = {
+        "remaining": 3,
+        "available_days_left": 3,
+    }
+
+    assert is_habit_at_risk(info) is False
+
+

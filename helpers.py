@@ -223,3 +223,6 @@ def get_today_focus_habits(pending_habits, weekly_stats):
     )
 
     return focus_habits
+
+def is_habit_at_risk(info):
+    return info["remaining"] > info["available_days_left"]
