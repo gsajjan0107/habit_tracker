@@ -283,7 +283,7 @@ def test_format_weekly_message_completed():
 
     result = format_weekly_message(info, "✅ completed")
 
-    assert result == "✅ completed"
+    assert result == "✅  Target met"
 
 
 def test_format_weekly_message_in_progress_possible():

@@ -110,19 +110,17 @@ def format_weekly_message(info, status):
     day_word = pluralize(info["available_days_left"], "day")
 
     if info["status"] == "completed":
-        return "✅ completed"
+        return "✅  Target met"
 
     if info["is_possible"]:
         return (
             f"{info['remaining']} more needed, "
-            f"{info['available_days_left']} {day_word} available - {status}"
-        )
+            f"{info['available_days_left']} {day_word} available - {status}")
 
     return (
         f"⚠️  Not possible this week "
         f"({info['remaining']} more needed, "
-        f"{info['available_days_left']} {day_word} available)"
-    )
+        f"{info['available_days_left']} {day_word} available)")
 
 def format_weekly_status(status):
     status_labels = {
