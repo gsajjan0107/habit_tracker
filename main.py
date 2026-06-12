@@ -197,7 +197,12 @@ def handle_delete_log(data):
 
     while True:
         try:
-            log_date = input("\nEnter date (Press enter for today): ")
+            log_date = input("\nEnter date (Press enter for today, or 'q' to cancel): ").strip()
+
+            if log_date.lower() == "q":
+                display_message("Log deletion cancelled.")
+                return
+
             log_date = validate_date(log_date)
             completed = get_logged_habits_for_date(data, log_date)
             break

@@ -1627,3 +1627,29 @@ def test_handle_view_habit_details_can_be_cancelled_at_selection(monkeypatch):
 
     assert "View habit details cancelled." in messages
     assert not any("Habit: Workout" in message for message in messages)
+
+
+def test_handle_delete_log_can_be_cancelled_at_date_input(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, save_calls = run_handle_delete_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "q",
+        ],
+    )
+
+    assert "Log deletion cancelled." in messages
+    assert "\n📅 Date: Friday, 01 May 2026" not in messages
+    assert save_calls == []
+    assert data["logs"] == [
+        make_log("Workout", "2026-05-01"),
+    ]
