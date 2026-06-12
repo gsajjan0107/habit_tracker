@@ -172,13 +172,13 @@ def handle_view_logs(data):
         display_message(f"\n✅ Logged habits ({len(completed)}):")
         display_numbered_list(completed)
     else:
-        display_message(f"No habits logged on {formatted_date}.")
+        display_message(f"\nNo habits logged on {formatted_date}.")
 
     if pending:
         display_message(f"\n🚫 Unfinished habits ({len(pending)}):")
         display_numbered_list(pending)
     else:
-        display_message("No unfinished habits for this date.")
+        display_message("\nNo unfinished habits for this date.")
 
 def handle_delete_log(data):
     if not ensure_habits_exist(data):
@@ -407,6 +407,8 @@ def handle_view_habit_details(data):
         display_message(
             f"This week: {info['done']}/{info['target']} "
             f"completed ({info['percentage']:.2f}%) - {weekly_message}")
+
+        display_message(f"Remaining this week: {info['remaining']}")
 
     if details["archived_at"] is not None:
         archived_at = format_display_date(details["archived_at"])
