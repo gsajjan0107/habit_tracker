@@ -155,7 +155,9 @@ def handle_view_logs(data):
         try:
             date = input("\nEnter date (Press enter for today): ")
             selected_date = validate_date(date)
-            completed = get_logged_habits_for_date(data, selected_date)
+            result = daily_stats(data, selected_date)
+            completed = sorted(result["completed"])
+            pending = sorted(result["pending"])
             break
 
         except ValueError as e:
@@ -166,12 +168,17 @@ def handle_view_logs(data):
     display_message("\n==== VIEW LOGS ====")
     display_message(f"\n📅 Date: {formatted_date}")
 
-    if not completed:
+    if completed:
+        display_message(f"\n✅ Logged habits ({len(completed)}):")
+        display_numbered_list(completed)
+    else:
         display_message(f"No habits logged on {formatted_date}.")
-        return
 
-    display_message(f"\n✅ Logged habits ({len(completed)}):")
-    display_numbered_list(completed)
+    if pending:
+        display_message(f"\n🚫 Unfinished habits ({len(pending)}):")
+        display_numbered_list(pending)
+    else:
+        display_message("No unfinished habits for this date.")
 
 def handle_delete_log(data):
     if not ensure_habits_exist(data):

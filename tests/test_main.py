@@ -1204,7 +1204,9 @@ def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
 
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (2):" in messages
-    assert numbered_lists == [["Reading", "Workout"]]
+    assert "\n✅ Logged habits (2):" in messages
+    assert "\n🚫 Unfinished habits (1):" in messages
+    assert numbered_lists == [["Reading", "Workout"], ["Coding"]]
 
 
 def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypatch):
@@ -1228,7 +1230,8 @@ def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypat
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n📅 Date: Saturday, 02 May 2026" in messages
     assert "No habits logged on Saturday, 02 May 2026." in messages
-    assert numbered_lists == []
+    assert "\n🚫 Unfinished habits (1):" in messages
+    assert numbered_lists == [["Workout"]]
 
 
 def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
@@ -1253,6 +1256,7 @@ def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
     assert any("Use format YYYY-MM-DD" in message for message in messages)
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (1):" in messages
+    assert "No unfinished habits for this date." in messages
     assert numbered_lists == [["Workout"]]
 
 
