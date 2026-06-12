@@ -31,6 +31,7 @@ from helpers import (
     get_habit_details,
     get_today_focus_habits,
     is_habit_at_risk,
+    format_today_focus_message,
     )
 
 commands = {
@@ -434,16 +435,7 @@ def handle_dashboard(data):
 
     if focus_habits:
         for habit, info in focus_habits:
-            day_word = pluralize(info["available_days_left"], "day")
-            risk_note = ""
-
-            if is_habit_at_risk(info):
-                risk_note = " ⚠️ At risk"
-
-            display_message(
-                f"- {habit}: {info['remaining']} more needed this week, "
-                f"{info['available_days_left']} {day_word} available"
-                f"{risk_note}")
+            display_message(format_today_focus_message(habit, info))
     else:
         display_message("All weekly targets are currently on track.")
 

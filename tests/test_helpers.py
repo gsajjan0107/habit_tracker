@@ -21,6 +21,7 @@ from helpers import (
     get_habit_details,
     get_today_focus_habits,
     is_habit_at_risk,
+    format_today_focus_message,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -703,5 +704,38 @@ def test_is_habit_at_risk_returns_false_when_remaining_can_fit_available_days():
     }
 
     assert is_habit_at_risk(info) is False
+
+
+def test_format_today_focus_message_without_risk():
+    info = {
+        "remaining": 2,
+        "available_days_left": 3,
+    }
+
+    result = format_today_focus_message("Coding", info)
+
+    assert result == "- Coding: 2 more needed this week, 3 days available"
+
+
+def test_format_today_focus_message_with_risk():
+    info = {
+        "remaining": 4,
+        "available_days_left": 3,
+    }
+
+    result = format_today_focus_message("Coding", info)
+
+    assert result == "- Coding: 4 more needed this week, 3 days available ⚠️ At risk"
+
+
+def test_format_today_focus_message_uses_singular_day():
+    info = {
+        "remaining": 1,
+        "available_days_left": 1,
+    }
+
+    result = format_today_focus_message("Workout", info)
+
+    assert result == "- Workout: 1 more needed this week, 1 day available"
 
 

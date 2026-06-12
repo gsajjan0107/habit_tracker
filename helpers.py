@@ -226,3 +226,16 @@ def get_today_focus_habits(pending_habits, weekly_stats):
 
 def is_habit_at_risk(info):
     return info["remaining"] > info["available_days_left"]
+
+def format_today_focus_message(habit, info):
+    day_word = pluralize(info["available_days_left"], "day")
+    risk_note = ""
+
+    if is_habit_at_risk(info):
+        risk_note = " ⚠️ At risk"
+
+    return (
+        f"- {habit}: {info['remaining']} more needed this week, "
+        f"{info['available_days_left']} {day_word} available"
+        f"{risk_note}"
+    )
