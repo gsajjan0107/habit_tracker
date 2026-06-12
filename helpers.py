@@ -1,5 +1,10 @@
 from datetime import datetime, date, timedelta
 
+TODAYS_FOCUS_ON_TRACK_MESSAGE = (
+    "All weekly targets are currently on track. "
+    "Choose any pending habit or recover."
+)
+
 def format_display_date(value):
     if isinstance(value, date):
         date_obj = value
