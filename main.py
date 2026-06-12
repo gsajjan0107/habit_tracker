@@ -420,7 +420,12 @@ def handle_dashboard(data):
 
     while True:
         try:
-            date = input("\nEnter date (Press enter for today): ")
+            date = input("\nEnter date (Press enter for today, or 'q' to cancel): ").strip()
+
+            if date.lower() == "q":
+                display_message("Dashboard cancelled.")
+                return
+
             selected_date = validate_date(date)
 
             dashboard_data = get_dashboard_data(data, selected_date)

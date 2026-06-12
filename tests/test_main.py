@@ -1229,7 +1229,7 @@ def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypat
 
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n📅 Date: Saturday, 02 May 2026" in messages
-    assert "No habits logged on Saturday, 02 May 2026." in messages
+    assert "\nNo habits logged on Saturday, 02 May 2026." in messages
     assert "\n🚫 Unfinished habits (1):" in messages
     assert numbered_lists == [["Workout"]]
 
@@ -1256,7 +1256,7 @@ def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
     assert any("Use format YYYY-MM-DD" in message for message in messages)
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (1):" in messages
-    assert "No unfinished habits for this date." in messages
+    assert "\nNo unfinished habits for this date." in messages
     assert numbered_lists == [["Workout"]]
 
 
@@ -1438,6 +1438,27 @@ def test_handle_dashboard_retries_invalid_date_then_shows_no_active_habits(monke
     assert "\n==== DASHBOARD ====" in messages
     assert "\n📅 Date: Friday, 01 May 2026" in messages
     assert "No habits were active on Friday, 01 May 2026." in messages
+
+
+def test_handle_dashboard_can_be_cancelled_at_date_input(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "q",
+        ],
+    )
+
+    assert "Dashboard cancelled." in messages
+    assert "\n==== DASHBOARD ====" not in messages
+    assert numbered_lists == []
 
 
 # ===== handle_view_habit tests =====
