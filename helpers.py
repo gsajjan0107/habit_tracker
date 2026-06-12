@@ -71,7 +71,16 @@ def get_active_habits_from_stats(result):
 
 def is_habit_active_on_date(info, selected_date):
     from validators import validate_date
-    selected_date = validate_date(selected_date)
+    from datetime import datetime, date
+
+    if isinstance(selected_date, datetime):
+        selected_date = selected_date.date()
+    elif isinstance(selected_date, date):
+        pass
+    elif isinstance(selected_date, str):
+        selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
+    else:
+        raise ValueError("Date must be a string or date object.")
 
     created_at = validate_date(info["created_at"])
 

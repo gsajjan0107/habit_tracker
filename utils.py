@@ -1,4 +1,4 @@
-from validators import validate_int, validate_date
+from validators import validate_int
 from helpers import is_habit_archived, display_message
 from storage import save_data
 

@@ -360,19 +360,40 @@ def handle_view_habit_details(data):
 
     try:
         details = get_habit_details(data, habit)
+        selected_date = validate_date("")
+        habit_streaks = streaks(data, selected_date)
     except ValueError as e:
         display_message(e)
         return
 
-    status = "Archived" if details["is_archived"] else "Active"
+    try:
+        weekly_stats = habit_weekly_completion(data, selected_date)
+    except ValueError:
+        weekly_stats = {}
+
+    habit_status = "Archived" if details["is_archived"] else "Active"
+    streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
+    current_day_word = pluralize(streak_info["current_streak"], "day")
+    best_day_word = pluralize(streak_info["longest_streak"], "day")
 
     display_message("\n==== HABIT DETAILS ====")
     display_message(f"Habit: {details['name']}")
     display_message(f"Target: {details['target_per_week']}/week")
     display_message(f"Created: {details['created_at']}")
-    display_message(f"Status: {status}")
+    display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
+    display_message(f"Current streak: {streak_info['current_streak']} {current_day_word}")
+    display_message(f"Best streak: {streak_info['longest_streak']} {best_day_word}")
 
+    if habit in weekly_stats:
+        info = weekly_stats[habit]
+        weekly_status = format_weekly_status(info["status"])
+        weekly_message = format_weekly_message(info, weekly_status)
+
+        display_message(
+            f"This week: {info['done']}/{info['target']} "
+            f"completed ({info['percentage']:.2f}%) - {weekly_message}")
+        
     if details["archived_at"] is not None:
         display_message(f"Archived: {details['archived_at']}")
 
@@ -385,7 +406,11 @@ def handle_dashboard(data):
         try:
             date = input("\nEnter date (Press enter for today): ")
             selected_date = validate_date(date)
+
             result = daily_stats(data, selected_date)
+            weekly_stats = habit_weekly_completion(data, selected_date)
+            habit_streaks = streaks(data, selected_date)
+            
             break
 
         except ValueError as e:
@@ -414,10 +439,26 @@ def handle_dashboard(data):
     active_habits = get_sorted_active_habits_from_stats(result)
     habit_word = pluralize(len(active_habits), "habit")
 
+    focus_habits = []
+
+    for habit in result["pending"]:
+        info = weekly_stats.get(habit)
+
+        if info and info["remaining"] > 0:
+            focus_habits.append((habit, info))
+
+    if focus_habits:
+        display_message("\n🎯 Today's Focus")
+
+        for habit, info in focus_habits:
+            day_word = pluralize(info["available_days_left"], "day")
+
+            display_message(
+                f"- {habit}: {info['remaining']} more needed this week, "
+                f"{info['available_days_left']} {day_word} available")
+
     display_message(f"\n📊 Weekly Progress ({len(active_habits)} {habit_word}):")
 
-    weekly_stats = habit_weekly_completion(data, selected_date)
-    habit_streaks = streaks(data, selected_date)
 
     for habit in active_habits:
         info = weekly_stats[habit]
