@@ -1533,3 +1533,28 @@ def test_main_menu_option_3_opens_habit_details(monkeypatch):
     assert any("==== HABIT DETAILS ====" in message for message in messages)
     assert "Habit: Workout" in messages
 
+
+def test_handle_dashboard_shows_sections_in_decision_focused_order(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(target=5),
+            "Reading": make_habit(target=3),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
+
+    daily_summary_index = messages.index("\n📌 Daily Summary")
+    todays_focus_index = messages.index("\n🎯 Today's Focus")
+    weekly_progress_index = messages.index("\n📊 Weekly Progress (2 habits):")
+
+    assert daily_summary_index < todays_focus_index < weekly_progress_index
