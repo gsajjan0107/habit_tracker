@@ -402,7 +402,6 @@ def handle_view_habit_details(data):
 def handle_dashboard(data):
     if not ensure_habits_exist(data):
         return
-    
 
     while True:
         try:
@@ -427,7 +426,6 @@ def handle_dashboard(data):
     if result["total_habits"] == 0:
         display_message(f"No habits were active on {formatted_date}.")
         return
-
 
     display_message("\n📌 Daily Summary")
     display_message(format_daily_summary(result, formatted_date))

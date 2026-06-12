@@ -24,6 +24,8 @@ from helpers import (
     format_today_focus_message,
     format_weekly_progress_lines,
     get_dashboard_data,
+    display_today_focus_section,
+    TODAYS_FOCUS_ON_TRACK_MESSAGE,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -831,3 +833,37 @@ def test_get_dashboard_data_returns_daily_weekly_and_streaks():
     assert "Reading" in result["streaks"]
 
 
+def test_display_today_focus_section_shows_focus_habits(capsys):
+    focus_habits = [
+        (
+            "Coding",
+            {
+                "remaining": 2,
+                "available_days_left": 3,
+            },
+        ),
+        (
+            "Workout",
+            {
+                "remaining": 4,
+                "available_days_left": 3,
+            },
+        ),
+    ]
+
+    display_today_focus_section(focus_habits)
+
+    output = capsys.readouterr().out
+
+    assert "🎯 Today's Focus" in output
+    assert "- Coding: 2 more needed this week, 3 days available" in output
+    assert "- Workout: 4 more needed this week, 3 days available ⚠️ At risk" in output
+
+
+def test_display_today_focus_section_shows_on_track_message_when_empty(capsys):
+    display_today_focus_section([])
+
+    output = capsys.readouterr().out
+
+    assert "🎯 Today's Focus" in output
+    assert TODAYS_FOCUS_ON_TRACK_MESSAGE in output
