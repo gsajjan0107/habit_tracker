@@ -204,3 +204,22 @@ def get_habit_details(data, habit):
         "is_archived": habit_data["archived_at"] is not None,
         "total_logs": count_logs_for_habit(data, habit),
     }
+
+def get_today_focus_habits(pending_habits, weekly_stats):
+    focus_habits = []
+
+    for habit in pending_habits:
+        info = weekly_stats.get(habit)
+
+        if info and info["remaining"] > 0:
+            focus_habits.append((habit, info))
+
+    focus_habits.sort(
+        key=lambda item: (
+            item[1]["available_days_left"],
+            -item[1]["remaining"],
+            item[0].lower(),
+        )
+    )
+
+    return focus_habits

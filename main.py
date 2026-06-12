@@ -23,14 +23,13 @@ from helpers import (
     format_weekly_message,
     format_weekly_status,
     format_daily_summary,
-    format_previous_day_missed_message,
     get_sorted_active_habits_from_stats,
-    get_previous_day_missed_habits,
     format_log_confirmation_message,
     format_logged_success_message,
     format_streak_line,
     habit_has_logs,
     get_habit_details,
+    get_today_focus_habits,
     )
 
 commands = {
@@ -428,19 +427,7 @@ def handle_dashboard(data):
     display_message("\n📌 Daily Summary")
     display_message(format_daily_summary(result, formatted_date))
 
-    focus_habits = []
-
-    for habit in result["pending"]:
-        info = weekly_stats.get(habit)
-
-        if info and info["remaining"] > 0:
-            focus_habits.append((habit, info))
-
-    focus_habits.sort(
-        key=lambda item: (
-            item[1]["available_days_left"],
-            -item[1]["remaining"],
-            item[0].lower()))
+    focus_habits = get_today_focus_habits(result["pending"], weekly_stats)
 
     display_message("\n🎯 Today's Focus")
 
