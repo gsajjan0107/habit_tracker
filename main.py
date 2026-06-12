@@ -31,8 +31,7 @@ from helpers import (
     get_habit_details,
     get_today_focus_habits,
     format_weekly_progress_lines,
-    format_today_focus_message,
-    TODAYS_FOCUS_ON_TRACK_MESSAGE,
+    display_today_focus_section,
     )
 
 commands = {
@@ -432,13 +431,7 @@ def handle_dashboard(data):
 
     focus_habits = get_today_focus_habits(result["pending"], weekly_stats)
 
-    display_message("\n🎯 Today's Focus")
-
-    if focus_habits:
-        for habit, info in focus_habits:
-            display_message(format_today_focus_message(habit, info))
-    else:
-        display_message(TODAYS_FOCUS_ON_TRACK_MESSAGE)
+    display_today_focus_section(focus_habits)
 
     active_habits = get_sorted_active_habits_from_stats(result)
     habit_word = pluralize(len(active_habits), "habit")

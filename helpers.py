@@ -258,3 +258,12 @@ def format_weekly_progress_lines(habit, info, streak_info):
         f"  Streak : 🔥 {streak_info['current_streak']}",
         f"  Best   : 🏆 {streak_info['longest_streak']}",
     ]
+
+def display_today_focus_section(focus_habits):
+    display_message("\n🎯 Today's Focus")
+
+    if focus_habits:
+        for habit, info in focus_habits:
+            display_message(format_today_focus_message(habit, info))
+    else:
+        display_message(TODAYS_FOCUS_ON_TRACK_MESSAGE)
