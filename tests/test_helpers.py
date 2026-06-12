@@ -26,6 +26,7 @@ from helpers import (
     get_dashboard_data,
     display_today_focus_section,
     TODAYS_FOCUS_ON_TRACK_MESSAGE,
+    display_weekly_progress_section,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -867,3 +868,66 @@ def test_display_today_focus_section_shows_on_track_message_when_empty(capsys):
 
     assert "🎯 Today's Focus" in output
     assert TODAYS_FOCUS_ON_TRACK_MESSAGE in output
+
+
+def test_display_weekly_progress_section_shows_weekly_stats_and_streaks(capsys):
+    active_habits = ["Coding"]
+
+    weekly_stats = {
+        "Coding": {
+            "done": 5,
+            "target": 5,
+            "percentage": 100.0,
+            "status": "completed",
+            "remaining": 0,
+            "available_days_left": 3,
+            "is_possible": True,
+        },
+    }
+
+    habit_streaks = {
+        "Coding": {
+            "current_streak": 4,
+            "longest_streak": 10,
+        },
+    }
+
+    display_weekly_progress_section(active_habits, weekly_stats, habit_streaks)
+
+    output = capsys.readouterr().out
+
+    assert "📊 Weekly Progress (1 habit):" in output
+    assert "Coding" in output
+    assert "Weekly :  5/5" in output
+    assert "✅  Target met" in output
+    assert "Streak : 🔥 4" in output
+    assert "Best   : 🏆 10" in output
+
+
+def test_display_weekly_progress_section_uses_zero_streaks_when_missing(capsys):
+    active_habits = ["Reading"]
+
+    weekly_stats = {
+        "Reading": {
+            "done": 1,
+            "target": 3,
+            "percentage": 33.33,
+            "status": "in_progress",
+            "remaining": 2,
+            "available_days_left": 3,
+            "is_possible": True,
+        },
+    }
+
+    habit_streaks = {}
+
+    display_weekly_progress_section(active_habits, weekly_stats, habit_streaks)
+
+    output = capsys.readouterr().out
+
+    assert "📊 Weekly Progress (1 habit):" in output
+    assert "Reading" in output
+    assert "Weekly :  1/3" in output
+    assert "2 more needed, 3 days available" in output
+    assert "Streak : 🔥 0" in output
+    assert "Best   : 🏆 0" in output
