@@ -34,6 +34,8 @@ from helpers import (
     display_weekly_progress_section,
     get_dashboard_data,
     format_no_active_habits_message,
+    get_previous_day_missed_habits,
+    format_previous_day_missed_message,
     )
 
 commands = {
@@ -433,6 +435,13 @@ def handle_dashboard(data):
 
     display_message("\n📌 Daily Summary")
     display_message(format_daily_summary(result, formatted_date))
+
+    previous_day, missed = get_previous_day_missed_habits(data, selected_date, daily_stats)
+
+    if missed:
+        display_message("\n⚠️  Previous Day Missed")
+        display_message(format_previous_day_missed_message(previous_day, missed))
+        display_numbered_list(missed)
 
     focus_habits = get_today_focus_habits(result["pending"], weekly_stats)
 

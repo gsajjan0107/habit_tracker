@@ -1358,7 +1358,7 @@ def test_handle_dashboard_shows_message_when_no_habits_exist(monkeypatch):
     assert numbered_lists == []
 
 
-def test_handle_dashboard_does_not_show_previous_day_missed_section(monkeypatch):
+def test_handle_dashboard_shows_previous_day_missed_section(monkeypatch):
     data = make_data(
         habits={
             "Workout": make_habit(),
@@ -1377,7 +1377,9 @@ def test_handle_dashboard_does_not_show_previous_day_missed_section(monkeypatch)
         ],
     )
 
-    assert "\n⚠️ Previous Day Missed" not in messages
+    assert "\n⚠️  Previous Day Missed" in messages
+    assert "Not logged on Friday, 01 May 2026 (2 habits):" in messages
+    assert numbered_lists == [["Reading", "Workout"]]
     assert "\n📌 Daily Summary" in messages
     assert "\n🎯 Today's Focus" in messages
     assert "\n📊 Weekly Progress (2 habits):" in messages
@@ -1460,7 +1462,7 @@ def test_handle_view_habit_details_shows_selected_habit(monkeypatch):
 
     assert any("==== HABIT DETAILS ====" in message for message in messages)
     assert "Habit: Workout" in messages
-    assert "Target: 5/week" in messages
+    assert "Target: 5 per week" in messages
     assert "Created: Friday, 01 May 2026" in messages
     assert "Status: Active" in messages
     assert "Total logs: 2" in messages
