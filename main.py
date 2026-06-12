@@ -73,11 +73,19 @@ def handle_add(data):
 
             continue
 
-        # VALIDATE TARGET
-        target = get_valid_input("Enter target per week: ",
-                lambda v: validate_int(v, 1))
+        while True:
+            target_input = input("Enter target per week, or 'q' to cancel: ").strip()
 
-        # ADD HABIT
+            if target_input.lower() == "q":
+                display_message("Habit creation cancelled.")
+                return
+
+            try:
+                target = validate_int(target_input, 1)
+                break
+            except ValueError as e:
+                display_message(f"Error: {e}")
+
         result = add_habit(data, habit_name, target)
         save_data(data)
         display_message(result)
