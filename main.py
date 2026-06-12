@@ -379,10 +379,12 @@ def handle_view_habit_details(data):
     current_day_word = pluralize(streak_info["current_streak"], "day")
     best_day_word = pluralize(streak_info["longest_streak"], "day")
 
-    display_message("\n==== HABIT DETAILS ====")
+    created_at = format_display_date(details["created_at"])
+
+    display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
-    display_message(f"Target: {details['target_per_week']}/week")
-    display_message(f"Created: {details['created_at']}")
+    display_message(f"Target: {details['target_per_week']} per week")
+    display_message(f"Created: {created_at}")
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
     display_message(f"Current streak: {streak_info['current_streak']} {current_day_word}")
@@ -398,7 +400,8 @@ def handle_view_habit_details(data):
             f"completed ({info['percentage']:.2f}%) - {weekly_message}")
 
     if details["archived_at"] is not None:
-        display_message(f"Archived: {details['archived_at']}")
+        archived_at = format_display_date(details["archived_at"])
+        display_message(f"Archived: {archived_at}")
 
 def handle_dashboard(data):
     if not ensure_habits_exist(data):

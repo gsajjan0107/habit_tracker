@@ -1461,7 +1461,7 @@ def test_handle_view_habit_details_shows_selected_habit(monkeypatch):
     assert any("==== HABIT DETAILS ====" in message for message in messages)
     assert "Habit: Workout" in messages
     assert "Target: 5/week" in messages
-    assert "Created: 2026-05-01" in messages
+    assert "Created: Friday, 01 May 2026" in messages
     assert "Status: Active" in messages
     assert "Total logs: 2" in messages
 
@@ -1507,7 +1507,7 @@ def test_handle_view_habit_details_shows_archived_habit(monkeypatch):
 
     assert "Habit: Workout" in messages
     assert "Status: Archived" in messages
-    assert "Archived: 2026-05-10" in messages
+    assert "Archived: Sunday, 10 May 2026" in messages
     assert "Total logs: 1" in messages
 
 

@@ -44,11 +44,11 @@ It checks that:
 
 ## Project Structure
 
-main.py  
-habits.py  
-stats.py  
-storage.py  
-validators.py  
+main.py
+habits.py
+stats.py
+storage.py
+validators.py
 utils.py
 
 ## Future Improvements
@@ -57,3 +57,15 @@ utils.py
 - GUI / Web version
 - Charts dashboard
 - User accounts
+
+## Example Data
+
+This project does not include personal runtime data.
+
+To try the app with sample data, copy:
+
+data.example.json
+
+and rename the copy to:
+
+data.json
