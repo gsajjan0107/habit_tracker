@@ -30,6 +30,7 @@ from helpers import (
     format_no_active_habits_message,
     format_recovery_hint,
     display_completed_today_section,
+    display_pending_today_section,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -977,3 +978,22 @@ def test_display_completed_today_section_shows_empty_message(capsys):
 
     assert "✅ Completed Today" in output
     assert "No habits completed yet today." in output
+
+
+def test_display_pending_today_section_shows_pending_habits(capsys):
+    display_pending_today_section(["Reading", "Workout"])
+
+    output = capsys.readouterr().out
+
+    assert "⏳ Pending Today" in output
+    assert "1. Reading" in output
+    assert "2. Workout" in output
+
+
+def test_display_pending_today_section_shows_empty_message(capsys):
+    display_pending_today_section([])
+
+    output = capsys.readouterr().out
+
+    assert "⏳ Pending Today" in output
+    assert "No pending habits for today." in output

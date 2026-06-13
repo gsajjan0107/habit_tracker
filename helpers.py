@@ -313,3 +313,11 @@ def display_completed_today_section(completed_habits):
         display_numbered_list(completed_habits)
     else:
         display_message("No habits completed yet today.")
+
+def display_pending_today_section(pending_habits):
+    display_message("\n⏳ Pending Today")
+
+    if pending_habits:
+        display_numbered_list(pending_habits)
+    else:
+        display_message("No pending habits for today.")

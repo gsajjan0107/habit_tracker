@@ -1379,7 +1379,8 @@ def test_handle_dashboard_shows_daily_summary_and_todays_focus(monkeypatch):
     assert "- Reading: 3 more needed this week, 3 days available" in messages
     assert "\n📊 Weekly Progress (2 habits):" in messages
     assert "\n✅ Completed Today" in messages
-    assert numbered_lists == [["Workout"]]
+    assert ["Workout"] in numbered_lists
+    assert ["Reading"] in numbered_lists
 
 
 def test_handle_dashboard_retries_when_date_is_invalid(monkeypatch):
