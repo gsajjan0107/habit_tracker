@@ -1641,11 +1641,18 @@ def test_handle_dashboard_shows_sections_in_decision_focused_order(monkeypatch):
     )
 
     daily_summary_index = messages.index("\n📌 Daily Summary")
+    completed_today_index = messages.index("\n✅ Completed Today")
+    pending_today_index = messages.index("\n⏳ Pending Today")
     todays_focus_index = messages.index("\n🎯 Today's Focus")
     weekly_progress_index = messages.index("\n📊 Weekly Progress (2 habits):")
 
-    assert daily_summary_index < todays_focus_index < weekly_progress_index
-
+    assert (
+        daily_summary_index
+        < completed_today_index
+        < pending_today_index
+        < todays_focus_index
+        < weekly_progress_index
+    )
 
 def test_handle_view_habit_details_can_be_cancelled_at_selection(monkeypatch):
     data = make_data(
