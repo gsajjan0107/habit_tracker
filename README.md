@@ -56,6 +56,12 @@ It checks that:
 python main.py
 ```
 
+## CLI Usage Notes
+
+- Press Enter at date prompts to use today's date.
+- Type `q` at supported prompts to cancel the current action.
+- Cancel input is case-insensitive, so both `q` and `Q` work.
+
 ## Project Structure
 
 ```txt
