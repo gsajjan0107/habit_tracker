@@ -1261,7 +1261,6 @@ def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
 
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (2):" in messages
-    assert "\n✅ Logged habits (2):" in messages
     assert "\n🚫 Unfinished habits (1):" in messages
     assert numbered_lists == [["Reading", "Workout"], ["Coding"]]
 
@@ -1903,3 +1902,166 @@ def test_handle_view_logs_can_be_cancelled_with_uppercase_q(monkeypatch):
     assert "View logs cancelled." in messages
     assert "\n==== VIEW LOGS ====" not in messages
     assert numbered_lists == []
+
+
+def test_handle_dashboard_can_be_cancelled_with_uppercase_q(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Q",
+        ],
+    )
+
+    assert "Dashboard cancelled." in messages
+    assert "\n==== DASHBOARD ====" not in messages
+    assert numbered_lists == []
+
+
+def test_handle_add_can_be_cancelled_at_name_input_with_uppercase_q(monkeypatch):
+    data = make_data()
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Q",
+        ],
+    )
+
+    assert "Habit creation cancelled." in messages
+    assert save_calls == []
+    assert data["habits"] == {}
+
+
+def test_handle_add_can_be_cancelled_at_target_input_with_uppercase_q(monkeypatch):
+    data = make_data()
+
+    messages, save_calls = run_handle_add(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Workout",
+            "Q",
+        ],
+    )
+
+    assert "Habit creation cancelled." in messages
+    assert save_calls == []
+    assert "Workout" not in data["habits"]
+
+
+def test_handle_delete_log_can_be_cancelled_at_date_input_with_uppercase_q(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, save_calls = run_handle_delete_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Q",
+        ],
+    )
+
+    assert "Log deletion cancelled." in messages
+    assert "\n📅 Date: Friday, 01 May 2026" not in messages
+    assert save_calls == []
+
+
+def test_handle_log_can_be_cancelled_at_habit_selection_with_uppercase_q(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+            "Q",
+        ],
+    )
+
+    assert "Logging cancelled." in messages
+    assert save_calls == []
+
+
+def test_handle_delete_can_be_cancelled_at_habit_selection_with_uppercase_q(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages, save_calls = run_handle_delete(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Q",
+        ],
+    )
+
+    assert "Deletion cancelled." in messages
+    assert "Workout" in data["habits"]
+    assert save_calls == []
+
+
+def test_handle_toggle_archive_can_be_cancelled_with_uppercase_q(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages, handled_results = run_handle_toggle_archive(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Q",
+        ],
+    )
+
+    assert "Archive/unarchive cancelled." in messages
+    assert data["habits"]["Workout"]["archived_at"] is None
+    assert handled_results == []
+
+
+def test_handle_view_habit_details_can_be_cancelled_at_selection_with_uppercase_q(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "Q")
+
+    main.handle_view_habit_details(data)
+
+    assert "View habit details cancelled." in messages
+    assert not any("Habit: Workout" in message for message in messages)
+
+
