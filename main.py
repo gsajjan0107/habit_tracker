@@ -167,10 +167,6 @@ def handle_view_logs(data):
     if not ensure_habits_exist(data):
         return
 
-    if not data["logs"]:
-        display_message("No logs found yet. Log a habit first.")
-        return
-
     while True:
         try:
             date = input("\nEnter date (Press enter for today, or 'q' to cancel): ").strip()
@@ -203,7 +199,7 @@ def handle_view_logs(data):
         display_message(f"\n🚫 Unfinished habits ({len(pending)}):")
         display_numbered_list(pending)
     else:
-        display_message("\nNo unfinished habits for this date.")
+        display_message("\nAll active habits completed for this date.")
 
 def handle_delete_log(data):
     if not ensure_habits_exist(data):

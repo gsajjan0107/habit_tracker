@@ -1313,7 +1313,7 @@ def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
     assert any("Use format YYYY-MM-DD" in message for message in messages)
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (1):" in messages
-    assert "\nNo unfinished habits for this date." in messages
+    assert "\nAll active habits completed for this date." in messages
     assert numbered_lists == [["Workout"]]
 
 
@@ -1797,4 +1797,28 @@ def test_handle_dashboard_shows_no_completed_habits_message(monkeypatch):
 
     assert "\n✅ Completed Today" in messages
     assert "No habits completed yet today." in messages
+    assert ["Reading", "Workout"] in numbered_lists
+
+
+def test_handle_view_logs_shows_pending_habits_when_no_logs_exist(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(target=3),
+        },
+        logs=[],
+    )
+
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
+
+    assert "\n==== VIEW LOGS ====" in messages
+    assert "\n📅 Date: Friday, 01 May 2026" in messages
+    assert "\nNo habits logged on Friday, 01 May 2026." in messages
+    assert "\n🚫 Unfinished habits (2):" in messages
     assert ["Reading", "Workout"] in numbered_lists
