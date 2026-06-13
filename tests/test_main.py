@@ -1443,6 +1443,7 @@ def test_handle_dashboard_shows_previous_day_missed_section(monkeypatch):
 
     assert "\n⚠️  Previous Day Missed" in messages
     assert "Not logged on Friday, 01 May 2026 (2 habits):" in messages
+    assert ("Recovery hint: Pick the easiest missed habits and complete it first today." in messages)
     assert ["Reading", "Workout"] in numbered_lists
     assert "\n📌 Daily Summary" in messages
     assert "\n🎯 Today's Focus" in messages
