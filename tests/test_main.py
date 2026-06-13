@@ -2042,3 +2042,68 @@ def test_handle_view_habit_details_can_be_cancelled_at_selection_with_uppercase_
     assert not any("Habit: Workout" in message for message in messages)
 
 
+def test_handle_log_can_be_cancelled_at_date_input(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "q",
+        ],
+    )
+
+    assert "Logging cancelled." in messages
+    assert save_calls == []
+    assert data["logs"] == []
+
+
+def test_handle_log_can_be_cancelled_at_date_input_with_uppercase_q(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "Q",
+        ],
+    )
+
+    assert "Logging cancelled." in messages
+    assert save_calls == []
+    assert data["logs"] == []
+
+
+def test_handle_log_retries_invalid_date_then_cancels_at_date_input(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages, save_calls = run_handle_log(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "bad-date",
+            "q",
+        ],
+    )
+
+    assert any("Use format YYYY-MM-DD" in message for message in messages)
+    assert "Logging cancelled." in messages
+    assert save_calls == []
+    assert data["logs"] == []
+
+

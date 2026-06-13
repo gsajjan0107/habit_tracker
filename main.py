@@ -100,7 +100,12 @@ def handle_log(data):
 
     while True:
         try:
-            log_date = input("\nEnter date (Press enter for today): ")
+            log_date = input("\nEnter date (Press enter for today, or 'q' to cancel): ").strip()
+
+            if log_date.lower() == "q":
+                display_message("Logging cancelled.")
+                return
+
             log_date = validate_date(log_date)
 
             result = daily_stats(data, log_date)
