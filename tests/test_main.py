@@ -1846,4 +1846,14 @@ def test_handle_view_logs_shows_no_active_habits_for_selected_date(monkeypatch):
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n📅 Date: Saturday, 02 May 2026" in messages
     assert "No habits were active on Saturday, 02 May 2026." in messages
+    assert "\nNo habits logged on Saturday, 02 May 2026." not in messages
+    assert "\nAll active habits completed for this date." not in messages
+    assert all(
+        "✅ Logged habits" not in message
+        for message in messages
+    )
+    assert all(
+        "🚫 Unfinished habits" not in message
+        for message in messages
+    )
     assert numbered_lists == []
