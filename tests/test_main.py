@@ -1822,3 +1822,28 @@ def test_handle_view_logs_shows_pending_habits_when_no_logs_exist(monkeypatch):
     assert "\nNo habits logged on Friday, 01 May 2026." in messages
     assert "\n🚫 Unfinished habits (2):" in messages
     assert ["Reading", "Workout"] in numbered_lists
+
+
+def test_handle_view_logs_shows_no_active_habits_for_selected_date(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(
+                created_at="2026-05-01",
+                archived_at="2026-05-01",
+            ),
+        },
+        logs=[],
+    )
+
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-02",
+        ],
+    )
+
+    assert "\n==== VIEW LOGS ====" in messages
+    assert "\n📅 Date: Saturday, 02 May 2026" in messages
+    assert "No habits were active on Saturday, 02 May 2026." in messages
+    assert numbered_lists == []

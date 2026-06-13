@@ -189,6 +189,10 @@ def handle_view_logs(data):
     display_message("\n==== VIEW LOGS ====")
     display_message(f"\n📅 Date: {formatted_date}")
 
+    if result["total_habits"] == 0:
+        display_message(format_no_active_habits_message(formatted_date))
+        return
+
     if completed:
         display_message(f"\n✅ Logged habits ({len(completed)}):")
         display_numbered_list(completed)
