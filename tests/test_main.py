@@ -1728,3 +1728,28 @@ def test_handle_dashboard_shows_all_habits_completed_message(monkeypatch):
     assert "\n⏳ Pending Today" in messages
     assert "All active habits completed for today." in messages
     assert ["Reading", "Workout"] in numbered_lists
+
+
+def test_handle_dashboard_shows_pending_today_habits(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(target=5),
+            "Reading": make_habit(target=3),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
+
+    assert "\n✅ Completed Today" in messages
+    assert "\n⏳ Pending Today" in messages
+    assert ["Workout"] in numbered_lists
+    assert ["Reading"] in numbered_lists
