@@ -996,4 +996,4 @@ def test_display_pending_today_section_shows_empty_message(capsys):
     output = capsys.readouterr().out
 
     assert "⏳ Pending Today" in output
-    assert "No pending habits for today." in output
+    assert "All active habits completed for today." in output

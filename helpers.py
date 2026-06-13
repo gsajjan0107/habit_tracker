@@ -320,4 +320,4 @@ def display_pending_today_section(pending_habits):
     if pending_habits:
         display_numbered_list(pending_habits)
     else:
-        display_message("No pending habits for today.")
+        display_message("All active habits completed for today.")
