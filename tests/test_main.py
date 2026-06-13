@@ -1632,7 +1632,7 @@ def test_handle_dashboard_shows_sections_in_decision_focused_order(monkeypatch):
         ],
     )
 
-    messages, numbered_lists = run_handle_dashboard(
+    messages, _ = run_handle_dashboard(
         monkeypatch,
         data,
         user_inputs=[
