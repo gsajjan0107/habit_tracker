@@ -1463,7 +1463,7 @@ def test_handle_dashboard_does_not_show_previous_day_missed_when_yesterday_compl
         ],
     )
 
-    messages, numbered_lists = run_handle_dashboard(
+    messages, _ = run_handle_dashboard(
         monkeypatch,
         data,
         user_inputs=[
@@ -1472,9 +1472,13 @@ def test_handle_dashboard_does_not_show_previous_day_missed_when_yesterday_compl
     )
 
     assert "\n==== DASHBOARD ====" in messages
-    assert "\n⚠️ Previous Day Missed" not in messages
+    assert "\n⚠️  Previous Day Missed" not in messages
     assert all(
         "Not logged on Friday, 01 May 2026" not in message
+        for message in messages
+    )
+    assert all(
+        "Recovery hint:" not in message
         for message in messages
     )
 
