@@ -5,6 +5,7 @@ __pycache__/
 *.json
 *.json.bak
 *.tmp
+*.zip
 .vscode/
 .idea/
 data.json
