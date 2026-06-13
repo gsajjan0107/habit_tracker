@@ -1378,6 +1378,8 @@ def test_handle_dashboard_shows_daily_summary_and_todays_focus(monkeypatch):
     assert "\n🎯 Today's Focus" in messages
     assert "- Reading: 3 more needed this week, 3 days available" in messages
     assert "\n📊 Weekly Progress (2 habits):" in messages
+    assert "\n✅ Completed Today" in messages
+    assert numbered_lists == [["Workout"]]
 
 
 def test_handle_dashboard_retries_when_date_is_invalid(monkeypatch):
@@ -1440,7 +1442,7 @@ def test_handle_dashboard_shows_previous_day_missed_section(monkeypatch):
 
     assert "\n⚠️  Previous Day Missed" in messages
     assert "Not logged on Friday, 01 May 2026 (2 habits):" in messages
-    assert numbered_lists == [["Reading", "Workout"]]
+    assert ["Reading", "Workout"] in numbered_lists
     assert "\n📌 Daily Summary" in messages
     assert "\n🎯 Today's Focus" in messages
     assert "\n📊 Weekly Progress (2 habits):" in messages
@@ -1687,3 +1689,5 @@ def test_handle_delete_log_can_be_cancelled_at_date_input(monkeypatch):
     assert data["logs"] == [
         make_log("Workout", "2026-05-01"),
     ]
+
+

@@ -305,3 +305,11 @@ def format_recovery_hint(missed):
         f"Recovery hint: Pick the easiest missed {habit_word} "
         "and complete it first today."
     )
+
+def display_completed_today_section(completed_habits):
+    display_message("\n✅ Completed Today")
+
+    if completed_habits:
+        display_numbered_list(completed_habits)
+    else:
+        display_message("No habits completed yet today.")

@@ -37,6 +37,7 @@ from helpers import (
     get_previous_day_missed_habits,
     format_previous_day_missed_message,
     format_recovery_hint,
+    display_completed_today_section,
     )
 
 commands = {
@@ -477,7 +478,8 @@ def handle_dashboard(data):
 
     display_message("\n📌 Daily Summary")
     display_message(format_daily_summary(result, formatted_date))
-
+    display_completed_today_section(result["completed"])
+    
     previous_day, missed = get_previous_day_missed_habits(data, selected_date, daily_stats)
 
     if missed:

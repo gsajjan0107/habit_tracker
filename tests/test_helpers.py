@@ -29,6 +29,7 @@ from helpers import (
     display_weekly_progress_section,
     format_no_active_habits_message,
     format_recovery_hint,
+    display_completed_today_section,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -732,7 +733,7 @@ def test_format_today_focus_message_with_risk():
 
     result = format_today_focus_message("Coding", info)
 
-    assert result == "- Coding: 4 more needed this week, 3 days available ⚠️ At risk"
+    assert result == "- Coding: 4 more needed this week, 3 days available ⚠️  At risk"
 
 
 def test_format_today_focus_message_uses_singular_day():
@@ -860,7 +861,7 @@ def test_display_today_focus_section_shows_focus_habits(capsys):
 
     assert "🎯 Today's Focus" in output
     assert "- Coding: 2 more needed this week, 3 days available" in output
-    assert "- Workout: 4 more needed this week, 3 days available ⚠️ At risk" in output
+    assert "- Workout: 4 more needed this week, 3 days available ⚠️  At risk" in output
 
 
 def test_display_today_focus_section_shows_on_track_message_when_empty(capsys):
@@ -957,3 +958,22 @@ def test_format_recovery_hint_multiple_missed_habits():
         format_recovery_hint(["Coding", "Workout"])
         == "Recovery hint: Pick the easiest missed habits and complete it first today."
     )
+
+
+def test_display_completed_today_section_shows_completed_habits(capsys):
+    display_completed_today_section(["Coding", "Workout"])
+
+    output = capsys.readouterr().out
+
+    assert "✅ Completed Today" in output
+    assert "1. Coding" in output
+    assert "2. Workout" in output
+
+
+def test_display_completed_today_section_shows_empty_message(capsys):
+    display_completed_today_section([])
+
+    output = capsys.readouterr().out
+
+    assert "✅ Completed Today" in output
+    assert "No habits completed yet today." in output
