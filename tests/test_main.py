@@ -1857,3 +1857,26 @@ def test_handle_view_logs_shows_no_active_habits_for_selected_date(monkeypatch):
         for message in messages
     )
     assert numbered_lists == []
+
+
+def test_handle_view_logs_can_be_cancelled(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+        ],
+    )
+
+    messages, numbered_lists = run_handle_view_logs(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "q",
+        ],
+    )
+
+    assert "View logs cancelled." in messages
+    assert "\n==== VIEW LOGS ====" not in messages
+    assert numbered_lists == []
