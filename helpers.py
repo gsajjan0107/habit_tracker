@@ -237,7 +237,7 @@ def format_today_focus_message(habit, info):
     risk_note = ""
 
     if is_habit_at_risk(info):
-        risk_note = " ⚠️ At risk"
+        risk_note = " ⚠️  At risk"
 
     return (
         f"- {habit}: {info['remaining']} more needed this week, "
@@ -294,3 +294,14 @@ def get_dashboard_data(data, selected_date):
 
 def format_no_active_habits_message(formatted_date):
     return f"No habits were active on {formatted_date}."
+
+def format_recovery_hint(missed):
+    if not missed:
+        return ""
+
+    habit_word = pluralize(len(missed), "habit")
+
+    return (
+        f"Recovery hint: Pick the easiest missed {habit_word} "
+        "and complete it first today."
+    )

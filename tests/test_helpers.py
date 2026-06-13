@@ -28,6 +28,7 @@ from helpers import (
     TODAYS_FOCUS_ON_TRACK_MESSAGE,
     display_weekly_progress_section,
     format_no_active_habits_message,
+    format_recovery_hint,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -938,3 +939,21 @@ def test_format_no_active_habits_message():
     result = format_no_active_habits_message("Friday, 01 May 2026")
 
     assert result == "No habits were active on Friday, 01 May 2026."
+
+
+def test_format_recovery_hint_no_missed_habits():
+    assert format_recovery_hint([]) == ""
+
+
+def test_format_recovery_hint_single_missed_habit():
+    assert (
+        format_recovery_hint(["Coding"])
+        == "Recovery hint: Pick the easiest missed habit and complete it first today."
+    )
+
+
+def test_format_recovery_hint_multiple_missed_habits():
+    assert (
+        format_recovery_hint(["Coding", "Workout"])
+        == "Recovery hint: Pick the easiest missed habits and complete it first today."
+    )

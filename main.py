@@ -36,6 +36,7 @@ from helpers import (
     format_no_active_habits_message,
     get_previous_day_missed_habits,
     format_previous_day_missed_message,
+    format_recovery_hint,
     )
 
 commands = {
@@ -483,6 +484,8 @@ def handle_dashboard(data):
         display_message("\n⚠️  Previous Day Missed")
         display_message(format_previous_day_missed_message(previous_day, missed))
         display_numbered_list(missed)
+        display_message("")
+        display_message(format_recovery_hint(missed))
 
     focus_habits = get_today_focus_habits(result["pending"], weekly_stats)
 
