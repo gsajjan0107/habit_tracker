@@ -1699,3 +1699,27 @@ def test_handle_delete_log_can_be_cancelled_at_date_input(monkeypatch):
     ]
 
 
+def test_handle_dashboard_shows_all_habits_completed_message(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(target=5),
+            "Reading": make_habit(target=3),
+        },
+        logs=[
+            make_log("Workout", "2026-05-01"),
+            make_log("Reading", "2026-05-01"),
+        ],
+    )
+
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
+
+    assert "\n✅ Completed Today" in messages
+    assert "\n⏳ Pending Today" in messages
+    assert "All active habits completed for today." in messages
+    assert ["Reading", "Workout"] in numbered_lists
