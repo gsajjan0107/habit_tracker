@@ -1776,3 +1776,25 @@ def test_handle_dashboard_shows_completed_today_habits(monkeypatch):
 
     assert "\n✅ Completed Today" in messages
     assert ["Workout"] in numbered_lists
+
+
+def test_handle_dashboard_shows_no_completed_habits_message(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(target=5),
+            "Reading": make_habit(target=3),
+        },
+        logs=[],
+    )
+
+    messages, numbered_lists = run_handle_dashboard(
+        monkeypatch,
+        data,
+        user_inputs=[
+            "2026-05-01",
+        ],
+    )
+
+    assert "\n✅ Completed Today" in messages
+    assert "No habits completed yet today." in messages
+    assert ["Reading", "Workout"] in numbered_lists
