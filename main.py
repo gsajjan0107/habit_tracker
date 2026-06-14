@@ -217,6 +217,9 @@ def handle_view_habit_details(data):
     created_date = validate_date(details["created_at"])
     habit_age = (selected_date - created_date).days
     habit_age_word = pluralize(habit_age, "day")
+    habit_lifetime_days = habit_age + 1
+    habit_lifetime_weeks = habit_lifetime_days / 7
+    average_logs_per_week = details["total_logs"] / habit_lifetime_weeks
 
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
@@ -225,6 +228,7 @@ def handle_view_habit_details(data):
     display_message(f"Habit age: {habit_age} {habit_age_word}")
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
+    display_message(f"Average logs per week: {average_logs_per_week:.2f}")
     if details["last_logged_at"] is None:
         display_message("Last logged: Never")
         display_message("Days since last log: N/A")
