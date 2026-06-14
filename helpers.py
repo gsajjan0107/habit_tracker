@@ -200,6 +200,13 @@ def get_habit_details(data, habit):
         raise ValueError("Habit does not exist.")
 
     habit_data = data["habits"][habit]
+    habit_logs = [
+        log["date"]
+        for log in data["logs"]
+        if log["habit"] == habit
+    ]
+
+    last_logged_at = max(habit_logs) if habit_logs else None
 
     return {
         "name": habit,
@@ -208,6 +215,7 @@ def get_habit_details(data, habit):
         "archived_at": habit_data["archived_at"],
         "is_archived": habit_data["archived_at"] is not None,
         "total_logs": count_logs_for_habit(data, habit),
+        "last_logged_at": last_logged_at,
     }
 
 def get_today_focus_habits(pending_habits, weekly_stats):

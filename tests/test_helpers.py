@@ -596,6 +596,7 @@ def test_get_habit_details_for_active_habit():
         "archived_at": None,
         "is_archived": False,
         "total_logs": 2,
+        "last_logged_at": "2026-05-02",
     }
 
 
@@ -997,3 +998,41 @@ def test_display_pending_today_section_shows_empty_message(capsys):
 
     assert "⏳ Pending Today" in output
     assert "All active habits completed for today." in output
+
+
+def test_get_habit_details_includes_last_logged_date():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [
+            {"habit": "Workout", "date": "2026-05-01"},
+            {"habit": "Workout", "date": "2026-05-03"},
+            {"habit": "Workout", "date": "2026-05-02"},
+        ],
+    }
+
+    result = get_habit_details(data, "Workout")
+
+    assert result["last_logged_at"] == "2026-05-03"
+
+
+def test_get_habit_details_has_no_last_logged_date_when_never_logged():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [],
+    }
+
+    result = get_habit_details(data, "Workout")
+
+    assert result["last_logged_at"] is None

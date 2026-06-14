@@ -1555,6 +1555,7 @@ def test_handle_view_habit_details_shows_selected_habit(monkeypatch):
     assert "Created: Friday, 01 May 2026" in messages
     assert "Status: Active" in messages
     assert "Total logs: 2" in messages
+    assert "Last logged: Saturday, 02 May 2026" in messages
 
 
 def test_handle_view_habit_details_can_cancel(monkeypatch):
@@ -2107,3 +2108,21 @@ def test_handle_log_retries_invalid_date_then_cancels_at_date_input(monkeypatch)
     assert data["logs"] == []
 
 
+def test_handle_view_habit_details_shows_never_when_habit_has_no_logs(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Habit: Workout" in messages
+    assert "Total logs: 0" in messages
+    assert "Last logged: Never" in messages

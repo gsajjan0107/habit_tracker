@@ -431,6 +431,11 @@ def handle_view_habit_details(data):
     display_message(f"Created: {created_at}")
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
+    if details["last_logged_at"] is None:
+        display_message("Last logged: Never")
+    else:
+        last_logged_at = format_display_date(details["last_logged_at"])
+        display_message(f"Last logged: {last_logged_at}")
     display_message(f"Current streak: {streak_info['current_streak']} {current_day_word}")
     display_message(f"Best streak: {streak_info['longest_streak']} {best_day_word}")
 

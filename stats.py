@@ -8,17 +8,17 @@ def logs_by_habit(data, date=None):
 
     habit_log_dates = {}
     for log in logs:
-        
+
         habit_name = log.get("habit")
         if not habit_name:
             continue
-        
+
         log_date = log.get("date")
         if not log_date:
             continue
-        
+
         log_date = validate_date(log["date"])
-    
+
         if log_date <= date:
             habit_log_dates.setdefault(habit_name, set()).add(log_date)
 
@@ -155,7 +155,7 @@ def habit_weekly_completion(data, date=None):
             "percentage": percentage,
             "status": status
         }
-        
+
     return results
 
 def daily_stats(data, date=None):
