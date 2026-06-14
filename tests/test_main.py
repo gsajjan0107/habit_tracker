@@ -2126,3 +2126,37 @@ def test_handle_view_habit_details_shows_never_when_habit_has_no_logs(monkeypatc
     assert "Habit: Workout" in messages
     assert "Total logs: 0" in messages
     assert "Last logged: Never" in messages
+
+
+def test_handle_view_habit_details_uses_archive_date_for_archived_habit(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(
+                target=5,
+                created_at="2026-05-01",
+                archived_at="2026-05-10",
+            ),
+        },
+        logs=[
+            make_log("Workout", "2026-05-08"),
+            make_log("Workout", "2026-05-09"),
+            make_log("Workout", "2026-05-10"),
+        ],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Habit: Workout" in messages
+    assert "Status: Archived" in messages
+    assert "Total logs: 3" in messages
+    assert "Last logged: Sunday, 10 May 2026" in messages
+    assert "Current streak: 3 days" in messages
+    assert "Best streak: 3 days" in messages
+    assert any("This week: 3/5 completed" in message for message in messages)
+    assert "Remaining this week: 2" in messages
+    assert "Archived: Sunday, 10 May 2026" in messages
