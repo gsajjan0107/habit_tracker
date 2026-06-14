@@ -31,6 +31,7 @@ from helpers import (
     format_recovery_hint,
     display_completed_today_section,
     display_pending_today_section,
+    get_consistency_rating,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1036,3 +1037,16 @@ def test_get_habit_details_has_no_last_logged_date_when_never_logged():
     result = get_habit_details(data, "Workout")
 
     assert result["last_logged_at"] is None
+
+
+def test_get_consistency_rating_returns_correct_labels():
+    assert get_consistency_rating(100) == "Elite"
+    assert get_consistency_rating(90) == "Elite"
+    assert get_consistency_rating(89.99) == "Excellent"
+    assert get_consistency_rating(75) == "Excellent"
+    assert get_consistency_rating(74.99) == "Good"
+    assert get_consistency_rating(50) == "Good"
+    assert get_consistency_rating(49.99) == "Weak"
+    assert get_consistency_rating(25) == "Weak"
+    assert get_consistency_rating(24.99) == "Poor"
+    assert get_consistency_rating(0) == "Poor"

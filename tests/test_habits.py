@@ -458,3 +458,5 @@ def test_delete_habit_with_existing_logs_raises_error(sample_data):
 
     with pytest.raises(ValueError, match="existing logs"):
         delete_habit(sample_data, "Workout")
+
+

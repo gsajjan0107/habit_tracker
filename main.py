@@ -39,6 +39,7 @@ from helpers import (
     format_recovery_hint,
     display_completed_today_section,
     display_pending_today_section,
+    get_consistency_rating,
     )
 
 commands = {
@@ -222,16 +223,7 @@ def handle_view_habit_details(data):
     average_logs_per_week = details["total_logs"] / habit_lifetime_weeks
     consistency_percentage = details["total_logs"] / habit_lifetime_days * 100
 
-    if consistency_percentage >= 90:
-        consistency_rating = "Elite"
-    elif consistency_percentage >= 75:
-        consistency_rating = "Excellent"
-    elif consistency_percentage >= 50:
-        consistency_rating = "Good"
-    elif consistency_percentage >= 25:
-        consistency_rating = "Weak"
-    else:
-        consistency_rating = "Poor"
+    consistency_rating = get_consistency_rating(consistency_percentage)
 
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")

@@ -329,3 +329,15 @@ def display_pending_today_section(pending_habits):
         display_numbered_list(pending_habits)
     else:
         display_message("All active habits completed for today.")
+
+def get_consistency_rating(percentage):
+    if percentage >= 90:
+        return "Elite"
+    elif percentage >= 75:
+        return "Excellent"
+    elif percentage >= 50:
+        return "Good"
+    elif percentage >= 25:
+        return "Weak"
+    else:
+        return "Poor"
