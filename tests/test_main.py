@@ -2206,3 +2206,26 @@ def test_handle_view_habit_details_shows_na_when_habit_was_never_logged(monkeypa
 
     assert "Last logged: Never" in messages
     assert "Days since last log: N/A" in messages
+
+
+def test_handle_view_habit_details_shows_habit_age_for_archived_habit(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(
+                target=5,
+                created_at="2026-05-01",
+                archived_at="2026-05-10",
+            ),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Created: Friday, 01 May 2026" in messages
+    assert "Habit age: 9 days" in messages

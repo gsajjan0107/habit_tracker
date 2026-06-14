@@ -214,11 +214,15 @@ def handle_view_habit_details(data):
     best_day_word = pluralize(streak_info["longest_streak"], "day")
 
     created_at = format_display_date(details["created_at"])
+    created_date = validate_date(details["created_at"])
+    habit_age = (selected_date - created_date).days
+    habit_age_word = pluralize(habit_age, "day")
 
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
     display_message(f"Target: {details['target_per_week']} per week")
     display_message(f"Created: {created_at}")
+    display_message(f"Habit age: {habit_age} {habit_age_word}")
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
     if details["last_logged_at"] is None:
