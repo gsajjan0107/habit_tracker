@@ -220,6 +220,18 @@ def handle_view_habit_details(data):
     habit_lifetime_days = habit_age + 1
     habit_lifetime_weeks = habit_lifetime_days / 7
     average_logs_per_week = details["total_logs"] / habit_lifetime_weeks
+    consistency_percentage = details["total_logs"] / habit_lifetime_days * 100
+
+    if consistency_percentage >= 90:
+        consistency_rating = "Elite"
+    elif consistency_percentage >= 75:
+        consistency_rating = "Excellent"
+    elif consistency_percentage >= 50:
+        consistency_rating = "Good"
+    elif consistency_percentage >= 25:
+        consistency_rating = "Weak"
+    else:
+        consistency_rating = "Poor"
 
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
@@ -229,6 +241,7 @@ def handle_view_habit_details(data):
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
     display_message(f"Average logs per week: {average_logs_per_week:.2f}")
+    display_message(f"Consistency: {consistency_percentage:.2f}% - {consistency_rating}")
     if details["last_logged_at"] is None:
         display_message("Last logged: Never")
         display_message("Days since last log: N/A")

@@ -2257,3 +2257,63 @@ def test_handle_view_habit_details_shows_average_logs_per_week(monkeypatch):
     assert "Habit age: 9 days" in messages
     assert "Total logs: 3" in messages
     assert "Average logs per week: 2.10" in messages
+
+
+def test_handle_view_habit_details_shows_consistency_percentage(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(
+                target=5,
+                created_at="2026-05-01",
+                archived_at="2026-05-10",
+            ),
+        },
+        logs=[
+            make_log("Workout", "2026-05-02"),
+            make_log("Workout", "2026-05-04"),
+            make_log("Workout", "2026-05-06"),
+            make_log("Workout", "2026-05-08"),
+            make_log("Workout", "2026-05-09"),
+            make_log("Workout", "2026-05-10"),
+        ],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Habit age: 9 days" in messages
+    assert "Total logs: 6" in messages
+    assert "Consistency: 60.00% - Good" in messages
+
+
+def test_handle_view_habit_details_shows_consistency_rating(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(
+                target=5,
+                created_at="2026-05-01",
+                archived_at="2026-05-10",
+            ),
+        },
+        logs=[
+            make_log("Workout", "2026-05-02"),
+            make_log("Workout", "2026-05-04"),
+            make_log("Workout", "2026-05-06"),
+            make_log("Workout", "2026-05-08"),
+            make_log("Workout", "2026-05-09"),
+            make_log("Workout", "2026-05-10"),
+        ],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Consistency: 60.00% - Good" in messages
