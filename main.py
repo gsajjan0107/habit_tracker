@@ -407,7 +407,12 @@ def handle_view_habit_details(data):
 
     try:
         details = get_habit_details(data, habit)
-        selected_date = validate_date("")
+
+        if details["archived_at"] is not None:
+            selected_date = validate_date(details["archived_at"])
+        else:
+            selected_date = validate_date("")
+
         habit_streaks = streaks(data, selected_date)
     except ValueError as e:
         display_message(e)
