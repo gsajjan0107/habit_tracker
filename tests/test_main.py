@@ -2160,3 +2160,49 @@ def test_handle_view_habit_details_uses_archive_date_for_archived_habit(monkeypa
     assert any("This week: 3/5 completed" in message for message in messages)
     assert "Remaining this week: 2" in messages
     assert "Archived: Sunday, 10 May 2026" in messages
+
+
+def test_handle_view_habit_details_shows_days_since_last_log_for_archived_habit(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(
+                target=5,
+                created_at="2026-05-01",
+                archived_at="2026-05-10",
+            ),
+        },
+        logs=[
+            make_log("Workout", "2026-05-06"),
+            make_log("Workout", "2026-05-07"),
+            make_log("Workout", "2026-05-08"),
+        ],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Last logged: Friday, 08 May 2026" in messages
+    assert "Days since last log: 2 days" in messages
+
+
+def test_handle_view_habit_details_shows_na_when_habit_was_never_logged(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Last logged: Never" in messages
+    assert "Days since last log: N/A" in messages
