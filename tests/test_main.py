@@ -1,6 +1,6 @@
+from datetime import date
 import copy
 import main
-import helpers
 import pytest
 
 # ===== data helpers =====
@@ -2317,3 +2317,17 @@ def test_handle_view_habit_details_shows_consistency_rating(monkeypatch):
     main.handle_view_habit_details(data)
 
     assert "Consistency: 60.00% - Good" in messages
+
+
+def test_get_habit_detail_reference_date_uses_archived_at_when_present():
+    reference_date = main.get_habit_detail_reference_date("2026-05-10")
+
+    assert reference_date == date(2026, 5, 10)
+
+
+def test_get_habit_detail_reference_date_uses_today_when_not_archived(monkeypatch):
+    monkeypatch.setattr("validators.get_today", lambda: date(2026, 5, 15))
+
+    reference_date = main.get_habit_detail_reference_date(None)
+
+    assert reference_date == date(2026, 5, 15)

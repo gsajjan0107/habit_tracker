@@ -170,6 +170,12 @@ def handle_log(data):
         except ValueError as e:
             display_message(e)
 
+def get_habit_detail_reference_date(archived_at):
+    if archived_at is not None:
+        return validate_date(archived_at)
+
+    return validate_date("")
+
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -194,12 +200,7 @@ def handle_view_habit_details(data):
 
     try:
         details = get_habit_details(data, habit)
-
-        if details["archived_at"] is not None:
-            selected_date = validate_date(details["archived_at"])
-        else:
-            selected_date = validate_date("")
-
+        selected_date = get_habit_detail_reference_date(details["archived_at"])
         habit_streaks = streaks(data, selected_date)
     except ValueError as e:
         display_message(e)
