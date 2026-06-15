@@ -385,3 +385,6 @@ def format_habit_age(habit_age):
 def format_days_since_last_log(days_since_last_log):
     day_word = pluralize(days_since_last_log, "day")
     return f"{days_since_last_log} {day_word}"
+
+def format_consistency_display(percentage, rating):
+    return f"{percentage:.2f}% - {rating}"

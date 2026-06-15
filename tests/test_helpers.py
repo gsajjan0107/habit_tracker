@@ -38,6 +38,7 @@ from helpers import (
     format_streak_display,
     format_habit_age,
     format_days_since_last_log,
+    format_consistency_display,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1108,3 +1109,9 @@ def test_format_days_since_last_log_returns_pluralized_text():
     assert format_days_since_last_log(0) == "0 days"
     assert format_days_since_last_log(1) == "1 day"
     assert format_days_since_last_log(2) == "2 days"
+
+
+def test_format_consistency_display_returns_percentage_and_rating():
+    assert format_consistency_display(60, "Good") == "60.00% - Good"
+    assert format_consistency_display(100, "Elite") == "100.00% - Elite"
+    assert format_consistency_display(24.987, "Poor") == "24.99% - Poor"

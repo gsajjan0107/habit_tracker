@@ -45,6 +45,8 @@ from helpers import (
     format_streak_display,
     format_habit_age,
     format_days_since_last_log,
+    format_consistency_display,
+
     )
 
 commands = {
@@ -226,6 +228,10 @@ def handle_view_habit_details(data):
         selected_date,
     )
     habit_age_display = format_habit_age(metrics["habit_age"])
+    consistency_display = format_consistency_display(
+        metrics["consistency_percentage"],
+        metrics["consistency_rating"],
+    )
 
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
@@ -235,10 +241,7 @@ def handle_view_habit_details(data):
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
     display_message(f"Average logs per week: {metrics['average_logs_per_week']:.2f}")
-    display_message(
-        f"Consistency: {metrics['consistency_percentage']:.2f}% - "
-        f"{metrics['consistency_rating']}"
-    )
+    display_message(f"Consistency: {consistency_display}")
     if details["last_logged_at"] is None:
         display_message("Last logged: Never")
         display_message("Days since last log: N/A")
