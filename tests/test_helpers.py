@@ -34,6 +34,7 @@ from helpers import (
     get_consistency_rating,
     get_habit_detail_metrics,
     get_days_since_last_log,
+    get_habit_status_text,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1075,3 +1076,8 @@ def test_get_days_since_last_log_returns_day_difference():
     selected_date = date(2026, 5, 10)
 
     assert get_days_since_last_log(last_logged_date, selected_date) == 2
+
+
+def test_get_habit_status_text_returns_active_or_archived():
+    assert get_habit_status_text(False) == "Active"
+    assert get_habit_status_text(True) == "Archived"

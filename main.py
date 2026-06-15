@@ -41,6 +41,7 @@ from helpers import (
     display_pending_today_section,
     get_habit_detail_metrics,
     get_days_since_last_log,
+    get_habit_status_text,
     )
 
 commands = {
@@ -211,7 +212,7 @@ def handle_view_habit_details(data):
     except ValueError:
         weekly_stats = {}
 
-    habit_status = "Archived" if details["is_archived"] else "Active"
+    habit_status = get_habit_status_text(details["is_archived"])
     streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
     current_day_word = pluralize(streak_info["current_streak"], "day")
     best_day_word = pluralize(streak_info["longest_streak"], "day")

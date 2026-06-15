@@ -359,3 +359,9 @@ def get_habit_detail_metrics(created_date, total_logs, selected_date):
 
 def get_days_since_last_log(last_logged_date, selected_date):
     return (selected_date - last_logged_date).days
+
+def get_habit_status_text(is_archived):
+    if is_archived:
+        return "Archived"
+
+    return "Active"
