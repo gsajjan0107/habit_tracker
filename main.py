@@ -42,6 +42,7 @@ from helpers import (
     get_habit_detail_metrics,
     get_days_since_last_log,
     get_habit_status_text,
+    format_streak_display,
     )
 
 commands = {
@@ -214,8 +215,7 @@ def handle_view_habit_details(data):
 
     habit_status = get_habit_status_text(details["is_archived"])
     streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
-    current_day_word = pluralize(streak_info["current_streak"], "day")
-    best_day_word = pluralize(streak_info["longest_streak"], "day")
+    streak_display = format_streak_display(streak_info)
     created_at = format_display_date(details["created_at"])
     created_date = validate_date(details["created_at"])
     metrics = get_habit_detail_metrics(
@@ -248,8 +248,8 @@ def handle_view_habit_details(data):
         last_logged_at = format_display_date(details["last_logged_at"])
         display_message(f"Last logged: {last_logged_at}")
         display_message(f"Days since last log: {days_since_last_log} {day_word}")
-    display_message(f"Current streak: {streak_info['current_streak']} {current_day_word}")
-    display_message(f"Best streak: {streak_info['longest_streak']} {best_day_word}")
+    display_message(f"Current streak: {streak_display['current_streak']}")
+    display_message(f"Best streak: {streak_display['longest_streak']}")
 
     if habit in weekly_stats:
         info = weekly_stats[habit]

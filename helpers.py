@@ -365,3 +365,15 @@ def get_habit_status_text(is_archived):
         return "Archived"
 
     return "Active"
+
+def format_streak_display(streak_info):
+    current_streak = streak_info["current_streak"]
+    longest_streak = streak_info["longest_streak"]
+
+    current_day_word = pluralize(current_streak, "day")
+    best_day_word = pluralize(longest_streak, "day")
+
+    return {
+        "current_streak": f"{current_streak} {current_day_word}",
+        "longest_streak": f"{longest_streak} {best_day_word}",
+    }

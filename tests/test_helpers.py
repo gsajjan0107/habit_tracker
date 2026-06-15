@@ -35,6 +35,7 @@ from helpers import (
     get_habit_detail_metrics,
     get_days_since_last_log,
     get_habit_status_text,
+    format_streak_display,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1081,3 +1082,15 @@ def test_get_days_since_last_log_returns_day_difference():
 def test_get_habit_status_text_returns_active_or_archived():
     assert get_habit_status_text(False) == "Active"
     assert get_habit_status_text(True) == "Archived"
+
+
+def test_format_streak_display_returns_pluralized_streak_text():
+    streak_info = {
+        "current_streak": 1,
+        "longest_streak": 3,
+    }
+
+    result = format_streak_display(streak_info)
+
+    assert result["current_streak"] == "1 day"
+    assert result["longest_streak"] == "3 days"
