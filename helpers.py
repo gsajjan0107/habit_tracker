@@ -356,3 +356,6 @@ def get_habit_detail_metrics(created_date, total_logs, selected_date):
         "consistency_percentage": consistency_percentage,
         "consistency_rating": consistency_rating,
     }
+
+def get_days_since_last_log(last_logged_date, selected_date):
+    return (selected_date - last_logged_date).days

@@ -39,8 +39,8 @@ from helpers import (
     format_recovery_hint,
     display_completed_today_section,
     display_pending_today_section,
-    get_consistency_rating,
-    get_habit_detail_metrics
+    get_habit_detail_metrics,
+    get_days_since_last_log,
     )
 
 commands = {
@@ -240,7 +240,7 @@ def handle_view_habit_details(data):
         display_message("Days since last log: N/A")
     else:
         last_logged_date = validate_date(details["last_logged_at"])
-        days_since_last_log = (selected_date - last_logged_date).days
+        days_since_last_log = get_days_since_last_log(last_logged_date, selected_date)
         day_word = pluralize(days_since_last_log, "day")
 
         last_logged_at = format_display_date(details["last_logged_at"])
