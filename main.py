@@ -40,6 +40,7 @@ from helpers import (
     display_completed_today_section,
     display_pending_today_section,
     get_consistency_rating,
+    get_habit_detail_metrics
     )
 
 commands = {
@@ -213,27 +214,27 @@ def handle_view_habit_details(data):
     streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
     current_day_word = pluralize(streak_info["current_streak"], "day")
     best_day_word = pluralize(streak_info["longest_streak"], "day")
-
     created_at = format_display_date(details["created_at"])
     created_date = validate_date(details["created_at"])
-    habit_age = (selected_date - created_date).days
-    habit_age_word = pluralize(habit_age, "day")
-    habit_lifetime_days = habit_age + 1
-    habit_lifetime_weeks = habit_lifetime_days / 7
-    average_logs_per_week = details["total_logs"] / habit_lifetime_weeks
-    consistency_percentage = details["total_logs"] / habit_lifetime_days * 100
-
-    consistency_rating = get_consistency_rating(consistency_percentage)
+    metrics = get_habit_detail_metrics(
+        created_date,
+        details["total_logs"],
+        selected_date,
+    )
+    habit_age_word = pluralize(metrics["habit_age"], "day")
 
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
     display_message(f"Target: {details['target_per_week']} per week")
     display_message(f"Created: {created_at}")
-    display_message(f"Habit age: {habit_age} {habit_age_word}")
+    display_message(f"Habit age: {metrics['habit_age']} {habit_age_word}")
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
-    display_message(f"Average logs per week: {average_logs_per_week:.2f}")
-    display_message(f"Consistency: {consistency_percentage:.2f}% - {consistency_rating}")
+    display_message(f"Average logs per week: {metrics['average_logs_per_week']:.2f}")
+    display_message(
+        f"Consistency: {metrics['consistency_percentage']:.2f}% - "
+        f"{metrics['consistency_rating']}"
+    )
     if details["last_logged_at"] is None:
         display_message("Last logged: Never")
         display_message("Days since last log: N/A")

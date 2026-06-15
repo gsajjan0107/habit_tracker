@@ -32,6 +32,7 @@ from helpers import (
     display_completed_today_section,
     display_pending_today_section,
     get_consistency_rating,
+    get_habit_detail_metrics,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1050,3 +1051,19 @@ def test_get_consistency_rating_returns_correct_labels():
     assert get_consistency_rating(25) == "Weak"
     assert get_consistency_rating(24.99) == "Poor"
     assert get_consistency_rating(0) == "Poor"
+
+
+def test_get_habit_detail_metrics_returns_age_average_and_consistency():
+    created_date = date(2026, 5, 1)
+    selected_date = date(2026, 5, 10)
+
+    metrics = get_habit_detail_metrics(
+        created_date,
+        total_logs=6,
+        selected_date=selected_date,
+    )
+
+    assert metrics["habit_age"] == 9
+    assert metrics["average_logs_per_week"] == 4.2
+    assert metrics["consistency_percentage"] == 60.0
+    assert metrics["consistency_rating"] == "Good"

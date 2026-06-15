@@ -341,3 +341,18 @@ def get_consistency_rating(percentage):
         return "Weak"
     else:
         return "Poor"
+
+def get_habit_detail_metrics(created_date, total_logs, selected_date):
+    habit_age = (selected_date - created_date).days
+    habit_lifetime_days = habit_age + 1
+    habit_lifetime_weeks = habit_lifetime_days / 7
+    average_logs_per_week = total_logs / habit_lifetime_weeks
+    consistency_percentage = total_logs / habit_lifetime_days * 100
+    consistency_rating = get_consistency_rating(consistency_percentage)
+
+    return {
+        "habit_age": habit_age,
+        "average_logs_per_week": average_logs_per_week,
+        "consistency_percentage": consistency_percentage,
+        "consistency_rating": consistency_rating,
+    }
