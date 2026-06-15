@@ -377,3 +377,11 @@ def format_streak_display(streak_info):
         "current_streak": f"{current_streak} {current_day_word}",
         "longest_streak": f"{longest_streak} {best_day_word}",
     }
+
+def format_habit_age(habit_age):
+    day_word = pluralize(habit_age, "day")
+    return f"{habit_age} {day_word}"
+
+def format_days_since_last_log(days_since_last_log):
+    day_word = pluralize(days_since_last_log, "day")
+    return f"{days_since_last_log} {day_word}"

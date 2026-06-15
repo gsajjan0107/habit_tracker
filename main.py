@@ -43,6 +43,8 @@ from helpers import (
     get_days_since_last_log,
     get_habit_status_text,
     format_streak_display,
+    format_habit_age,
+    format_days_since_last_log,
     )
 
 commands = {
@@ -223,13 +225,13 @@ def handle_view_habit_details(data):
         details["total_logs"],
         selected_date,
     )
-    habit_age_word = pluralize(metrics["habit_age"], "day")
+    habit_age_display = format_habit_age(metrics["habit_age"])
 
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
     display_message(f"Target: {details['target_per_week']} per week")
     display_message(f"Created: {created_at}")
-    display_message(f"Habit age: {metrics['habit_age']} {habit_age_word}")
+    display_message(f"Habit age: {habit_age_display}")
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
     display_message(f"Average logs per week: {metrics['average_logs_per_week']:.2f}")
@@ -243,11 +245,11 @@ def handle_view_habit_details(data):
     else:
         last_logged_date = validate_date(details["last_logged_at"])
         days_since_last_log = get_days_since_last_log(last_logged_date, selected_date)
-        day_word = pluralize(days_since_last_log, "day")
+        days_since_last_log_display = format_days_since_last_log(days_since_last_log)
 
         last_logged_at = format_display_date(details["last_logged_at"])
         display_message(f"Last logged: {last_logged_at}")
-        display_message(f"Days since last log: {days_since_last_log} {day_word}")
+        display_message(f"Days since last log: {days_since_last_log_display}")
     display_message(f"Current streak: {streak_display['current_streak']}")
     display_message(f"Best streak: {streak_display['longest_streak']}")
 

@@ -36,6 +36,8 @@ from helpers import (
     get_days_since_last_log,
     get_habit_status_text,
     format_streak_display,
+    format_habit_age,
+    format_days_since_last_log,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1094,3 +1096,15 @@ def test_format_streak_display_returns_pluralized_streak_text():
 
     assert result["current_streak"] == "1 day"
     assert result["longest_streak"] == "3 days"
+
+
+def test_format_habit_age_returns_pluralized_age_text():
+    assert format_habit_age(1) == "1 day"
+    assert format_habit_age(9) == "9 days"
+    assert format_habit_age(0) == "0 days"
+
+
+def test_format_days_since_last_log_returns_pluralized_text():
+    assert format_days_since_last_log(0) == "0 days"
+    assert format_days_since_last_log(1) == "1 day"
+    assert format_days_since_last_log(2) == "2 days"
