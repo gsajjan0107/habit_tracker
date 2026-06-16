@@ -2331,3 +2331,45 @@ def test_get_habit_detail_reference_date_uses_today_when_not_archived(monkeypatc
     reference_date = main.get_habit_detail_reference_date(None)
 
     assert reference_date == date(2026, 5, 15)
+
+
+def test_display_last_logged_info_shows_never_when_no_logs(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_last_logged_info(None, date(2026, 5, 10))
+
+    assert "Last logged: Never" in messages
+    assert "Days since last log: N/A" in messages
+
+
+def test_display_last_logged_info_shows_last_logged_date_and_gap(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_last_logged_info("2026-05-08", date(2026, 5, 10))
+
+    assert "Last logged: Friday, 08 May 2026" in messages
+    assert "Days since last log: 2 days" in messages
+
+
+def test_display_archived_info_shows_archived_date(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_archived_info("2026-05-10")
+
+    assert "Archived: Sunday, 10 May 2026" in messages
+
+
+def test_display_archived_info_shows_nothing_when_not_archived(monkeypatch):
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_archived_info(None)
+
+    assert messages == []

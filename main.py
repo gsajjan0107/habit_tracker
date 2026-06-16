@@ -182,6 +182,27 @@ def get_habit_detail_reference_date(archived_at):
 
     return validate_date("")
 
+def display_last_logged_info(last_logged_at, selected_date):
+    if last_logged_at is None:
+        display_message("Last logged: Never")
+        display_message("Days since last log: N/A")
+        return
+
+    last_logged_date = validate_date(last_logged_at)
+    days_since_last_log = get_days_since_last_log(last_logged_date, selected_date)
+    days_since_last_log_display = format_days_since_last_log(days_since_last_log)
+
+    formatted_last_logged_at = format_display_date(last_logged_at)
+    display_message(f"Last logged: {formatted_last_logged_at}")
+    display_message(f"Days since last log: {days_since_last_log_display}")
+
+def display_archived_info(archived_at):
+    if archived_at is None:
+        return
+
+    formatted_archived_at = format_display_date(archived_at)
+    display_message(f"Archived: {formatted_archived_at}")
+
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -247,19 +268,7 @@ def handle_view_habit_details(data):
     display_message(f"Total logs: {details['total_logs']}")
     display_message(f"Average logs per week: {average_logs_display}")
     display_message(f"Consistency: {consistency_display}")
-
-    if details["last_logged_at"] is None:
-        display_message("Last logged: Never")
-        display_message("Days since last log: N/A")
-    else:
-        last_logged_date = validate_date(details["last_logged_at"])
-        days_since_last_log = get_days_since_last_log(last_logged_date, selected_date)
-        days_since_last_log_display = format_days_since_last_log(days_since_last_log)
-
-        last_logged_at = format_display_date(details["last_logged_at"])
-        display_message(f"Last logged: {last_logged_at}")
-        display_message(f"Days since last log: {days_since_last_log_display}")
-        
+    display_last_logged_info(details["last_logged_at"], selected_date)
     display_message(f"Current streak: {streak_display['current_streak']}")
     display_message(f"Best streak: {streak_display['longest_streak']}")
 
@@ -274,9 +283,7 @@ def handle_view_habit_details(data):
 
         display_message(f"Remaining this week: {info['remaining']}")
 
-    if details["archived_at"] is not None:
-        archived_at = format_display_date(details["archived_at"])
-        display_message(f"Archived: {archived_at}")
+    display_archived_info(details["archived_at"])
 
 def handle_view_logs(data):
     if not ensure_habits_exist(data):
