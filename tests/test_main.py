@@ -2560,3 +2560,41 @@ def test_select_habit_from_archive_menu_retries_after_invalid_choice(monkeypatch
 
     assert selected_habit == "Workout"
     assert any(message.startswith("Error:") for message in messages)
+
+
+def test_get_habit_detail_context_returns_details_dates_streaks_and_weekly_stats():
+    data = make_data(
+        habits={
+            "Workout": make_habit(
+                target=5,
+                created_at="2026-05-01",
+                archived_at="2026-05-10",
+            ),
+        },
+        logs=[
+            make_log("Workout", "2026-05-08"),
+            make_log("Workout", "2026-05-09"),
+            make_log("Workout", "2026-05-10"),
+        ],
+    )
+
+    details, selected_date, habit_streaks, weekly_stats = main.get_habit_detail_context(
+        data,
+        "Workout",
+    )
+
+    assert details["name"] == "Workout"
+    assert selected_date == date(2026, 5, 10)
+    assert habit_streaks["Workout"]["current_streak"] == 3
+    assert habit_streaks["Workout"]["longest_streak"] == 3
+    assert "Workout" in weekly_stats
+
+
+def test_get_habit_detail_context_raises_value_error_for_missing_habit():
+    data = make_data(
+        habits={},
+        logs=[],
+    )
+
+    with pytest.raises(ValueError):
+        main.get_habit_detail_context(data, "Workout")

@@ -289,6 +289,18 @@ def select_habit_from_archive_menu(data, cancel_message):
         except ValueError as e:
             display_message(f"Error: {e}")
 
+def get_habit_detail_context(data, habit):
+    details = get_habit_details(data, habit)
+    selected_date = get_habit_detail_reference_date(details["archived_at"])
+    habit_streaks = streaks(data, selected_date)
+
+    try:
+        weekly_stats = habit_weekly_completion(data, selected_date)
+    except ValueError:
+        weekly_stats = {}
+
+    return details, selected_date, habit_streaks, weekly_stats
+
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -299,17 +311,13 @@ def handle_view_habit_details(data):
         return
 
     try:
-        details = get_habit_details(data, habit)
-        selected_date = get_habit_detail_reference_date(details["archived_at"])
-        habit_streaks = streaks(data, selected_date)
+        details, selected_date, habit_streaks, weekly_stats = get_habit_detail_context(
+            data,
+            habit,
+        )
     except ValueError as e:
         display_message(e)
         return
-
-    try:
-        weekly_stats = habit_weekly_completion(data, selected_date)
-    except ValueError:
-        weekly_stats = {}
 
     display_values = prepare_habit_detail_display_values(
         details,
