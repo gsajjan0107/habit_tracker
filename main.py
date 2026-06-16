@@ -176,6 +176,8 @@ def handle_log(data):
         except ValueError as e:
             display_message(e)
 
+# --- habit detail ---
+
 def get_habit_detail_reference_date(archived_at):
     if archived_at is not None:
         return validate_date(archived_at)
@@ -301,6 +303,37 @@ def get_habit_detail_context(data, habit):
 
     return details, selected_date, habit_streaks, weekly_stats
 
+def display_habit_details_screen(
+    habit,
+    details,
+    selected_date,
+    weekly_stats,
+    display_values,
+):
+    display_habit_detail_summary(
+        details,
+        display_values["created_at"],
+        display_values["habit_age_display"],
+        display_values["habit_status"],
+        display_values["average_logs_display"],
+        display_values["consistency_display"],
+    )
+
+    display_last_logged_info(details["last_logged_at"], selected_date)
+    display_streak_info(display_values["streak_display"])
+    display_habit_weekly_info(habit, weekly_stats)
+    display_archived_info(details["archived_at"])
+
+# Habit details flow:
+# 1. Ensure at least one habit exists.
+# 2. Let the user select an active or archived habit.
+# 3. Load detail context:
+#    - habit details
+#    - reference date
+#    - streaks
+#    - weekly stats
+# 4. Prepare formatted display values.
+# 5. Render the habit details screen.
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -326,19 +359,13 @@ def handle_view_habit_details(data):
         selected_date,
     )
 
-    display_habit_detail_summary(
+    display_habit_details_screen(
+        habit,
         details,
-        display_values["created_at"],
-        display_values["habit_age_display"],
-        display_values["habit_status"],
-        display_values["average_logs_display"],
-        display_values["consistency_display"],
+        selected_date,
+        weekly_stats,
+        display_values,
     )
-
-    display_last_logged_info(details["last_logged_at"], selected_date)
-    display_streak_info(display_values["streak_display"])
-    display_habit_weekly_info(habit, weekly_stats)
-    display_archived_info(details["archived_at"])
 
 def handle_view_logs(data):
     if not ensure_habits_exist(data):

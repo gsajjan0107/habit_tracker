@@ -2598,3 +2598,59 @@ def test_get_habit_detail_context_raises_value_error_for_missing_habit():
 
     with pytest.raises(ValueError):
         main.get_habit_detail_context(data, "Workout")
+
+
+def test_display_habit_details_screen_shows_all_detail_sections(monkeypatch):
+    details = {
+        "name": "Workout",
+        "target_per_week": 5,
+        "created_at": "2026-05-01",
+        "archived_at": "2026-05-10",
+        "is_archived": True,
+        "total_logs": 3,
+        "last_logged_at": "2026-05-08",
+    }
+
+    selected_date = date(2026, 5, 10)
+
+    weekly_stats = {
+        "Workout": {
+            "done": 3,
+            "target": 5,
+            "remaining": 2,
+            "percentage": 60.0,
+            "status": "behind",
+            "available_days_left": 4,
+            "is_possible": True,
+        }
+    }
+
+    display_values = {
+        "created_at": "Friday, 01 May 2026",
+        "habit_age_display": "9 days",
+        "habit_status": "Archived",
+        "average_logs_display": "2.10",
+        "consistency_display": "30.00% - Weak",
+        "streak_display": {
+            "current_streak": "2 days",
+            "longest_streak": "5 days",
+        },
+    }
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_habit_details_screen(
+        "Workout",
+        details,
+        selected_date,
+        weekly_stats,
+        display_values,
+    )
+
+    assert "Habit: Workout" in messages
+    assert "Last logged: Friday, 08 May 2026" in messages
+    assert "Current streak: 2 days" in messages
+    assert any("This week: 3/5 completed (60.00%)" in message for message in messages)
+    assert "Archived: Sunday, 10 May 2026" in messages
