@@ -272,10 +272,7 @@ def prepare_habit_detail_display_values(details, habit, habit_streaks, selected_
         "consistency_display": consistency_display,
     }
 
-def handle_view_habit_details(data):
-    if not ensure_habits_exist(data):
-        return
-
+def select_habit_from_archive_menu(data, cancel_message):
     habits = sorted(data["habits"])
     menu_entries = display_habit_archive_menu(data, habits)
 
@@ -283,16 +280,23 @@ def handle_view_habit_details(data):
         choice = input("\nSelect a habit number, or 'q' to cancel: ").strip().lower()
 
         if choice == "q":
-            display_message("View habit details cancelled.")
-            return
+            display_message(cancel_message)
+            return None
 
         try:
             selected_index = validate_int(choice, 1, len(menu_entries))
-            break
+            return menu_entries[selected_index - 1]["habit"]
         except ValueError as e:
             display_message(f"Error: {e}")
 
-    habit = menu_entries[selected_index - 1]["habit"]
+def handle_view_habit_details(data):
+    if not ensure_habits_exist(data):
+        return
+
+    habit = select_habit_from_archive_menu(data, "View habit details cancelled.")
+
+    if habit is None:
+        return
 
     try:
         details = get_habit_details(data, habit)

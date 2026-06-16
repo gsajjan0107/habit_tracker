@@ -2493,3 +2493,70 @@ def test_prepare_habit_detail_display_values_returns_formatted_values():
     assert result["habit_age_display"] == "9 days"
     assert result["average_logs_display"] == "2.10"
     assert result["consistency_display"] == "30.00% - Weak"
+
+
+def test_select_habit_from_archive_menu_returns_selected_habit(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+            "Reading": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "2")
+
+    selected_habit = main.select_habit_from_archive_menu(
+        data,
+        "Selection cancelled.",
+    )
+
+    assert selected_habit == "Workout"
+
+
+def test_select_habit_from_archive_menu_returns_none_when_cancelled(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "q")
+
+    selected_habit = main.select_habit_from_archive_menu(
+        data,
+        "Selection cancelled.",
+    )
+
+    assert selected_habit is None
+    assert "Selection cancelled." in messages
+
+
+def test_select_habit_from_archive_menu_retries_after_invalid_choice(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(),
+        },
+        logs=[],
+    )
+
+    messages = []
+    inputs = iter(["99", "1"])
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    selected_habit = main.select_habit_from_archive_menu(
+        data,
+        "Selection cancelled.",
+    )
+
+    assert selected_habit == "Workout"
+    assert any(message.startswith("Error:") for message in messages)
