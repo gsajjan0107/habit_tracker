@@ -388,3 +388,6 @@ def format_days_since_last_log(days_since_last_log):
 
 def format_consistency_display(percentage, rating):
     return f"{percentage:.2f}% - {rating}"
+
+def format_average_logs_per_week(average_logs_per_week):
+    return f"{average_logs_per_week:.2f}"

@@ -46,7 +46,7 @@ from helpers import (
     format_habit_age,
     format_days_since_last_log,
     format_consistency_display,
-
+    format_average_logs_per_week,
     )
 
 commands = {
@@ -227,7 +227,12 @@ def handle_view_habit_details(data):
         details["total_logs"],
         selected_date,
     )
+
     habit_age_display = format_habit_age(metrics["habit_age"])
+    average_logs_display = format_average_logs_per_week(
+        metrics["average_logs_per_week"]
+    )
+
     consistency_display = format_consistency_display(
         metrics["consistency_percentage"],
         metrics["consistency_rating"],
@@ -240,8 +245,9 @@ def handle_view_habit_details(data):
     display_message(f"Habit age: {habit_age_display}")
     display_message(f"Status: {habit_status}")
     display_message(f"Total logs: {details['total_logs']}")
-    display_message(f"Average logs per week: {metrics['average_logs_per_week']:.2f}")
+    display_message(f"Average logs per week: {average_logs_display}")
     display_message(f"Consistency: {consistency_display}")
+
     if details["last_logged_at"] is None:
         display_message("Last logged: Never")
         display_message("Days since last log: N/A")
@@ -253,6 +259,7 @@ def handle_view_habit_details(data):
         last_logged_at = format_display_date(details["last_logged_at"])
         display_message(f"Last logged: {last_logged_at}")
         display_message(f"Days since last log: {days_since_last_log_display}")
+        
     display_message(f"Current streak: {streak_display['current_streak']}")
     display_message(f"Best streak: {streak_display['longest_streak']}")
 

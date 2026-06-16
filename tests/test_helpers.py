@@ -39,6 +39,7 @@ from helpers import (
     format_habit_age,
     format_days_since_last_log,
     format_consistency_display,
+    format_average_logs_per_week,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1115,3 +1116,9 @@ def test_format_consistency_display_returns_percentage_and_rating():
     assert format_consistency_display(60, "Good") == "60.00% - Good"
     assert format_consistency_display(100, "Elite") == "100.00% - Elite"
     assert format_consistency_display(24.987, "Poor") == "24.99% - Poor"
+
+
+def test_format_average_logs_per_week_returns_two_decimal_text():
+    assert format_average_logs_per_week(2.1) == "2.10"
+    assert format_average_logs_per_week(0) == "0.00"
+    assert format_average_logs_per_week(7) == "7.00"
