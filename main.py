@@ -240,6 +240,38 @@ def display_streak_info(streak_display):
     display_message(f"Current streak: {streak_display['current_streak']}")
     display_message(f"Best streak: {streak_display['longest_streak']}")
 
+def prepare_habit_detail_display_values(details, habit, habit_streaks, selected_date):
+    habit_status = get_habit_status_text(details["is_archived"])
+    streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
+    streak_display = format_streak_display(streak_info)
+
+    created_at = format_display_date(details["created_at"])
+    created_date = validate_date(details["created_at"])
+
+    metrics = get_habit_detail_metrics(
+        created_date,
+        details["total_logs"],
+        selected_date,
+    )
+
+    habit_age_display = format_habit_age(metrics["habit_age"])
+    average_logs_display = format_average_logs_per_week(
+        metrics["average_logs_per_week"]
+    )
+    consistency_display = format_consistency_display(
+        metrics["consistency_percentage"],
+        metrics["consistency_rating"],
+    )
+
+    return {
+        "habit_status": habit_status,
+        "streak_display": streak_display,
+        "created_at": created_at,
+        "habit_age_display": habit_age_display,
+        "average_logs_display": average_logs_display,
+        "consistency_display": consistency_display,
+    }
+
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -275,37 +307,24 @@ def handle_view_habit_details(data):
     except ValueError:
         weekly_stats = {}
 
-    habit_status = get_habit_status_text(details["is_archived"])
-    streak_info = habit_streaks.get(habit, {"current_streak": 0, "longest_streak": 0})
-    streak_display = format_streak_display(streak_info)
-    created_at = format_display_date(details["created_at"])
-    created_date = validate_date(details["created_at"])
-    metrics = get_habit_detail_metrics(
-        created_date,
-        details["total_logs"],
+    display_values = prepare_habit_detail_display_values(
+        details,
+        habit,
+        habit_streaks,
         selected_date,
-    )
-
-    habit_age_display = format_habit_age(metrics["habit_age"])
-    average_logs_display = format_average_logs_per_week(
-        metrics["average_logs_per_week"]
-    )
-
-    consistency_display = format_consistency_display(
-        metrics["consistency_percentage"],
-        metrics["consistency_rating"],
     )
 
     display_habit_detail_summary(
         details,
-        created_at,
-        habit_age_display,
-        habit_status,
-        average_logs_display,
-        consistency_display,
+        display_values["created_at"],
+        display_values["habit_age_display"],
+        display_values["habit_status"],
+        display_values["average_logs_display"],
+        display_values["consistency_display"],
     )
+
     display_last_logged_info(details["last_logged_at"], selected_date)
-    display_streak_info(streak_display)
+    display_streak_info(display_values["streak_display"])
     display_habit_weekly_info(habit, weekly_stats)
     display_archived_info(details["archived_at"])
 

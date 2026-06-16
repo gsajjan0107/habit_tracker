@@ -2455,3 +2455,41 @@ def test_display_streak_info_shows_current_and_best_streak(monkeypatch):
 
     assert "Current streak: 2 days" in messages
     assert "Best streak: 5 days" in messages
+
+
+def test_prepare_habit_detail_display_values_returns_formatted_values():
+    details = {
+        "name": "Workout",
+        "target_per_week": 5,
+        "created_at": "2026-05-01",
+        "archived_at": "2026-05-10",
+        "is_archived": True,
+        "total_logs": 3,
+        "last_logged_at": "2026-05-10",
+    }
+
+    habit_streaks = {
+        "Workout": {
+            "current_streak": 2,
+            "longest_streak": 5,
+        }
+    }
+
+    selected_date = date(2026, 5, 10)
+
+    result = main.prepare_habit_detail_display_values(
+        details,
+        "Workout",
+        habit_streaks,
+        selected_date,
+    )
+
+    assert result["habit_status"] == "Archived"
+    assert result["streak_display"] == {
+        "current_streak": "2 days",
+        "longest_streak": "5 days",
+    }
+    assert result["created_at"] == "Friday, 01 May 2026"
+    assert result["habit_age_display"] == "9 days"
+    assert result["average_logs_display"] == "2.10"
+    assert result["consistency_display"] == "30.00% - Weak"
