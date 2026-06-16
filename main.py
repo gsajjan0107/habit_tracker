@@ -218,6 +218,28 @@ def display_habit_weekly_info(habit, weekly_stats):
 
     display_message(f"Remaining this week: {info['remaining']}")
 
+def display_habit_detail_summary(
+    details,
+    created_at,
+    habit_age_display,
+    habit_status,
+    average_logs_display,
+    consistency_display,
+):
+    display_message("\n==== HABIT DETAILS ====\n")
+    display_message(f"Habit: {details['name']}")
+    display_message(f"Target: {details['target_per_week']} per week")
+    display_message(f"Created: {created_at}")
+    display_message(f"Habit age: {habit_age_display}")
+    display_message(f"Status: {habit_status}")
+    display_message(f"Total logs: {details['total_logs']}")
+    display_message(f"Average logs per week: {average_logs_display}")
+    display_message(f"Consistency: {consistency_display}")
+
+def display_streak_info(streak_display):
+    display_message(f"Current streak: {streak_display['current_streak']}")
+    display_message(f"Best streak: {streak_display['longest_streak']}")
+
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -274,18 +296,16 @@ def handle_view_habit_details(data):
         metrics["consistency_rating"],
     )
 
-    display_message("\n==== HABIT DETAILS ====\n")
-    display_message(f"Habit: {details['name']}")
-    display_message(f"Target: {details['target_per_week']} per week")
-    display_message(f"Created: {created_at}")
-    display_message(f"Habit age: {habit_age_display}")
-    display_message(f"Status: {habit_status}")
-    display_message(f"Total logs: {details['total_logs']}")
-    display_message(f"Average logs per week: {average_logs_display}")
-    display_message(f"Consistency: {consistency_display}")
+    display_habit_detail_summary(
+        details,
+        created_at,
+        habit_age_display,
+        habit_status,
+        average_logs_display,
+        consistency_display,
+    )
     display_last_logged_info(details["last_logged_at"], selected_date)
-    display_message(f"Current streak: {streak_display['current_streak']}")
-    display_message(f"Best streak: {streak_display['longest_streak']}")
+    display_streak_info(streak_display)
     display_habit_weekly_info(habit, weekly_stats)
     display_archived_info(details["archived_at"])
 

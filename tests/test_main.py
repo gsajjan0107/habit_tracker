@@ -2410,3 +2410,48 @@ def test_display_habit_weekly_info_shows_nothing_when_habit_missing(monkeypatch)
     assert messages == []
 
 
+def test_display_habit_detail_summary_shows_basic_detail_lines(monkeypatch):
+    details = {
+        "name": "Workout",
+        "target_per_week": 5,
+        "total_logs": 10,
+    }
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_habit_detail_summary(
+        details,
+        created_at="Friday, 01 May 2026",
+        habit_age_display="9 days",
+        habit_status="Archived",
+        average_logs_display="7.00",
+        consistency_display="100.00% - Elite",
+    )
+
+    assert "\n==== HABIT DETAILS ====\n" in messages
+    assert "Habit: Workout" in messages
+    assert "Target: 5 per week" in messages
+    assert "Created: Friday, 01 May 2026" in messages
+    assert "Habit age: 9 days" in messages
+    assert "Status: Archived" in messages
+    assert "Total logs: 10" in messages
+    assert "Average logs per week: 7.00" in messages
+    assert "Consistency: 100.00% - Elite" in messages
+
+
+def test_display_streak_info_shows_current_and_best_streak(monkeypatch):
+    streak_display = {
+        "current_streak": "2 days",
+        "longest_streak": "5 days",
+    }
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_streak_info(streak_display)
+
+    assert "Current streak: 2 days" in messages
+    assert "Best streak: 5 days" in messages
