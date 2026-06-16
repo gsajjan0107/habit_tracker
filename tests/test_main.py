@@ -2373,3 +2373,40 @@ def test_display_archived_info_shows_nothing_when_not_archived(monkeypatch):
     main.display_archived_info(None)
 
     assert messages == []
+
+
+def test_display_habit_weekly_info_shows_weekly_progress(monkeypatch):
+    weekly_stats = {
+        "Workout": {
+            "done": 3,
+            "target": 5,
+            "remaining": 2,
+            "percentage": 60.0,
+            "status": "behind",
+            "available_days_left": 4,
+            "is_possible": True
+        }
+    }
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_habit_weekly_info("Workout", weekly_stats)
+
+    assert any("This week: 3/5 completed (60.00%)" in message for message in messages)
+    assert "Remaining this week: 2" in messages
+
+
+def test_display_habit_weekly_info_shows_nothing_when_habit_missing(monkeypatch):
+    weekly_stats = {}
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+
+    main.display_habit_weekly_info("Workout", weekly_stats)
+
+    assert messages == []
+
+

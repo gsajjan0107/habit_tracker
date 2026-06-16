@@ -203,6 +203,21 @@ def display_archived_info(archived_at):
     formatted_archived_at = format_display_date(archived_at)
     display_message(f"Archived: {formatted_archived_at}")
 
+def display_habit_weekly_info(habit, weekly_stats):
+    if habit not in weekly_stats:
+        return
+
+    info = weekly_stats[habit]
+    weekly_status = format_weekly_status(info["status"])
+    weekly_message = format_weekly_message(info, weekly_status)
+
+    display_message(
+        f"This week: {info['done']}/{info['target']} "
+        f"completed ({info['percentage']:.2f}%) - {weekly_message}"
+    )
+
+    display_message(f"Remaining this week: {info['remaining']}")
+
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -271,18 +286,7 @@ def handle_view_habit_details(data):
     display_last_logged_info(details["last_logged_at"], selected_date)
     display_message(f"Current streak: {streak_display['current_streak']}")
     display_message(f"Best streak: {streak_display['longest_streak']}")
-
-    if habit in weekly_stats:
-        info = weekly_stats[habit]
-        weekly_status = format_weekly_status(info["status"])
-        weekly_message = format_weekly_message(info, weekly_status)
-
-        display_message(
-            f"This week: {info['done']}/{info['target']} "
-            f"completed ({info['percentage']:.2f}%) - {weekly_message}")
-
-        display_message(f"Remaining this week: {info['remaining']}")
-
+    display_habit_weekly_info(habit, weekly_stats)
     display_archived_info(details["archived_at"])
 
 def handle_view_logs(data):
