@@ -11,6 +11,8 @@ from habits import (
     )
 
 
+# add_habit tests
+
 def test_add_habit_success(sample_data):
 
     result = add_habit(sample_data, "Workout", 5)
@@ -57,6 +59,8 @@ def test_add_habit_invalid_target(sample_data):
     with pytest.raises(ValueError):
         add_habit(sample_data, "Workout", 0)
 
+
+# log_habit tests
 
 def test_log_habit_success(sample_data):
     add_habit(sample_data, "Reading", 30)
@@ -153,6 +157,26 @@ def test_log_habit_empty_data(sample_data):
     assert str(exc.value) == "No habits found. Add a habit first."
 
 
+def test_log_habit_no_habits_fails(sample_data):
+    with pytest.raises(ValueError) as exc:
+        log_habit(sample_data, "2020-05-10", "Workout")
+
+    assert str(exc.value) == "No habits found. Add a habit first."
+
+
+# log_multiple_habits tests
+
+def test_log_multiple_habits_rolls_back_if_one_fails(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    with pytest.raises(ValueError):
+        log_multiple_habits(sample_data, "2020-05-10", ["Workout", "Reading"])
+
+    assert sample_data["logs"] == []
+
+
+# archive_habit tests
+
 def test_archive_habit_success(sample_data):
     add_habit(sample_data, "Workout", 5)
 
@@ -182,6 +206,28 @@ def test_archive_already_archived_habit(sample_data):
     assert result["msg"] == "Habit already archived."
     assert result["data"]["archived"] is True
 
+
+def test_archive_does_not_delete_habit(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    archive_habit(sample_data, "Workout")
+
+    assert "Workout" in sample_data["habits"]
+
+
+def test_archive_habit_before_creation_date_fails(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    sample_data["habits"]["Workout"]["created_at"] = "2026-05-10"
+
+    result = archive_habit(sample_data, "Workout", "2026-05-09")
+
+    assert result["success"] is False
+    assert result["msg"] == "Habit cannot be archived before it was created."
+    assert result["data"]["habit"] == "Workout"
+    assert sample_data["habits"]["Workout"]["archived_at"] is None
+
+
+# unarchive_habit tests
 
 def test_unarchive_habit_success(sample_data):
     add_habit(sample_data, "Workout", 5)
@@ -213,13 +259,42 @@ def test_unarchive_already_active_habit(sample_data):
     assert result["data"]["archived"] is False
 
 
-def test_archive_does_not_delete_habit(sample_data):
+# toggle_archive_habit tests
+
+def test_toggle_archive_nonexistent_habit(sample_data):
+    result = toggle_archive_habit(sample_data, "Workout")
+
+    assert result["success"] is False
+    assert result["msg"] == "Habit does not exist."
+    assert result["data"]["habit"] == "Workout"
+
+
+def test_toggle_archive_active_habit_archives_it(sample_data):
     add_habit(sample_data, "Workout", 5)
 
+    result = toggle_archive_habit(sample_data, "Workout")
+
+    assert result["success"] is True
+    assert result["msg"] == "Workout archived."
+    assert result["data"]["habit"] == "Workout"
+    assert result["data"]["archived"] is True
+    assert sample_data["habits"]["Workout"]["archived_at"] is not None
+
+
+def test_toggle_archive_archived_habit_unarchives_it(sample_data):
+    add_habit(sample_data, "Workout", 5)
     archive_habit(sample_data, "Workout")
 
-    assert "Workout" in sample_data["habits"]
+    result = toggle_archive_habit(sample_data, "Workout")
 
+    assert result["success"] is True
+    assert result["msg"] == "Workout unarchived."
+    assert result["data"]["habit"] == "Workout"
+    assert result["data"]["archived"] is False
+    assert sample_data["habits"]["Workout"]["archived_at"] is None
+
+
+# delete_log tests
 
 def test_delete_log_success(sample_data):
     add_habit(sample_data, "Workout", 5)
@@ -230,13 +305,6 @@ def test_delete_log_success(sample_data):
 
     assert result == "Log of Workout for 2026-05-10 deleted."
     assert sample_data["logs"] == []
-
-
-def test_delete_log_no_habits(sample_data):
-    with pytest.raises(ValueError) as exc:
-        delete_log(sample_data, "2020-05-10", "Workout")
-
-    assert str(exc.value) == "No habits found. Add a habit first."
 
 
 def test_delete_log_no_logs(sample_data):
@@ -288,6 +356,31 @@ def test_delete_log_invalid_date(sample_data):
         delete_log(sample_data, "invalid-date", "Workout")
 
 
+def test_delete_log_nonexistent_habit_fails(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    with pytest.raises(ValueError) as exc:
+        delete_log(sample_data, "2020-05-10", "Reading")
+
+    assert str(exc.value) == "Habit does not exist."
+
+
+def test_delete_log_invalid_habit_name_fails(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    with pytest.raises(ValueError):
+        delete_log(sample_data, "2020-05-10", "A")
+
+
+def test_delete_log_no_habits_fails(sample_data):
+    with pytest.raises(ValueError) as exc:
+        delete_log(sample_data, "2020-05-10", "Workout")
+
+    assert str(exc.value) == "No habits found. Add a habit first."
+
+
+# delete_habit tests
+
 def test_delete_habit_success(sample_data):
     add_habit(sample_data, "Reading", 30)
 
@@ -298,7 +391,7 @@ def test_delete_habit_success(sample_data):
     assert "Reading" not in sample_data["habits"]
 
 
-def test_delete_habit_with_existing_log_raises_error(sample_data):
+def test_delete_habit_with_existing_logs_raises_error(sample_data):
     add_habit(sample_data, "Reading", 30)
     add_habit(sample_data, "Workout", 30)
 
@@ -359,104 +452,4 @@ def test_delete_habit_with_multiple_logs_raises_error(sample_data):
 
     assert "Reading" in sample_data["habits"]
     assert len(sample_data["logs"]) == 3
-
-
-def test_toggle_archive_nonexistent_habit(sample_data):
-    result = toggle_archive_habit(sample_data, "Workout")
-
-    assert result["success"] is False
-    assert result["msg"] == "Habit does not exist."
-    assert result["data"]["habit"] == "Workout"
-
-
-def test_toggle_archive_active_habit_archives_it(sample_data):
-    add_habit(sample_data, "Workout", 5)
-
-    result = toggle_archive_habit(sample_data, "Workout")
-
-    assert result["success"] is True
-    assert result["msg"] == "Workout archived."
-    assert result["data"]["habit"] == "Workout"
-    assert result["data"]["archived"] is True
-    assert sample_data["habits"]["Workout"]["archived_at"] is not None
-
-
-def test_toggle_archive_archived_habit_unarchives_it(sample_data):
-    add_habit(sample_data, "Workout", 5)
-    archive_habit(sample_data, "Workout")
-
-    result = toggle_archive_habit(sample_data, "Workout")
-
-    assert result["success"] is True
-    assert result["msg"] == "Workout unarchived."
-    assert result["data"]["habit"] == "Workout"
-    assert result["data"]["archived"] is False
-    assert sample_data["habits"]["Workout"]["archived_at"] is None
-
-
-def test_archive_habit_before_creation_date_fails(sample_data):
-    add_habit(sample_data, "Workout", 5)
-    sample_data["habits"]["Workout"]["created_at"] = "2026-05-10"
-
-    result = archive_habit(sample_data, "Workout", "2026-05-09")
-
-    assert result["success"] is False
-    assert result["msg"] == "Habit cannot be archived before it was created."
-    assert result["data"]["habit"] == "Workout"
-    assert sample_data["habits"]["Workout"]["archived_at"] is None
-
-
-def test_log_multiple_habits_rolls_back_if_one_fails(sample_data):
-    add_habit(sample_data, "Workout", 5)
-
-    with pytest.raises(ValueError):
-        log_multiple_habits(sample_data, "2020-05-10", ["Workout", "Reading"])
-
-    assert sample_data["logs"] == []
-
-
-def test_log_habit_no_habits_fails(sample_data):
-    with pytest.raises(ValueError) as exc:
-        log_habit(sample_data, "2020-05-10", "Workout")
-
-    assert str(exc.value) == "No habits found. Add a habit first."
-
-
-def test_delete_log_nonexistent_habit_fails(sample_data):
-    add_habit(sample_data, "Workout", 5)
-
-    with pytest.raises(ValueError) as exc:
-        delete_log(sample_data, "2020-05-10", "Reading")
-
-    assert str(exc.value) == "Habit does not exist."
-
-
-def test_delete_log_invalid_habit_name_fails(sample_data):
-    add_habit(sample_data, "Workout", 5)
-
-    with pytest.raises(ValueError):
-        delete_log(sample_data, "2020-05-10", "A")
-
-
-def test_delete_log_no_habits_fails(sample_data):
-    with pytest.raises(ValueError) as exc:
-        delete_log(sample_data, "2020-05-10", "Workout")
-
-    assert str(exc.value) == "No habits found. Add a habit first."
-
-
-def test_delete_habit_with_existing_logs_raises_error(sample_data):
-    sample_data["habits"]["Workout"] = {
-        "target_per_week": 5,
-        "created_at": "2026-05-01",
-        "archived_at": None,
-    }
-    sample_data["logs"].append({
-        "habit": "Workout",
-        "date": "2026-05-01",
-    })
-
-    with pytest.raises(ValueError, match="existing logs"):
-        delete_habit(sample_data, "Workout")
-
 

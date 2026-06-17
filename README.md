@@ -2,6 +2,10 @@
 
 A command-line habit tracker built in Python for tracking habits, daily progress, streaks, weekly targets, and recovery after missed days.
 
+## Project Status
+
+This project is a stable and tested command-line habit tracker. It supports habit creation, logging, archived habits, detailed habit insights, dashboard summaries, JSON validation, backups, and automated tests.
+
 ## Features
 
 - Add habits with weekly targets
@@ -9,7 +13,7 @@ A command-line habit tracker built in Python for tracking habits, daily progress
 - View completed and pending habits for a selected date
 - View habit logs
 - Delete individual logs
-- View habit details
+- View detailed habit insights, including habit age, total logs, average logs per week, consistency rating, streaks, weekly progress, last logged date, and archived status
 - Archive and unarchive habits
 - Permanently delete habits only when they have no logs
 - View a daily dashboard with:
@@ -62,6 +66,40 @@ python main.py
 - Type `q` at supported prompts to cancel the current action.
 - Cancel input is case-insensitive, so both `q` and `Q` work.
 
+## Example Habit Details Output
+
+```txt
+==== HABIT DETAILS ====
+
+Habit: Workout
+Target: 5 per week
+Created: Friday, 01 May 2026
+Habit age: 9 days
+Status: Archived
+Total logs: 6
+Average logs per week: 4.20
+Consistency: 60.00% - Good
+Last logged: Sunday, 10 May 2026
+Days since last log: 0 days
+Current streak: 3 days
+Best streak: 5 days
+This week: 3/5 completed (60.00%) - ⚠️ You can still recover. 4 days left.
+Remaining this week: 2
+Archived: Sunday, 10 May 2026
+```
+
+## Key Learning Outcomes
+
+This project demonstrates:
+
+- modular Python project structure
+- command-line input handling
+- date-based habit tracking logic
+- JSON data validation and migration
+- backup-safe file storage
+- pytest-based unit and handler testing
+- refactoring large CLI handlers into focused helper functions
+
 ## Project Structure
 
 ```txt
@@ -84,7 +122,14 @@ Run the test suite with:
 pytest
 ```
 
-The project includes tests for habit actions, validation, storage, statistics, helpers, utilities, and CLI handler behavior.
+The project currently has 343 passing tests covering habit actions, validation, storage, statistics, helpers, utilities, and CLI handler behavior.
+
+## Limitations
+
+- Data is stored locally in JSON files, not a database
+- The app is designed for single-user command-line use
+- There is no graphical interface yet
+- Charts and long-term trend visualizations are planned but not implemented
 
 ## Future Improvements
 
