@@ -4,7 +4,6 @@ from helpers import make_result, habit_has_logs
 
 def add_habit(data, habit_name, target):
     habit_name = validate_string(habit_name, 3, 20)
-    created_at = get_today().isoformat()
 
     if habit_exists(data, habit_name):
         if is_habit_archived(data, habit_name):
@@ -13,6 +12,7 @@ def add_habit(data, habit_name, target):
             raise ValueError("Habit already exists.")
 
     target = validate_int(target, 1)
+    created_at = get_today().isoformat()
 
     habit_info = {
         "target_per_week": target,
@@ -170,3 +170,31 @@ def delete_habit(data, habit_name):
     del data["habits"][habit_name]
     return f"{habit_name} deleted."
 
+def rename_habit(data, old_name, new_name):
+    old_name = validate_string(old_name, 3, 20)
+    new_name = validate_string(new_name, 3, 20)
+
+    if not habit_exists(data, old_name):
+        raise ValueError("Habit does not exist.")
+
+    if habit_exists(data, new_name):
+        raise ValueError("Habit already exists.")
+
+    data["habits"][new_name] = data["habits"].pop(old_name)
+
+    for log in data["logs"]:
+        if log["habit"] == old_name:
+            log["habit"] = new_name
+
+    return f"{old_name} renamed to {new_name}."
+
+def update_habit_target(data, habit_name, target_per_week):
+    habit_name = validate_string(habit_name, 3, 20)
+    target = validate_int(target_per_week, 1)
+
+    if not habit_exists(data, habit_name):
+        raise ValueError("Habit does not exist.")
+
+    data["habits"][habit_name]["target_per_week"] = target
+
+    return f"{habit_name} target updated to {target} per week."

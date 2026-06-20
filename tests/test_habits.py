@@ -7,14 +7,15 @@ from habits import (
     unarchive_habit,
     toggle_archive_habit,
     delete_log,
-    delete_habit
+    delete_habit,
+    rename_habit,
+    update_habit_target
     )
 
 
 # add_habit tests
 
 def test_add_habit_success(sample_data):
-
     result = add_habit(sample_data, "Workout", 5)
 
     assert result == "Workout added."
@@ -23,7 +24,47 @@ def test_add_habit_success(sample_data):
     habit = sample_data["habits"]["Workout"]
 
     assert habit["target_per_week"] == 5
+    assert habit["created_at"] == "2026-05-10"
     assert habit["archived_at"] is None
+
+
+def test_add_habit_strips_habit_name(sample_data):
+    result = add_habit(sample_data, "  Workout  ", 5)
+
+    assert result == "Workout added."
+    assert "Workout" in sample_data["habits"]
+    assert "  Workout  " not in sample_data["habits"]
+
+
+def test_add_habit_converts_string_target_to_int(sample_data):
+    add_habit(sample_data, "Workout", "5")
+
+    habit = sample_data["habits"]["Workout"]
+
+    assert habit["target_per_week"] == 5
+
+
+def test_add_habit_accepts_minimum_target(sample_data):
+    result = add_habit(sample_data, "Workout", 1)
+
+    assert result == "Workout added."
+    assert sample_data["habits"]["Workout"]["target_per_week"] == 1
+
+
+def test_add_habit_accepts_minimum_length_name(sample_data):
+    result = add_habit(sample_data, "Run", 3)
+
+    assert result == "Run added."
+    assert "Run" in sample_data["habits"]
+
+
+def test_add_habit_accepts_maximum_length_name(sample_data):
+    habit_name = "A" * 20
+
+    result = add_habit(sample_data, habit_name, 3)
+
+    assert result == f"{habit_name.title()} added."
+    assert habit_name.title() in sample_data["habits"]
 
 
 def test_add_duplicate_active_habit(sample_data):
@@ -50,13 +91,13 @@ def test_add_archived_habit():
 
 def test_add_habit_invalid_name(sample_data):
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Cannot be empty."):
         add_habit(sample_data, "", 5)
 
 
 def test_add_habit_invalid_target(sample_data):
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Input number must be >= 1"):
         add_habit(sample_data, "Workout", 0)
 
 
@@ -86,6 +127,27 @@ def test_log_habit_duplicate_same_day(sample_data):
         log_habit(sample_data, "2026-05-10", "Reading")
 
     assert str(exc.value) == "Habit already logged for this date."
+
+
+def test_log_habit_different_dates_allowed(sample_data):
+    add_habit(sample_data, "Reading", 30)
+
+    sample_data["habits"]["Reading"]["created_at"] = "2026-05-01"
+
+    log_habit(sample_data, "2026-05-09", "Reading")
+    log_habit(sample_data, "2026-05-10", "Reading")
+
+    assert len(sample_data["logs"]) == 2
+
+
+def test_log_multiple_habits_same_date(sample_data):
+    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Workout", 7)
+
+    log_habit(sample_data, "2026-05-10", "Reading")
+    log_habit(sample_data, "2026-05-10", "Workout")
+
+    assert len(sample_data["logs"]) == 2
 
 
 def test_log_habit_nonexistent_habit(sample_data):
@@ -150,18 +212,26 @@ def test_log_habit_before_creation_date(sample_data):
     )
 
 
-def test_log_habit_empty_data(sample_data):
-    with pytest.raises(ValueError) as exc:
-        log_habit(sample_data, "2020-05-10", "Reading")
-
-    assert str(exc.value) == "No habits found. Add a habit first."
-
-
 def test_log_habit_no_habits_fails(sample_data):
     with pytest.raises(ValueError) as exc:
         log_habit(sample_data, "2020-05-10", "Workout")
 
     assert str(exc.value) == "No habits found. Add a habit first."
+
+
+def test_log_habit_on_creation_date(sample_data):
+    add_habit(sample_data, "Reading", 30)
+
+    result = log_habit(sample_data, "2026-05-10", "Reading")
+
+    assert result == "Reading logged for 2026-05-10."
+
+
+def test_log_habit_invalid_date(sample_data):
+    add_habit(sample_data, "Reading", 30)
+
+    with pytest.raises(ValueError):
+        log_habit(sample_data, "banana", "Reading")
 
 
 # log_multiple_habits tests
@@ -173,6 +243,55 @@ def test_log_multiple_habits_rolls_back_if_one_fails(sample_data):
         log_multiple_habits(sample_data, "2020-05-10", ["Workout", "Reading"])
 
     assert sample_data["logs"] == []
+
+
+def test_log_multiple_habits_success(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    add_habit(sample_data, "Reading", 7)
+
+    result = log_multiple_habits(
+        sample_data,
+        "2026-05-10",
+        ["Workout", "Reading"]
+    )
+
+    assert result == ["Workout", "Reading"]
+
+    assert sample_data["logs"] == [
+        {
+            "habit": "Workout",
+            "date": "2026-05-10"
+        },
+        {
+            "habit": "Reading",
+            "date": "2026-05-10"
+        }
+    ]
+
+
+def test_log_multiple_habits_restores_existing_logs_on_failure(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    sample_data["logs"] = [
+        {
+            "habit": "Workout",
+            "date": "2020-05-01"
+        }
+    ]
+
+    with pytest.raises(ValueError):
+        log_multiple_habits(
+            sample_data,
+            "2020-05-10",
+            ["Workout", "Reading"]
+        )
+
+    assert sample_data["logs"] == [
+        {
+            "habit": "Workout",
+            "date": "2020-05-01"
+        }
+    ]
 
 
 # archive_habit tests
@@ -453,3 +572,63 @@ def test_delete_habit_with_multiple_logs_raises_error(sample_data):
     assert "Reading" in sample_data["habits"]
     assert len(sample_data["logs"]) == 3
 
+
+# rename_habit tests
+
+def test_rename_habit_success(sample_data):
+    add_habit(sample_data, "Workot", 5)
+    log_habit(sample_data, "2026-05-10", "Workot")
+    result = rename_habit(sample_data, "Workot", "Workout")
+
+    assert "Workout" in sample_data["habits"]
+    assert "Workot" not in sample_data["habits"]
+    assert sample_data["logs"][0]["habit"] == "Workout"
+    assert result == "Workot renamed to Workout."
+
+
+def test_rename_nonexistent_habit(sample_data):
+    with pytest.raises(ValueError, match="Habit does not exist."):
+        rename_habit(sample_data, "Missing", "Workout")
+
+
+def test_rename_habit_to_existing_habit(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    add_habit(sample_data, "Reading", 3)
+
+    with pytest.raises(ValueError, match="Habit already exists."):
+        rename_habit(sample_data, "Workout", "Reading")
+
+
+def test_rename_habit_invalid_new_name(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    with pytest.raises(ValueError):
+        rename_habit(sample_data, "Workout", "A")
+
+
+# update_habit_target tests
+
+def test_update_habit_target_success(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    result = update_habit_target(sample_data, "Workout", 7)
+
+    assert sample_data["habits"]["Workout"]["target_per_week"] == 7
+    assert result == "Workout target updated to 7 per week."
+
+
+def test_update_habit_target_nonexistent_habit(sample_data):
+    with pytest.raises(ValueError, match="Habit does not exist."):
+        update_habit_target(sample_data, "Workout", 7)
+
+
+def test_update_habit_target_invalid_target(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    with pytest.raises(ValueError):
+        update_habit_target(sample_data, "Workout", 0)
+
+
+def test_update_habit_target_invalid_habit_name(sample_data):
+    with pytest.raises(ValueError):
+        update_habit_target(sample_data, "A", 5)

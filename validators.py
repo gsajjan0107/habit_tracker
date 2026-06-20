@@ -12,7 +12,7 @@ def validate_data_structure(data):
 
     if "habits" not in data:
         return False, "data.habits → missing key."
-    
+
     if "logs" not in data:
         return False, "data.logs → missing key."
 
@@ -36,7 +36,7 @@ def validate_data_structure(data):
     success, msg = validate_habits_data_structure(data)
     if not success:
         return False, msg
-    
+
     success, msg = validate_logs_data_structure(data)
     if not success:
         return False, msg
@@ -52,32 +52,32 @@ def validate_habits_data_structure(data):
 
         if not isinstance(habit_data, dict):
             return False, f"habits['{habit}'] → expected dict."
-        
+
         if "target_per_week" not in habit_data:
             return False, f"habits['{habit}'].target_per_week → missing key."
 
         if "created_at" not in habit_data:
             return False, f"habits['{habit}'].created_at → missing key."
-        
+
         if "archived_at" not in habit_data:
             return False, f"habits['{habit}'].archived_at → missing key."
-        
+
         target = habit_data["target_per_week"]
         created_at = habit_data["created_at"]
         archived_at = habit_data["archived_at"]
 
         required_keys = {"target_per_week", "created_at", "archived_at"}
-        
+
         if set(habit_data.keys()) != required_keys:
             return False, f"habits['{habit}'] → invalid keys."
-        
+
         if not isinstance(target, int) or target <= 0:
             return False, f"habits['{habit}'].target_per_week → expected int > 0."
-        
+
         try:
             created = validate_date(created_at)
         except ValueError:
-            return False, f"habits['{habit}'].created_at → invalid date format (YYYY-MM-DD)." 
+            return False, f"habits['{habit}'].created_at → invalid date format (YYYY-MM-DD)."
 
         if archived_at is not None:
             try:
@@ -162,13 +162,13 @@ def validate_int(value: str, min_val=None, max_val=None) -> int:
         num = int(value)
     except ValueError:
         raise ValueError(f"Input must be an integer.")
-    
+
     if min_val is not None and num < min_val:
         raise ValueError(f"Input number must be >= {min_val}")
-    
+
     if max_val is not None and num > max_val:
         raise ValueError(f"Input number must be <= {max_val}")
-    
+
     return num
 
 def validate_string(value: str, min_len=1, max_len=None) -> str:
@@ -177,16 +177,16 @@ def validate_string(value: str, min_len=1, max_len=None) -> str:
 
     if not value:
         raise ValueError("Cannot be empty.")
-    
+
     if len(value) < min_len:
         raise ValueError(f"Minimum {min_len} characters required.")
-    
+
     if max_len is not None and len(value) > max_len:
         raise ValueError(f"Maximum {max_len} characters allowed.")
-    
+
     if not re.match(r"^[A-Za-z /$_:\-]+$", value):
         raise ValueError("Only letters, spaces, and / $ - _ : allowed.")
-    
+
     return value.title()
 
 def validate_choice(value: str, choices: list[str]) -> str:
@@ -195,7 +195,7 @@ def validate_choice(value: str, choices: list[str]) -> str:
 
     if value not in choices:
         raise ValueError(f"Choose from {choices}")
-    
+
     return value
 
 def validate_date(value):
