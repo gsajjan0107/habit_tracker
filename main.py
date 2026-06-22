@@ -1,7 +1,7 @@
 import sys
 from validators import get_valid_input, validate_string, validate_int, validate_date, validate_choice
 from storage import load_data, save_data
-from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit
+from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit, rename_habit, update_habit_target
 from stats import daily_stats, habit_weekly_completion, streaks
 
 from utils import (
@@ -52,13 +52,14 @@ from helpers import (
 commands = {
     "1" : "Add habit",
     "2" : "Log habit",
-    "3" : "View habit details",
-    "4" : "View logs",
-    "5" : "Delete log",
-    "6" : "Delete habit permanently",
-    "7" : "Archive / Unarchive habit",
-    "8" : "Dashboard",
-    "9" : "Exit"
+    "3" : "Edit habit",
+    "4" : "View habit details",
+    "5" : "View logs",
+    "6" : "Delete log",
+    "7" : "Delete habit permanently",
+    "8" : "Archive / Unarchive habit",
+    "9" : "Dashboard",
+    "10" : "Exit"
 }
 
 def handle_add(data):
@@ -175,6 +176,57 @@ def handle_log(data):
 
         except ValueError as e:
             display_message(e)
+
+def handle_edit(data):
+    if not ensure_habits_exist(data):
+        return
+
+
+    habits = sorted(data["habits"])
+    menu_entries = display_habit_archive_menu(data, habits)
+
+    while True:
+        choice = input("\nSelect a habit number, or 'q' to cancel: ").strip().lower()
+
+        if choice == "q":
+            display_message("Edit cancelled.")
+            return
+
+        try:
+            selected_index = validate_int(choice, 1, len(menu_entries))
+            break
+        except ValueError as e:
+            display_message(f"Error: {e}")
+
+    habit_name = menu_entries[selected_index - 1]["habit"]
+
+    display_message("1. Rename habit")
+    display_message("2. Change weekly target")
+    display_message("Q. Cancel")
+
+    while True:
+        choice = input("\nSelect a option number, or 'q' to cancel: ").strip().lower()
+
+        if choice == "q":
+            display_message("Edit cancelled.")
+            return
+
+        elif choice == "1":
+            new_name = input("Enter new habit name: ").strip()
+            result = rename_habit(data, habit_name, new_name)
+            save_data(data)
+            display_message(result)
+            break
+
+        elif choice == "2":
+            new_target = input("Enter new weekly target: ").strip()
+            result = update_habit_target(data, habit_name, new_target)
+            save_data(data)
+            display_message(result)
+            break
+
+        else:
+            display_message("Error: Invalid choice.")
 
 # --- habit detail ---
 
@@ -644,13 +696,14 @@ def handle_exit(data):
 handlers = {
     "1": handle_add,
     "2": handle_log,
-    "3": handle_view_habit_details,
-    "4": handle_view_logs,
-    "5": handle_delete_log,
-    "6": handle_delete,
-    "7": handle_toggle_archive,
-    "8": handle_dashboard,
-    "9": handle_exit,
+    "3": handle_edit,
+    "4": handle_view_habit_details,
+    "5": handle_view_logs,
+    "6": handle_delete_log,
+    "7": handle_delete,
+    "8": handle_toggle_archive,
+    "9": handle_dashboard,
+    "10": handle_exit,
 }
 
 def main(data):
