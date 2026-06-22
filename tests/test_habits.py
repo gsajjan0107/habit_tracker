@@ -9,7 +9,8 @@ from habits import (
     delete_log,
     delete_habit,
     rename_habit,
-    update_habit_target
+    update_habit_target,
+    get_habit_logs
     )
 
 
@@ -632,3 +633,23 @@ def test_update_habit_target_invalid_target(sample_data):
 def test_update_habit_target_invalid_habit_name(sample_data):
     with pytest.raises(ValueError):
         update_habit_target(sample_data, "A", 5)
+
+
+def test_get_habit_logs_success(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    sample_data["habits"]["Workout"]["created_at"] = "2026-04-01"
+    log_habit(sample_data, "2026-05-10", "Workout")
+    log_habit(sample_data, "2026-05-09", "Workout")
+
+    assert get_habit_logs(sample_data, "Workout") == ["2026-05-10", "2026-05-09"]
+
+
+def test_get_nonexistent_habit_logs(sample_data):
+    with pytest.raises(ValueError, match="Habit does not exist."):
+        get_habit_logs(sample_data, "Workout")
+
+
+def test_get_habit_logs_no_logs(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    assert get_habit_logs(sample_data, "Workout") == []

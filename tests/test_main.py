@@ -1255,6 +1255,7 @@ def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
         monkeypatch,
         data,
         user_inputs=[
+            "1",
             "2026-05-01",
         ],
     )
@@ -1279,6 +1280,7 @@ def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypat
         monkeypatch,
         data,
         user_inputs=[
+            "1",
             "2026-05-02",
         ],
     )
@@ -1304,6 +1306,7 @@ def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
         monkeypatch,
         data,
         user_inputs=[
+            "1",
             "bad-date",
             "2026-05-01",
         ],
@@ -1617,7 +1620,7 @@ def test_main_menu_option_3_opens_habit_details(monkeypatch):
     monkeypatch.setattr("main.save_data", lambda data: None)
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
-    inputs = iter(["3", "1", "9"])
+    inputs = iter(["4", "1", "10"])
 
     with pytest.raises(SystemExit):
         main.main(data)

@@ -198,3 +198,17 @@ def update_habit_target(data, habit_name, target_per_week):
     data["habits"][habit_name]["target_per_week"] = target
 
     return f"{habit_name} target updated to {target} per week."
+
+def get_habit_logs(data, habit_name):
+    habit_name = validate_string(habit_name, 3, 20)
+
+    if not habit_exists(data, habit_name):
+        raise ValueError("Habit does not exist.")
+
+    dates = []
+
+    for log in data["logs"]:
+        if log["habit"] == habit_name:
+            dates.append(log["date"])
+
+    return sorted(dates, reverse=True)

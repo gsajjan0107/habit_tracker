@@ -1,7 +1,7 @@
 import sys
 from validators import get_valid_input, validate_string, validate_int, validate_date, validate_choice
 from storage import load_data, save_data
-from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit, rename_habit, update_habit_target
+from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit, rename_habit, update_habit_target, get_habit_logs
 from stats import daily_stats, habit_weekly_completion, streaks
 
 from utils import (
@@ -212,18 +212,26 @@ def handle_edit(data):
             return
 
         elif choice == "1":
-            new_name = input("Enter new habit name: ").strip()
-            result = rename_habit(data, habit_name, new_name)
-            save_data(data)
-            display_message(result)
-            break
+            while True:
+                try:
+                    new_name = input("Enter new habit name: ").strip()
+                    result = rename_habit(data, habit_name, new_name)
+                    save_data(data)
+                    display_message(result)
+                    return
+                except ValueError as e:
+                    display_message(f"Error: {e}")
 
         elif choice == "2":
-            new_target = input("Enter new weekly target: ").strip()
-            result = update_habit_target(data, habit_name, new_target)
-            save_data(data)
-            display_message(result)
-            break
+            while True:
+                try:
+                    new_target = input("Enter new weekly target: ").strip()
+                    result = update_habit_target(data, habit_name, new_target)
+                    save_data(data)
+                    display_message(result)
+                    return
+                except ValueError as e:
+                    display_message(f"Error: {e}")
 
         else:
             display_message("Error: Invalid choice.")
@@ -423,43 +431,88 @@ def handle_view_logs(data):
     if not ensure_habits_exist(data):
         return
 
-    while True:
-        try:
-            date = input("\nEnter date (Press enter for today, or 'q' to cancel): ").strip()
+    display_message("1. Day logs")
+    display_message("2. Habit logs")
+    display_message("Q. Cancel")
 
-            if date.lower() == "q":
-                display_message("View logs cancelled.")
+    while True:
+        choice = input("\nSelect a option number, or 'q' to cancel: ").strip().lower()
+
+        if choice == "q":
+            display_message("View logs cancelled.")
+            return
+
+        elif choice == "1":
+            while True:
+                try:
+                    date = input("\nEnter date (Press enter for today, or 'q' to cancel): ").strip()
+
+                    if date.lower() == "q":
+                        display_message("View logs cancelled.")
+                        return
+
+                    selected_date = validate_date(date)
+                    result = daily_stats(data, selected_date)
+                    completed = sorted(result["completed"])
+                    pending = sorted(result["pending"])
+                    break
+
+                except ValueError as e:
+                    display_message(e)
+
+            formatted_date = format_display_date(selected_date)
+
+            display_message("\n==== VIEW LOGS ====")
+            display_message(f"\n📅 Date: {formatted_date}")
+
+            if result["total_habits"] == 0:
+                display_message(format_no_active_habits_message(formatted_date))
                 return
 
-            selected_date = validate_date(date)
-            result = daily_stats(data, selected_date)
-            completed = sorted(result["completed"])
-            pending = sorted(result["pending"])
-            break
+            if completed:
+                display_message(f"\n✅ Logged habits ({len(completed)}):")
+                display_numbered_list(completed)
+            else:
+                display_message(f"\nNo habits logged on {formatted_date}.")
 
-        except ValueError as e:
-            display_message(e)
+            if pending:
+                display_message(f"\n🚫 Unfinished habits ({len(pending)}):")
+                display_numbered_list(pending)
+            else:
+                display_message("\nAll active habits completed for this date.")
 
-    formatted_date = format_display_date(selected_date)
+        elif choice == "2":
+            habits = sorted(data["habits"])
+            menu_entries = display_habit_archive_menu(data, habits)
 
-    display_message("\n==== VIEW LOGS ====")
-    display_message(f"\n📅 Date: {formatted_date}")
+            while True:
+                choice = input("\nSelect a habit number, or 'q' to cancel: ").strip().lower()
 
-    if result["total_habits"] == 0:
-        display_message(format_no_active_habits_message(formatted_date))
-        return
+                if choice == "q":
+                    display_message("Viewing cancelled.")
+                    return
 
-    if completed:
-        display_message(f"\n✅ Logged habits ({len(completed)}):")
-        display_numbered_list(completed)
-    else:
-        display_message(f"\nNo habits logged on {formatted_date}.")
+                try:
+                    selected_index = validate_int(choice, 1, len(menu_entries))
+                    break
+                except ValueError as e:
+                    display_message(f"Error: {e}")
 
-    if pending:
-        display_message(f"\n🚫 Unfinished habits ({len(pending)}):")
-        display_numbered_list(pending)
-    else:
-        display_message("\nAll active habits completed for this date.")
+            habit_name = menu_entries[selected_index - 1]["habit"]
+
+            result = get_habit_logs(data, habit_name)
+
+            if not result:
+                display_message("No logs for this habit yet.")
+                return
+
+            display_message(f"\n{habit_name} Logs")
+            display_message("--------------------")
+            for day in result:
+                display_message(day)
+
+        else:
+            display_message("Error: Invalid choice.")
 
 def handle_delete_log(data):
     if not ensure_habits_exist(data):
