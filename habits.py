@@ -220,6 +220,9 @@ def update_habit_description(data, habit_name, description):
     if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
 
-    data["habits"][habit_name]["description"] = description.strip()
+    if not isinstance(description, str):
+        raise ValueError("Input must be a string.")
+    
+    data["habits"][habit_name]["description"] = description
 
     return f"{habit_name} description updated."

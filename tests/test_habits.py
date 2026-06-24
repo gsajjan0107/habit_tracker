@@ -10,7 +10,8 @@ from habits import (
     delete_habit,
     rename_habit,
     update_habit_target,
-    get_habit_logs
+    get_habit_logs,
+    update_habit_description,
     )
 
 
@@ -101,6 +102,29 @@ def test_add_habit_invalid_target(sample_data):
 
     with pytest.raises(ValueError, match="Input number must be >= 1"):
         add_habit(sample_data, "Workout", 0)
+
+
+def test_add_habit_stores_description(sample_data):
+    add_habit(
+        sample_data,
+        "Workout",
+        5,
+        "Strength training"
+    )
+
+    assert (
+        sample_data["habits"]["Workout"]["description"]
+        == "Strength training"
+    )
+
+
+def test_add_habit_uses_empty_description_by_default(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    assert (
+        sample_data["habits"]["Workout"]["description"]
+        == ""
+    )
 
 
 # log_habit tests
@@ -656,24 +680,48 @@ def test_get_habit_logs_no_logs(sample_data):
     assert get_habit_logs(sample_data, "Workout") == []
 
 
-def test_add_habit_stores_description(sample_data):
-    add_habit(
-        sample_data,
-        "Workout",
-        5,
-        "Strength training"
-    )
+# update_habit_description tests
 
-    assert (
-        sample_data["habits"]["Workout"]["description"]
-        == "Strength training"
-    )
-
-
-def test_add_habit_uses_empty_description_by_default(sample_data):
+def test_update_habit_description_success(sample_data):
     add_habit(sample_data, "Workout", 5)
 
-    assert (
-        sample_data["habits"]["Workout"]["description"]
-        == ""
-    )
+    result = update_habit_description(sample_data, "Workout", "Strength training")
+
+    assert sample_data["habits"]["Workout"]["description"] == "Strength training"
+    assert result == "Workout description updated."
+
+
+def test_update_habit_description_clears_to_empty_string(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    update_habit_description(sample_data, "Workout", "Strength training")
+    result = update_habit_description(sample_data, "Workout", "")
+    assert sample_data["habits"]["Workout"]["description"] == ""
+    assert result == "Workout description updated."
+
+
+def test_update_habit_description_nonexistent_habit(sample_data):
+    with pytest.raises(ValueError, match="Habit does not exist."):
+        update_habit_description(sample_data, "Workout", "Strength training")
+
+
+def test_update_habit_description_invalid_habit_name(sample_data):
+    with pytest.raises(ValueError, match="Minimum 3 characters required."):
+        update_habit_description(sample_data, "A", "Strength training")
+
+
+def test_update_habit_description_invalid_description(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    with pytest.raises(ValueError, match="Input must be a string."):
+        update_habit_description(sample_data, "Workout", 123)
+
+
+def test_update_habit_description_rejects_none(sample_data):    
+    add_habit(sample_data, "Workout", 5)
+    with pytest.raises(ValueError, match="Input must be a string."):
+        update_habit_description(sample_data, "Workout", None)
+
+
+def test_update_habit_description_rejects_list(sample_data):
+    add_habit(sample_data, "Workout", 5)
+    with pytest.raises(ValueError, match="Input must be a string."):
+        update_habit_description(sample_data, "Workout", [1, 2, 3])

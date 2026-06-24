@@ -389,7 +389,7 @@ def display_habit_details_screen(
     selected_date,
     weekly_stats,
     display_values,
-):
+    ):
     display_habit_detail_summary(
         details,
         display_values["created_at"],
@@ -779,7 +779,7 @@ handlers = {
     "8": handle_toggle_archive,
     "9": handle_dashboard,
     "10": handle_exit,
-}
+    }
 
 def main(data):
     while True:
