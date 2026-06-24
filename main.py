@@ -306,6 +306,10 @@ def display_habit_detail_summary(
 ):
     display_message("\n==== HABIT DETAILS ====\n")
     display_message(f"Habit: {details['name']}")
+    if details["description"]:
+        display_message(f"Description: {details['description']}")
+    else:
+        display_message("Description: (none)")
     display_message(f"Target: {details['target_per_week']} per week")
     display_message(f"Created: {created_at}")
     display_message(f"Habit age: {habit_age_display}")

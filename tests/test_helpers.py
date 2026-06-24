@@ -606,6 +606,7 @@ def test_get_habit_details_for_active_habit():
         "is_archived": False,
         "total_logs": 2,
         "last_logged_at": "2026-05-02",
+        "description": "",
     }
 
 
@@ -625,6 +626,25 @@ def test_get_habit_details_for_archived_habit():
 
     assert details["is_archived"] is True
     assert details["total_logs"] == 0
+    assert details["description"] == ""
+
+
+def test_get_habit_details_returns_stored_description():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+                "description": "Morning strength training",
+            },
+        },
+        "logs": [],
+    }
+
+    details = get_habit_details(data, "Workout")
+
+    assert details["description"] == "Morning strength training"
 
 
 def test_get_habit_details_for_missing_habit_raises_error():

@@ -1567,6 +1567,7 @@ def test_handle_view_habit_details_shows_selected_habit(monkeypatch):
 
     assert any("==== HABIT DETAILS ====" in message for message in messages)
     assert "Habit: Workout" in messages
+    assert "Description: (none)" in messages
     assert "Target: 5 per week" in messages
     assert "Created: Friday, 01 May 2026" in messages
     assert "Status: Active" in messages
@@ -1617,6 +1618,24 @@ def test_handle_view_habit_details_shows_archived_habit(monkeypatch):
     assert "Status: Archived" in messages
     assert "Archived: Sunday, 10 May 2026" in messages
     assert "Total logs: 1" in messages
+
+
+def test_handle_view_habit_details_shows_description_when_set(monkeypatch):
+    data = make_data(
+        habits={
+            "Workout": make_habit(description="Morning strength training"),
+        },
+        logs=[],
+    )
+
+    messages = []
+
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+
+    main.handle_view_habit_details(data)
+
+    assert "Description: Morning strength training" in messages
 
 
 def test_main_menu_option_3_opens_habit_details(monkeypatch):
@@ -2433,6 +2452,7 @@ def test_display_habit_detail_summary_shows_basic_detail_lines(monkeypatch):
         "name": "Workout",
         "target_per_week": 5,
         "total_logs": 10,
+        "description": "",
     }
 
     messages = []
@@ -2450,6 +2470,7 @@ def test_display_habit_detail_summary_shows_basic_detail_lines(monkeypatch):
 
     assert "\n==== HABIT DETAILS ====\n" in messages
     assert "Habit: Workout" in messages
+    assert "Description: (none)" in messages
     assert "Target: 5 per week" in messages
     assert "Created: Friday, 01 May 2026" in messages
     assert "Habit age: 9 days" in messages
@@ -2484,6 +2505,7 @@ def test_prepare_habit_detail_display_values_returns_formatted_values():
         "is_archived": True,
         "total_logs": 3,
         "last_logged_at": "2026-05-10",
+        "description": "",
     }
 
     habit_streaks = {
@@ -2627,6 +2649,7 @@ def test_display_habit_details_screen_shows_all_detail_sections(monkeypatch):
         "is_archived": True,
         "total_logs": 3,
         "last_logged_at": "2026-05-08",
+        "description": "Strength training",
     }
 
     selected_date = date(2026, 5, 10)
@@ -2668,6 +2691,7 @@ def test_display_habit_details_screen_shows_all_detail_sections(monkeypatch):
     )
 
     assert "Habit: Workout" in messages
+    assert "Description: Strength training" in messages
     assert "Last logged: Friday, 08 May 2026" in messages
     assert "Current streak: 2 days" in messages
     assert any("This week: 3/5 completed (60.00%)" in message for message in messages)

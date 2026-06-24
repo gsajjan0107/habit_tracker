@@ -216,6 +216,7 @@ def get_habit_details(data, habit):
         "is_archived": habit_data["archived_at"] is not None,
         "total_logs": count_logs_for_habit(data, habit),
         "last_logged_at": last_logged_at,
+        "description": habit_data.get("description", ""),
     }
 
 def get_today_focus_habits(pending_habits, weekly_stats):
