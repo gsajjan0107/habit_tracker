@@ -29,6 +29,19 @@ def migrate_data(data):
         data["schema_version"] = 1
         was_migrated = True
 
+
+    if isinstance(data, dict):
+        habits = data.get("habits")
+
+        if isinstance(habits, dict):
+            for habit_data in habits.values():
+                if not isinstance(habit_data, dict):
+                    continue
+
+                if "description" not in habit_data:
+                    habit_data["description"] = ""
+                    was_migrated = True
+
     return data, was_migrated
 
 def backup_and_reset() -> HabitData:
@@ -53,10 +66,10 @@ def load_data() -> HabitData:
 
         data, was_migrated = migrate_data(data)
 
-        is_valid, msg = validate_data_structure(data) 
+        is_valid, msg = validate_data_structure(data)
         if not is_valid:
             return backup_and_reset()
-             
+
         if was_migrated:
             save_data(data)
 
@@ -64,12 +77,12 @@ def load_data() -> HabitData:
 
     except FileNotFoundError:
         return create_data_file()
-    
+
     except json.JSONDecodeError:
         return backup_and_reset()
-    
+
 def create_backup() -> None:
-    
+
     if DATA_FILE.exists():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         backup_file_path = DATA_FILE.with_name(f"data_backup_{timestamp}.json")
@@ -89,9 +102,9 @@ def save_data(data: Dict[str, Any]) -> None:
 
     if not is_valid:
         raise ValueError(f"Cannot save invalid data: {msg}")
-    
+
     temp_path = DATA_FILE.with_suffix(".tmp")
-    
+
     try:
         create_backup()
 

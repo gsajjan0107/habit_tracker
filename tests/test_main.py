@@ -5,11 +5,17 @@ import pytest
 
 # ===== data helpers =====
 
-def make_habit(target=5, created_at="2026-05-01", archived_at=None):
+def make_habit(
+    target=5,
+    created_at="2026-05-01",
+    archived_at=None,
+    description=""
+):
     return {
         "target_per_week": target,
         "created_at": created_at,
         "archived_at": archived_at,
+        "description": description,
     }
 
 
@@ -218,6 +224,7 @@ def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
         user_inputs=[
             "Workout",
             "5",
+            ""
         ],
     )
 
@@ -242,6 +249,7 @@ def test_handle_add_retries_when_habit_already_exists(monkeypatch):
             "Workout",
             "Reading",
             "3",
+            ""
         ],
     )
 
@@ -268,6 +276,7 @@ def test_handle_add_retries_when_habit_exists_but_is_archived(monkeypatch):
             "Workout",
             "Reading",
             "3",
+            ""
         ],
     )
 
@@ -291,6 +300,7 @@ def test_handle_add_retries_when_target_is_invalid(monkeypatch):
             "Workout",
             "0",
             "5",
+            ""
         ],
     )
 
@@ -312,6 +322,7 @@ def test_handle_add_retries_when_habit_name_is_invalid(monkeypatch):
             "ab",
             "Workout",
             "5",
+            ""
         ],
     )
 
@@ -334,6 +345,7 @@ def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
             "Workout",
             "0",
             "5",
+            ""
         ],
     )
 
@@ -360,6 +372,7 @@ def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch)
             "Workout",
             "Reading",
             "3",
+            ""
         ],
     )
 
@@ -1816,6 +1829,7 @@ def test_handle_view_logs_shows_pending_habits_when_no_logs_exist(monkeypatch):
         monkeypatch,
         data,
         user_inputs=[
+            "1",
             "2026-05-01",
         ],
     )
@@ -1842,6 +1856,7 @@ def test_handle_view_logs_shows_no_active_habits_for_selected_date(monkeypatch):
         monkeypatch,
         data,
         user_inputs=[
+            "1",
             "2026-05-02",
         ],
     )

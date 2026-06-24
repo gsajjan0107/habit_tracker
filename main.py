@@ -1,7 +1,7 @@
 import sys
 from validators import get_valid_input, validate_string, validate_int, validate_date, validate_choice
 from storage import load_data, save_data
-from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit, rename_habit, update_habit_target, get_habit_logs
+from habits import add_habit, log_multiple_habits, delete_log, delete_habit, toggle_archive_habit, rename_habit, update_habit_target, get_habit_logs, update_habit_description
 from stats import daily_stats, habit_weekly_completion, streaks
 
 from utils import (
@@ -98,10 +98,12 @@ def handle_add(data):
             except ValueError as e:
                 display_message(f"Error: {e}")
 
-        result = add_habit(data, habit_name, target)
+        desc = input("Enter description (optional): ").strip()
+
+        result = add_habit(data, habit_name, target, desc)
         save_data(data)
         display_message(result)
-        break
+        return
 
 def handle_log(data):
     if not ensure_habits_exist(data):
@@ -181,7 +183,6 @@ def handle_edit(data):
     if not ensure_habits_exist(data):
         return
 
-
     habits = sorted(data["habits"])
     menu_entries = display_habit_archive_menu(data, habits)
 
@@ -200,15 +201,17 @@ def handle_edit(data):
 
     habit_name = menu_entries[selected_index - 1]["habit"]
 
-    display_message("1. Rename habit")
-    display_message("2. Change weekly target")
-    display_message("Q. Cancel")
-
     while True:
+        display_message("\nEdit habit menu:\n")
+        display_message("1. Rename habit")
+        display_message("2. Change weekly target")
+        display_message("3. Change description")
+        display_message("Q. Return to main menu")
+
         choice = input("\nSelect a option number, or 'q' to cancel: ").strip().lower()
 
         if choice == "q":
-            display_message("Edit cancelled.")
+            display_message("Returning to main menu.")
             return
 
         elif choice == "1":
@@ -216,9 +219,10 @@ def handle_edit(data):
                 try:
                     new_name = input("Enter new habit name: ").strip()
                     result = rename_habit(data, habit_name, new_name)
+                    habit_name = new_name
                     save_data(data)
                     display_message(result)
-                    return
+                    break
                 except ValueError as e:
                     display_message(f"Error: {e}")
 
@@ -229,12 +233,24 @@ def handle_edit(data):
                     result = update_habit_target(data, habit_name, new_target)
                     save_data(data)
                     display_message(result)
-                    return
+                    break
+                except ValueError as e:
+                    display_message(f"Error: {e}")
+
+        elif choice == "3":
+            while True:
+                try:
+                    desc = input("Enter new description: ").strip()
+                    result = update_habit_description(data, habit_name, desc)
+                    save_data(data)
+                    display_message(result)
+                    break
                 except ValueError as e:
                     display_message(f"Error: {e}")
 
         else:
             display_message("Error: Invalid choice.")
+
 
 # --- habit detail ---
 
@@ -480,6 +496,8 @@ def handle_view_logs(data):
                 display_numbered_list(pending)
             else:
                 display_message("\nAll active habits completed for this date.")
+
+            return
 
         elif choice == "2":
             habits = sorted(data["habits"])

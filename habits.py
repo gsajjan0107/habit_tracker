@@ -2,7 +2,7 @@ from validators import validate_string, validate_int, validate_date
 from helpers import get_today, habit_exists, is_habit_archived
 from helpers import make_result, habit_has_logs
 
-def add_habit(data, habit_name, target):
+def add_habit(data, habit_name, target, description=""):
     habit_name = validate_string(habit_name, 3, 20)
 
     if habit_exists(data, habit_name):
@@ -17,7 +17,8 @@ def add_habit(data, habit_name, target):
     habit_info = {
         "target_per_week": target,
         "created_at": created_at,
-        "archived_at": None
+        "archived_at": None,
+        "description": description
     }
 
     habits = data["habits"]
@@ -212,3 +213,13 @@ def get_habit_logs(data, habit_name):
             dates.append(log["date"])
 
     return sorted(dates, reverse=True)
+
+def update_habit_description(data, habit_name, description):
+    habit_name = validate_string(habit_name, 3, 20)
+
+    if not habit_exists(data, habit_name):
+        raise ValueError("Habit does not exist.")
+
+    data["habits"][habit_name]["description"] = description.strip()
+
+    return f"{habit_name} description updated."

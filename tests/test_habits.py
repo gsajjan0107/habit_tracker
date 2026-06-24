@@ -81,7 +81,8 @@ def test_add_archived_habit():
             "Workout": {
                 "target_per_week": 5,
                 "created_at": "2026-05-10",
-                "archived_at": "2026-05-11"
+                "archived_at": "2026-05-11",
+                "description": ""
             }
         }
     }
@@ -653,3 +654,26 @@ def test_get_habit_logs_no_logs(sample_data):
     add_habit(sample_data, "Workout", 5)
 
     assert get_habit_logs(sample_data, "Workout") == []
+
+
+def test_add_habit_stores_description(sample_data):
+    add_habit(
+        sample_data,
+        "Workout",
+        5,
+        "Strength training"
+    )
+
+    assert (
+        sample_data["habits"]["Workout"]["description"]
+        == "Strength training"
+    )
+
+
+def test_add_habit_uses_empty_description_by_default(sample_data):
+    add_habit(sample_data, "Workout", 5)
+
+    assert (
+        sample_data["habits"]["Workout"]["description"]
+        == ""
+    )

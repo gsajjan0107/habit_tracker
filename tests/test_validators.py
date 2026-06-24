@@ -130,7 +130,8 @@ def test_validate_data_structure_missing_target_per_week():
         "habits": {
             "Workout": {
                 "created_at": "2026-05-01",
-                "archived_at": None
+                "archived_at": None,
+                "description": ""
             }
         },
         "logs": []
@@ -149,7 +150,8 @@ def test_validate_data_structure_missing_created_at():
         "habits": {
             "Workout": {
                 "target_per_week": 5,
-                "archived_at": None
+                "archived_at": None,
+                "description": ""
             }
         },
         "logs": []
@@ -168,7 +170,8 @@ def test_validate_data_structure_missing_log_date():
             "Workout": {
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
-                "archived_at": None
+                "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -191,7 +194,8 @@ def test_validate_data_structure_missing_log_habit():
             "Workout": {
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
-                "archived_at": None
+                "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -214,7 +218,8 @@ def test_validate_data_structure_log_entry_not_dict():
             "Workout": {
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
-                "archived_at": None
+                "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -237,6 +242,7 @@ def test_validate_data_structure_log_after_archive_date():
                 "target_per_week": 5,
                 "created_at": "2020-05-01",
                 "archived_at": "2020-05-10",
+                "description": ""
             }
         },
         "logs": [
@@ -262,6 +268,7 @@ def test_validate_data_structure_active_habit_log_success():
                 "target_per_week": 5,
                 "created_at": "2020-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -276,7 +283,7 @@ def test_validate_data_structure_active_habit_log_success():
 
     assert success is True
     assert msg is None
-    
+
 
 def test_validate_data_structure_missing_archived_at():
     data = {
@@ -304,6 +311,7 @@ def test_validate_data_structure_log_references_missing_habit():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -328,6 +336,7 @@ def test_validate_data_structure_habit_with_extra_key_fails():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": "",
                 "wrong_key": None,
             }
         },
@@ -348,6 +357,7 @@ def test_validate_data_structure_log_with_extra_key_fails():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -403,3 +413,61 @@ def test_validate_data_structure_unsupported_schema_version():
     assert "unsupported" in msg
 
 
+def test_validate_data_structure_missing_description():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "description" in msg
+    assert "missing key" in msg
+
+
+def test_validate_data_structure_description_must_be_string():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+                "description": 123,
+            }
+        },
+        "logs": [],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "description" in msg
+
+
+def test_validate_data_structure_valid_description():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+                "description": "Strength training",
+            }
+        },
+        "logs": [],
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is True
+    assert msg is None

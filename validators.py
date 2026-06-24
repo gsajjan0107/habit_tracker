@@ -62,11 +62,17 @@ def validate_habits_data_structure(data):
         if "archived_at" not in habit_data:
             return False, f"habits['{habit}'].archived_at → missing key."
 
+        if "description" not in habit_data:
+            return False, (
+                f"habits['{habit}'].description → missing key."
+            )
+
         target = habit_data["target_per_week"]
         created_at = habit_data["created_at"]
         archived_at = habit_data["archived_at"]
+        description = habit_data["description"]
 
-        required_keys = {"target_per_week", "created_at", "archived_at"}
+        required_keys = {"target_per_week", "created_at", "archived_at", "description"}
 
         if set(habit_data.keys()) != required_keys:
             return False, f"habits['{habit}'] → invalid keys."
@@ -87,6 +93,12 @@ def validate_habits_data_structure(data):
 
             if archived < created:
                 return False, f"habits['{habit}'] → archived_at cannot be before created_at."
+
+        if not isinstance(description, str):
+            return False, (
+                f"habits['{habit}'].description "
+                "→ expected string."
+            )
 
     return True, None
 

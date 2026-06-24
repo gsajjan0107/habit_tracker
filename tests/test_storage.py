@@ -55,6 +55,7 @@ def test_save_data_writes_valid_data(tmp_path, monkeypatch):
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -101,6 +102,7 @@ def test_save_data_does_not_overwrite_existing_file_when_data_is_invalid(tmp_pat
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [],
@@ -137,6 +139,7 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [],
@@ -149,11 +152,13 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             },
             "Reading": {
                 "target_per_week": 3,
                 "created_at": "2026-05-02",
                 "archived_at": None,
+                "description": ""
             },
         },
         "logs": [],
@@ -185,6 +190,7 @@ def test_save_data_does_not_create_backup_when_file_does_not_exist(tmp_path, mon
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [],
@@ -255,6 +261,7 @@ def test_migrate_data_preserves_old_data_content():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
+                "description": ""
             }
         },
         "logs": [
@@ -317,3 +324,40 @@ def test_load_data_handles_invalid_structure_creates_backup(tmp_path, monkeypatc
     assert backup_data == invalid_data
 
 
+def test_migrate_data_adds_missing_description_to_existing_habits():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            }
+        },
+        "logs": [],
+    }
+
+    result, was_migrated = storage.migrate_data(data)
+
+    assert result["habits"]["Workout"]["description"] == ""
+    assert was_migrated is True
+
+
+def test_migrate_data_does_not_change_habits_that_already_have_description():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "target_per_week": 5,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+                "description": "Strength training",
+            }
+        },
+        "logs": [],
+    }
+
+    result, was_migrated = storage.migrate_data(data)
+
+    assert result["habits"]["Workout"]["description"] == "Strength training"
+    assert was_migrated is False
