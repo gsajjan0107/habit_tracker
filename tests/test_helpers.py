@@ -987,7 +987,7 @@ def test_format_recovery_hint_single_missed_habit():
 def test_format_recovery_hint_multiple_missed_habits():
     assert (
         format_recovery_hint(["Coding", "Workout"])
-        == "Recovery hint: Pick the easiest missed habits and complete it first today."
+        == "Recovery hint: Pick the easiest missed habits and complete them first today."
     )
 
 

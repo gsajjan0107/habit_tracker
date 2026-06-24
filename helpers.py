@@ -309,10 +309,11 @@ def format_recovery_hint(missed):
         return ""
 
     habit_word = pluralize(len(missed), "habit")
+    pronoun = "them" if len(missed) > 1 else "it"
 
     return (
         f"Recovery hint: Pick the easiest missed {habit_word} "
-        "and complete it first today."
+        f"and complete {pronoun} first today."
     )
 
 def display_completed_today_section(completed_habits):
