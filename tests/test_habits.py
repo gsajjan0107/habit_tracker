@@ -140,7 +140,8 @@ def test_log_habit_success(sample_data):
 
     assert sample_data["logs"][0] == {
         "habit": "Reading",
-        "date": "2026-05-10"
+        "date": "2026-05-10",
+        "note": ""
     }
 
 
@@ -210,6 +211,7 @@ def test_log_habit_before_archive_date_success(sample_data):
         {
             "habit": "Reading",
             "date": "2020-05-08",
+            "note": ""
         }
     ]
 
@@ -266,7 +268,7 @@ def test_log_multiple_habits_rolls_back_if_one_fails(sample_data):
     add_habit(sample_data, "Workout", 5)
 
     with pytest.raises(ValueError):
-        log_multiple_habits(sample_data, "2020-05-10", ["Workout", "Reading"])
+        log_multiple_habits(sample_data, "2020-05-10", ["Workout", "Reading"], {"Workout": ""})
 
     assert sample_data["logs"] == []
 
@@ -278,7 +280,11 @@ def test_log_multiple_habits_success(sample_data):
     result = log_multiple_habits(
         sample_data,
         "2026-05-10",
-        ["Workout", "Reading"]
+        ["Workout", "Reading"],
+        {
+            "Workout": "",
+            "Reading": "",
+        }
     )
 
     assert result == ["Workout", "Reading"]
@@ -286,11 +292,13 @@ def test_log_multiple_habits_success(sample_data):
     assert sample_data["logs"] == [
         {
             "habit": "Workout",
-            "date": "2026-05-10"
+            "date": "2026-05-10",
+            "note": ""
         },
         {
             "habit": "Reading",
-            "date": "2026-05-10"
+            "date": "2026-05-10",
+            "note": ""
         }
     ]
 
@@ -309,7 +317,11 @@ def test_log_multiple_habits_restores_existing_logs_on_failure(sample_data):
         log_multiple_habits(
             sample_data,
             "2020-05-10",
-            ["Workout", "Reading"]
+            ["Workout", "Reading"],
+            {
+                "Workout": "",
+                "Reading": ""
+            }
         )
 
     assert sample_data["logs"] == [
@@ -715,7 +727,7 @@ def test_update_habit_description_invalid_description(sample_data):
         update_habit_description(sample_data, "Workout", 123)
 
 
-def test_update_habit_description_rejects_none(sample_data):    
+def test_update_habit_description_rejects_none(sample_data):
     add_habit(sample_data, "Workout", 5)
     with pytest.raises(ValueError, match="Input must be a string."):
         update_habit_description(sample_data, "Workout", None)

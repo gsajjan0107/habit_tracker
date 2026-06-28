@@ -26,7 +26,7 @@ def add_habit(data, habit_name, target, description=""):
 
     return f"{habit_name} added."
 
-def log_habit(data, log_date, habit_name):
+def log_habit(data, log_date, habit_name, note=""):
     if not data["habits"]:
         raise ValueError("No habits found. Add a habit first.")
 
@@ -62,19 +62,21 @@ def log_habit(data, log_date, habit_name):
 
     data["logs"].append({
         "habit": habit_name,
-        "date": log_date
-    })
+        "date": log_date,
+        "note": note
+        })
 
     return f"{habit_name} logged for {log_date}."
 
-def log_multiple_habits(data, log_date, habits):
+def log_multiple_habits(data, log_date, habits, notes):
     original_logs = data["logs"].copy()
 
     logged = []
 
     try:
         for habit_name in habits:
-            log_habit(data, log_date, habit_name)
+            note = notes.get(habit_name, "")
+            log_habit(data, log_date, habit_name, note)
             logged.append(habit_name)
 
     except ValueError:
@@ -222,7 +224,7 @@ def update_habit_description(data, habit_name, description):
 
     if not isinstance(description, str):
         raise ValueError("Input must be a string.")
-    
+
     data["habits"][habit_name]["description"] = description
 
     return f"{habit_name} description updated."

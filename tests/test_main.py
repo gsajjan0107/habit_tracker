@@ -23,6 +23,7 @@ def make_log(habit="Workout", date="2026-05-01"):
     return {
         "habit": habit,
         "date": date,
+        "note": ""
     }
 
 
@@ -1034,6 +1035,7 @@ def test_handle_log_logs_selected_habit_after_confirmation(monkeypatch):
             "2026-05-01",
             "1",
             "y",
+            ""
         ],
     )
 
@@ -1081,6 +1083,8 @@ def test_handle_log_logs_all_pending_habits_after_confirmation(monkeypatch):
             "2026-05-01",
             "all",
             "y",
+            "",
+            "",
         ],
     )
 
@@ -1192,6 +1196,8 @@ def test_handle_log_ignores_duplicate_selected_numbers(monkeypatch):
             "2026-05-01",
             "1 1",
             "y",
+            "",
+            "",
         ],
     )
 

@@ -119,7 +119,10 @@ def validate_logs_data_structure(data):
         if "date" not in log:
             return False, f"logs[{i}].date → missing key."
 
-        required_keys = {"habit", "date"}
+        if "note" not in log:
+            return False, f"logs[{i}].note → missing key."
+
+        required_keys = {"habit", "date", "note"}
 
         if set(log.keys()) != required_keys:
             return False, f"logs[{i}] → invalid keys."
@@ -149,6 +152,11 @@ def validate_logs_data_structure(data):
 
             if date > archived:
                 return False, f"logs[{i}] → date after habit archive."
+
+        note = log["note"]
+
+        if not isinstance(note, str):
+            return False, f"logs[{i}].note → expected string."
 
         key = (habit, date)
 

@@ -62,6 +62,7 @@ def test_save_data_writes_valid_data(tmp_path, monkeypatch):
             {
                 "habit": "Workout",
                 "date": "2026-05-01",
+                "note": ""
             }
         ],
     }

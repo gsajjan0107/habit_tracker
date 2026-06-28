@@ -249,6 +249,7 @@ def test_validate_data_structure_log_after_archive_date():
             {
                 "habit": "Reading",
                 "date": "2020-05-11",
+                "note": ""
             }
         ],
     }
@@ -275,6 +276,7 @@ def test_validate_data_structure_active_habit_log_success():
             {
                 "habit": "Reading",
                 "date": "2020-05-02",
+                "note": ""
             }
         ],
     }
@@ -318,6 +320,7 @@ def test_validate_data_structure_log_references_missing_habit():
             {
                 "habit": "Reading",
                 "date": "2026-05-01",
+                "note": ""
             }
         ],
     }
@@ -364,6 +367,7 @@ def test_validate_data_structure_log_with_extra_key_fails():
             {
                 "habit": "Workout",
                 "date": "2026-05-01",
+                "note": "",
                 "wrong_key": "oops",
             }
         ],

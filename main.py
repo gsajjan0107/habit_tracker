@@ -47,6 +47,7 @@ from helpers import (
     format_days_since_last_log,
     format_consistency_display,
     format_average_logs_per_week,
+    get_habit_notes
     )
 
 commands = {
@@ -161,8 +162,9 @@ def handle_log(data):
                 display_message("Logging cancelled.")
                 return
 
+            notes = get_habit_notes(selected_habits)
 
-            logged = log_multiple_habits(data, log_date, selected_habits)
+            logged = log_multiple_habits(data, log_date, selected_habits, notes)
             save_data(data)
 
             habit_streaks = streaks(data, log_date)

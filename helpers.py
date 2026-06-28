@@ -393,3 +393,12 @@ def format_consistency_display(percentage, rating):
 
 def format_average_logs_per_week(average_logs_per_week):
     return f"{average_logs_per_week:.2f}"
+
+def get_habit_notes(habits):
+    notes = {}
+
+    for habit in habits:
+        note = input(f"Enter note for '{habit}' (optional): ").strip()
+        notes[habit] = note
+
+    return notes

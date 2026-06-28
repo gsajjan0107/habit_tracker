@@ -23,24 +23,35 @@ def create_data_file() -> HabitData:
     return data
 
 def migrate_data(data):
+
+    if not isinstance(data, dict):
+        return data, False
+
     was_migrated = False
 
-    if isinstance(data, dict) and "schema_version" not in data:
+    if "schema_version" not in data:
         data["schema_version"] = 1
         was_migrated = True
 
+    habits = data.get("habits")
+    if isinstance(habits, dict):
+        for habit_data in habits.values():
+            if not isinstance(habit_data, dict):
+                continue
 
-    if isinstance(data, dict):
-        habits = data.get("habits")
+            if "description" not in habit_data:
+                habit_data["description"] = ""
+                was_migrated = True
 
-        if isinstance(habits, dict):
-            for habit_data in habits.values():
-                if not isinstance(habit_data, dict):
-                    continue
+    logs = data.get("logs")
+    if isinstance(logs, list):
+        for log in logs:
+            if not isinstance(log, dict):
+                continue
 
-                if "description" not in habit_data:
-                    habit_data["description"] = ""
-                    was_migrated = True
+            if "note" not in log:
+                log["note"] = ""
+                was_migrated = True
 
     return data, was_migrated
 
