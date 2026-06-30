@@ -412,6 +412,7 @@ def display_habit_details_screen(
     display_habit_weekly_info(habit, weekly_stats)
     display_archived_info(details["archived_at"])
 
+
 # Habit details flow:
 # 1. Ensure at least one habit exists.
 # 2. Let the user select an active or archived habit.

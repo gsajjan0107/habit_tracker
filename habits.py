@@ -13,6 +13,7 @@ def add_habit(data, habit_name, target, description=""):
 
     target = validate_int(target, 1)
     created_at = get_today().isoformat()
+    description = description.strip()
 
     habit_info = {
         "target_per_week": target,
@@ -225,6 +226,7 @@ def update_habit_description(data, habit_name, description):
     if not isinstance(description, str):
         raise ValueError("Input must be a string.")
 
+    description = description.strip()
     data["habits"][habit_name]["description"] = description
 
     return f"{habit_name} description updated."
