@@ -478,4 +478,4 @@ def format_needs_attention_habit_message(habit):
     if habit is None:
         return "Needs attention: None"
 
-    return f"⚠️ Needs attention: {habit}"
+    return f"⚠️  Needs attention: {habit}"

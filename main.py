@@ -52,6 +52,8 @@ from helpers import (
     format_most_neglected_habit_message,
     get_best_performing_habit,
     format_best_performing_habit_message,
+    get_needs_attention_habit,
+    format_needs_attention_habit_message,
     )
 
 commands = {
@@ -766,27 +768,16 @@ def handle_dashboard(data):
 
     display_today_focus_section(focus_habits)
 
-    most_neglected = get_most_neglected_habit(
-        data,
-        selected_date,
-    )
-
     display_message("\n💡 Habit Insight:")
-    display_message(
-        format_most_neglected_habit_message(
-            most_neglected
-        )
-    )
 
-    best_performing = get_best_performing_habit(
-        weekly_stats,
-    )
+    most_neglected = get_most_neglected_habit(data, selected_date)
+    display_message(format_most_neglected_habit_message(most_neglected))
 
-    display_message(
-        format_best_performing_habit_message(
-            best_performing
-        )
-    )
+    needs_attention = get_needs_attention_habit(focus_habits)
+    display_message(format_needs_attention_habit_message(needs_attention))
+
+    best_performing = get_best_performing_habit(weekly_stats)
+    display_message(format_best_performing_habit_message(best_performing))
 
     active_habits = get_sorted_active_habits_from_stats(result)
     display_weekly_progress_section(active_habits, weekly_stats, habit_streaks)
