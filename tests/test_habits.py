@@ -565,7 +565,7 @@ def test_delete_archived_habit_without_logs(sample_data):
     assert result == "Reading deleted."
     assert "Reading" not in sample_data["habits"]
 
-    
+
 def test_delete_habit_with_existing_logs_raises_error(sample_data):
     add_habit(sample_data, "Reading", 30)
     add_habit(sample_data, "Workout", 30)
@@ -593,6 +593,23 @@ def test_delete_habit_with_existing_logs_raises_error(sample_data):
         {
             "habit": "Workout",
             "date": "2026-05-10"
+        }
+    ]
+
+def test_delete_archived_habit_with_logs_raises_error(sample_data):
+    add_habit(sample_data, "Reading", 30)
+    log_habit(sample_data, "2026-05-10", "Reading")
+    archive_habit(sample_data, "Reading")
+
+    with pytest.raises(ValueError, match="Cannot permanently delete a habit with existing logs. Archive it instead."):
+        delete_habit(sample_data, "Reading")
+
+    assert "Reading" in sample_data["habits"]
+    assert sample_data["logs"] == [
+        {
+            "habit": "Reading",
+            "date": "2026-05-10",
+            "note": ""
         }
     ]
 

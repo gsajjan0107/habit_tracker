@@ -36,11 +36,13 @@ def log_habit(data, log_date, habit_name, note=""):
         raise ValueError("No habits found. Add a habit first.")
 
     log_date = validate_date(log_date)
-
     habit_name = validate_string(habit_name, 3, 20)
 
     if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
+
+    if not isinstance(note, str):
+        raise ValueError("Note must be a string.")
 
     archived_at = data["habits"][habit_name].get("archived_at")
 
