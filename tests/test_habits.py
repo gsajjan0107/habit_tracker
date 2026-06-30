@@ -548,6 +548,24 @@ def test_delete_habit_success(sample_data):
     assert "Reading" not in sample_data["habits"]
 
 
+def test_delete_nonexistent_habit(sample_data):
+    with pytest.raises(ValueError) as exc:
+        delete_habit(sample_data, "Reading")
+
+    assert str(exc.value) == "Habit does not exist."
+
+
+def test_delete_archived_habit_without_logs(sample_data):
+    add_habit(sample_data, "Reading", 5)
+
+    archive_habit(sample_data, "Reading")
+
+    result = delete_habit(sample_data, "Reading")
+
+    assert result == "Reading deleted."
+    assert "Reading" not in sample_data["habits"]
+
+    
 def test_delete_habit_with_existing_logs_raises_error(sample_data):
     add_habit(sample_data, "Reading", 30)
     add_habit(sample_data, "Workout", 30)
@@ -577,13 +595,6 @@ def test_delete_habit_with_existing_logs_raises_error(sample_data):
             "date": "2026-05-10"
         }
     ]
-
-
-def test_delete_nonexistent_habit(sample_data):
-    with pytest.raises(ValueError) as exc:
-        delete_habit(sample_data, "Reading")
-
-    assert str(exc.value) == "Habit does not exist."
 
 
 def test_delete_habit_with_multiple_logs_raises_error(sample_data):
