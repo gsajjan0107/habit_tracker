@@ -50,7 +50,8 @@ from helpers import (
     get_habit_notes,
     get_most_neglected_habit,
     format_most_neglected_habit_message,
-
+    get_best_performing_habit,
+    format_best_performing_habit_message,
     )
 
 commands = {
@@ -770,10 +771,20 @@ def handle_dashboard(data):
         selected_date,
     )
 
-    display_message("\n📉 Habit Insight")
+    display_message("\n💡 Habit Insight:")
     display_message(
         format_most_neglected_habit_message(
             most_neglected
+        )
+    )
+
+    best_performing = get_best_performing_habit(
+        weekly_stats,
+    )
+
+    display_message(
+        format_best_performing_habit_message(
+            best_performing
         )
     )
 

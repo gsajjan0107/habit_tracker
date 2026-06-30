@@ -437,5 +437,45 @@ def format_most_neglected_habit_message(result):
     habit, days_since = result
 
     return (
-        f"Most neglected: {habit} "
+        f"- Most neglected: {habit} "
         f"({format_days_since_last_log(days_since)} since last log)")
+
+def get_best_performing_habit(weekly_stats):
+    if not weekly_stats:
+        return None
+
+    habit_names = sorted(weekly_stats)
+
+    best_habit = habit_names[0]
+    best_percentage = weekly_stats[best_habit]["percentage"]
+
+    for habit in habit_names[1:]:
+        percentage = weekly_stats[habit]["percentage"]
+
+        if percentage > best_percentage:
+            best_habit = habit
+            best_percentage = percentage
+
+    return best_habit, best_percentage
+
+def format_best_performing_habit_message(result):
+    if result is None:
+        return "Best this week: None yet"
+
+    best_habit, best_percentage = result
+
+    return (
+        f"- Best this week: {best_habit} "
+        f"({best_percentage:.2f}%)")
+
+def get_needs_attention_habit(focus_habits):
+    if not focus_habits:
+        return None
+
+    return focus_habits[0][0]
+
+def format_needs_attention_habit_message(habit):
+    if habit is None:
+        return "Needs attention: None"
+
+    return f"⚠️ Needs attention: {habit}"
