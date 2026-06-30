@@ -1,6 +1,6 @@
 from validators import validate_string, validate_int, validate_date
 from helpers import get_today, habit_exists, is_habit_archived
-from helpers import make_result, habit_has_logs
+from helpers import make_result, habit_has_logs, get_next_habit_id
 
 def add_habit(data, habit_name, target, description=""):
     habit_name = validate_string(habit_name, 3, 20)
@@ -18,8 +18,10 @@ def add_habit(data, habit_name, target, description=""):
         raise ValueError("Input must be a string.")
 
     description = description.strip()
+    habit_id = get_next_habit_id(data)
 
     habit_info = {
+        "id": habit_id,
         "target_per_week": target,
         "created_at": created_at,
         "archived_at": None,

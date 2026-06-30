@@ -493,3 +493,16 @@ def get_logs_for_date(data, selected_date):
             })
 
     return sorted(logs, key=lambda log: log["habit"].lower())
+
+def get_next_habit_id(data):
+    habits = data["habits"]
+
+    if not habits:
+        return 1
+
+    ids = []
+
+    for habit in habits.values():
+        ids.append(habit["id"])
+
+    return max(ids) + 1

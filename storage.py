@@ -23,7 +23,6 @@ def create_data_file() -> HabitData:
     return data
 
 def migrate_data(data):
-
     if not isinstance(data, dict):
         return data, False
 
@@ -35,9 +34,23 @@ def migrate_data(data):
 
     habits = data.get("habits")
     if isinstance(habits, dict):
+        existing_ids = {
+            habit_data["id"]
+            for habit_data in habits.values()
+            if isinstance(habit_data, dict)
+            and isinstance(habit_data.get("id"), int)
+        }
+        next_id = 1
         for habit_data in habits.values():
             if not isinstance(habit_data, dict):
                 continue
+
+            if "id" not in habit_data:
+                while next_id in existing_ids:
+                    next_id += 1
+                habit_data["id"] = next_id
+                existing_ids.add(next_id)
+                was_migrated = True
 
             if "description" not in habit_data:
                 habit_data["description"] = ""

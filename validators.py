@@ -46,12 +46,15 @@ def validate_data_structure(data):
 def validate_habits_data_structure(data):
 
     habits = data["habits"]
+    seen_ids = set()
 
     for habit, habit_data in habits.items():
 
-
         if not isinstance(habit_data, dict):
             return False, f"habits['{habit}'] → expected dict."
+
+        if "id" not in habit_data:
+            return False, f"habits['{habit}'].id → missing key."
 
         if "target_per_week" not in habit_data:
             return False, f"habits['{habit}'].target_per_week → missing key."
@@ -67,15 +70,25 @@ def validate_habits_data_structure(data):
                 f"habits['{habit}'].description → missing key."
             )
 
+        required_keys = {"id", "target_per_week", "created_at", "archived_at", "description"}
+
+        if set(habit_data.keys()) != required_keys:
+            return False, f"habits['{habit}'] → invalid keys."
+
+        habit_id = habit_data["id"]
         target = habit_data["target_per_week"]
         created_at = habit_data["created_at"]
         archived_at = habit_data["archived_at"]
         description = habit_data["description"]
 
-        required_keys = {"target_per_week", "created_at", "archived_at", "description"}
 
-        if set(habit_data.keys()) != required_keys:
-            return False, f"habits['{habit}'] → invalid keys."
+        if not isinstance(habit_id, int) or habit_id < 1:
+            return False, f"habits['{habit}'].id → expected int >= 1."
+
+        if habit_id in seen_ids:
+            return False, f"habits['{habit}'].id → duplicate id ({habit_id})."
+
+        seen_ids.add(habit_id)
 
         if not isinstance(target, int) or target <= 0:
             return False, f"habits['{habit}'].target_per_week → expected int > 0."
