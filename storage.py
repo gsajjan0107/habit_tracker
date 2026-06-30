@@ -77,7 +77,7 @@ def load_data() -> HabitData:
 
         data, was_migrated = migrate_data(data)
 
-        is_valid, msg = validate_data_structure(data)
+        is_valid, _ = validate_data_structure(data)
         if not is_valid:
             return backup_and_reset()
 

@@ -1573,7 +1573,7 @@ def test_handle_view_habit_details_shows_selected_habit(monkeypatch):
 
     assert any("==== HABIT DETAILS ====" in message for message in messages)
     assert "Habit: Workout" in messages
-    assert "Description: (none)" in messages
+    assert "Description: No description provided" in messages
     assert "Target: 5 per week" in messages
     assert "Created: Friday, 01 May 2026" in messages
     assert "Status: Active" in messages
@@ -2476,7 +2476,7 @@ def test_display_habit_detail_summary_shows_basic_detail_lines(monkeypatch):
 
     assert "\n==== HABIT DETAILS ====\n" in messages
     assert "Habit: Workout" in messages
-    assert "Description: (none)" in messages
+    assert "Description: No description provided" in messages
     assert "Target: 5 per week" in messages
     assert "Created: Friday, 01 May 2026" in messages
     assert "Habit age: 9 days" in messages

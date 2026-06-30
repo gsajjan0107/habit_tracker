@@ -47,7 +47,10 @@ from helpers import (
     format_days_since_last_log,
     format_consistency_display,
     format_average_logs_per_week,
-    get_habit_notes
+    get_habit_notes,
+    get_most_neglected_habit,
+    format_most_neglected_habit_message,
+
     )
 
 commands = {
@@ -311,7 +314,7 @@ def display_habit_detail_summary(
     if details["description"]:
         display_message(f"Description: {details['description']}")
     else:
-        display_message("Description: (none)")
+        display_message("Description: No description provided")
     display_message(f"Target: {details['target_per_week']} per week")
     display_message(f"Created: {created_at}")
     display_message(f"Habit age: {habit_age_display}")
@@ -761,6 +764,18 @@ def handle_dashboard(data):
     focus_habits = get_today_focus_habits(result["pending"], weekly_stats)
 
     display_today_focus_section(focus_habits)
+
+    most_neglected = get_most_neglected_habit(
+        data,
+        selected_date,
+    )
+
+    display_message("\n📉 Habit Insight")
+    display_message(
+        format_most_neglected_habit_message(
+            most_neglected
+        )
+    )
 
     active_habits = get_sorted_active_habits_from_stats(result)
     display_weekly_progress_section(active_habits, weekly_stats, habit_streaks)

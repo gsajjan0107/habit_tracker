@@ -1,4 +1,5 @@
 from datetime import date
+from validators import validate_date
 import pytest
 from helpers import (
     get_confirmation,
@@ -40,6 +41,7 @@ from helpers import (
     format_days_since_last_log,
     format_consistency_display,
     format_average_logs_per_week,
+    get_most_neglected_habit,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1142,3 +1144,29 @@ def test_format_average_logs_per_week_returns_two_decimal_text():
     assert format_average_logs_per_week(2.1) == "2.10"
     assert format_average_logs_per_week(0) == "0.00"
     assert format_average_logs_per_week(7) == "7.00"
+
+
+def test_get_most_neglected_habit():
+    data = {
+        "habits": {
+            "Workout": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+            "Reading": {
+                "target_per_week": 3,
+                "created_at": "2026-05-01",
+                "archived_at": None,
+            },
+        },
+        "logs": [
+            {"habit": "Workout", "date": "2026-05-08", "note": ""},
+            {"habit": "Reading", "date": "2026-05-01", "note": ""},
+        ],
+    }
+
+    selected_date = validate_date("2026-05-10")
+    result = get_most_neglected_habit(data, selected_date)
+
+    assert result == ("Reading", 9)

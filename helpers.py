@@ -402,3 +402,40 @@ def get_habit_notes(habits):
         notes[habit] = note
 
     return notes
+
+def get_most_neglected_habit(data, selected_date):
+    from validators import validate_date
+
+    most_neglected = None
+    highest_days_since = -1
+
+    for habit in data["habits"]:
+        details = get_habit_details(data, habit)
+
+        if details["is_archived"]:
+            continue
+
+        if details["last_logged_at"] is None:
+            continue
+
+        last_logged_date = validate_date(details["last_logged_at"])
+        days_since = get_days_since_last_log(last_logged_date, selected_date,)
+
+        if days_since > highest_days_since:
+            highest_days_since = days_since
+            most_neglected = habit
+
+    if most_neglected is None:
+        return None
+
+    return most_neglected, highest_days_since
+
+def format_most_neglected_habit_message(result):
+    if result is None:
+        return "Most neglected: None yet"
+
+    habit, days_since = result
+
+    return (
+        f"Most neglected: {habit} "
+        f"({format_days_since_last_log(days_since)} since last log)")
