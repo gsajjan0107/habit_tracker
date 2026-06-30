@@ -42,6 +42,7 @@ from helpers import (
     format_consistency_display,
     format_average_logs_per_week,
     get_most_neglected_habit,
+    get_logs_for_date,
 )
 
 def test_get_confirmation_yes(monkeypatch):
@@ -1170,3 +1171,39 @@ def test_get_most_neglected_habit():
     result = get_most_neglected_habit(data, selected_date)
 
     assert result == ("Reading", 9)
+
+
+def test_get_logs_for_date_includes_notes(sample_data):
+    sample_data["logs"] = [
+        {
+            "habit": "Workout",
+            "date": "2026-05-10",
+            "note": ""
+        },
+        {
+            "habit": "Reading",
+            "date": "2026-05-10",
+            "note": "Read chapter 4"
+        },
+        {
+            "habit": "Coding",
+            "date": "2026-05-11",
+            "note": "Finished exercise"
+        }
+    ]
+
+    result = get_logs_for_date(
+        sample_data,
+        date(2026, 5, 10)
+    )
+
+    assert result == [
+        {
+            "habit": "Reading",
+            "note": "Read chapter 4"
+        },
+        {
+            "habit": "Workout",
+            "note": ""
+        }
+    ]

@@ -479,3 +479,17 @@ def format_needs_attention_habit_message(habit):
         return "Needs attention: None"
 
     return f"⚠️  Needs attention: {habit}"
+
+def get_logs_for_date(data, selected_date):
+    selected_date = selected_date.isoformat()
+
+    logs = []
+
+    for log in data["logs"]:
+        if log["date"] == selected_date:
+            logs.append({
+                "habit": log["habit"],
+                "note": log.get("note", "")
+            })
+
+    return sorted(logs, key=lambda log: log["habit"].lower())
