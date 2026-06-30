@@ -707,13 +707,15 @@ def test_update_habit_target_invalid_habit_name(sample_data):
         update_habit_target(sample_data, "A", 5)
 
 
+# get_habit_logs tests
+
 def test_get_habit_logs_success(sample_data):
     add_habit(sample_data, "Workout", 5)
     sample_data["habits"]["Workout"]["created_at"] = "2026-04-01"
     log_habit(sample_data, "2026-05-10", "Workout")
     log_habit(sample_data, "2026-05-09", "Workout")
 
-    assert get_habit_logs(sample_data, "Workout") == ["2026-05-10", "2026-05-09"]
+    assert get_habit_logs(sample_data, "Workout") == [{"date": "2026-05-10", "note": ""}, {"date": "2026-05-09", "note": ""}]
 
 
 def test_get_nonexistent_habit_logs(sample_data):
@@ -725,6 +727,19 @@ def test_get_habit_logs_no_logs(sample_data):
     add_habit(sample_data, "Workout", 5)
 
     assert get_habit_logs(sample_data, "Workout") == []
+
+
+def test_get_habit_logs_includes_notes(sample_data):
+    add_habit(sample_data, "Reading", 5)
+
+    log_habit(sample_data, "2026-05-10", "Reading", "Read chapter 4")
+
+    result = get_habit_logs(sample_data, "Reading")
+
+    assert result == [{
+        "date": "2026-05-10",
+        "note": "Read chapter 4"
+        }]
 
 
 # update_habit_description tests

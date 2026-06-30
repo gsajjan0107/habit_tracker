@@ -539,8 +539,15 @@ def handle_view_logs(data):
 
             display_message(f"\n{habit_name} Logs")
             display_message("--------------------")
-            for day in result:
-                display_message(day)
+            for log in result:
+                message = log["date"]
+
+                if log["note"]:
+                    message += f" - {log['note']}"
+
+                display_message(message)
+
+            return
 
         else:
             display_message("Error: Invalid choice.")

@@ -215,13 +215,20 @@ def get_habit_logs(data, habit_name):
     if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
 
-    dates = []
+    logs = []
 
     for log in data["logs"]:
         if log["habit"] == habit_name:
-            dates.append(log["date"])
+            logs.append({
+                "date": log["date"],
+                "note": log.get("note", "")
+                })
 
-    return sorted(dates, reverse=True)
+    return sorted(
+        logs,
+        key=lambda log: log["date"],
+        reverse=True
+        )
 
 def update_habit_description(data, habit_name, description):
     habit_name = validate_string(habit_name, 3, 20)
