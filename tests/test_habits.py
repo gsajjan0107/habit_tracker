@@ -262,6 +262,12 @@ def test_log_habit_invalid_date(sample_data):
         log_habit(sample_data, "banana", "Reading")
 
 
+def test_log_habit_rejects_non_string_note(sample_data):
+    add_habit(sample_data, "Reading", 5)
+
+    with pytest.raises(ValueError, match="Note must be a string."):
+        log_habit(sample_data, "2026-05-10", "Reading", None)
+
 # log_multiple_habits tests
 
 def test_log_multiple_habits_rolls_back_if_one_fails(sample_data):
@@ -595,6 +601,7 @@ def test_delete_habit_with_existing_logs_raises_error(sample_data):
             "date": "2026-05-10"
         }
     ]
+
 
 def test_delete_archived_habit_with_logs_raises_error(sample_data):
     add_habit(sample_data, "Reading", 30)
