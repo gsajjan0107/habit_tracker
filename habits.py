@@ -13,6 +13,10 @@ def add_habit(data, habit_name, target, description=""):
 
     target = validate_int(target, 1)
     created_at = get_today().isoformat()
+
+    if not isinstance(description, str):
+        raise ValueError("Input must be a string.")
+
     description = description.strip()
 
     habit_info = {
