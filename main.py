@@ -54,7 +54,7 @@ from helpers import (
     format_best_performing_habit_message,
     get_needs_attention_habit,
     format_needs_attention_habit_message,
-    )
+    get_logs_for_date)
 
 commands = {
     "1" : "Add habit",
@@ -412,17 +412,6 @@ def display_habit_details_screen(
     display_habit_weekly_info(habit, weekly_stats)
     display_archived_info(details["archived_at"])
 
-
-# Habit details flow:
-# 1. Ensure at least one habit exists.
-# 2. Let the user select an active or archived habit.
-# 3. Load detail context:
-#    - habit details
-#    - reference date
-#    - streaks
-#    - weekly stats
-# 4. Prepare formatted display values.
-# 5. Render the habit details screen.
 def handle_view_habit_details(data):
     if not ensure_habits_exist(data):
         return
@@ -484,6 +473,7 @@ def handle_view_logs(data):
                     result = daily_stats(data, selected_date)
                     completed = sorted(result["completed"])
                     pending = sorted(result["pending"])
+                    day_logs = get_logs_for_date(data, selected_date)
                     break
 
                 except ValueError as e:
@@ -500,7 +490,15 @@ def handle_view_logs(data):
 
             if completed:
                 display_message(f"\n✅ Logged habits ({len(completed)}):")
-                display_numbered_list(completed)
+
+                for index, log in enumerate(day_logs, start=1):
+                    message = f"{index}. {log['habit']}"
+
+                    if log["note"]:
+                        message += f" - {log['note']}"
+
+                    display_message(message)
+
             else:
                 display_message(f"\nNo habits logged on {formatted_date}.")
 
