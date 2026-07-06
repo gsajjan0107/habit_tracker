@@ -6,12 +6,14 @@ import pytest
 # ===== data helpers =====
 
 def make_habit(
+    id=1,
     target=5,
     created_at="2026-05-01",
     archived_at=None,
     description=""
 ):
     return {
+        "id": id,
         "target_per_week": target,
         "created_at": created_at,
         "archived_at": archived_at,
@@ -1282,7 +1284,9 @@ def test_handle_view_logs_shows_logged_habits_for_selected_date(monkeypatch):
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (2):" in messages
     assert "\n🚫 Unfinished habits (1):" in messages
-    assert numbered_lists == [["Reading", "Workout"], ["Coding"]]
+    assert numbered_lists == [["Coding"]]
+    assert "1. Reading" in messages
+    assert "2. Workout" in messages
 
 
 def test_handle_view_logs_shows_message_when_no_logs_for_selected_date(monkeypatch):
@@ -1335,7 +1339,7 @@ def test_handle_view_logs_retries_when_date_is_invalid(monkeypatch):
     assert "\n==== VIEW LOGS ====" in messages
     assert "\n✅ Logged habits (1):" in messages
     assert "\nAll active habits completed for this date." in messages
-    assert numbered_lists == [["Workout"]]
+    assert "1. Workout" in messages
 
 
 def test_handle_view_logs_shows_message_when_no_habits_exist(monkeypatch):

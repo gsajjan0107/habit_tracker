@@ -52,6 +52,7 @@ def test_save_data_writes_valid_data(tmp_path, monkeypatch):
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -137,6 +138,7 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -150,12 +152,14 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
                 "description": ""
             },
             "Reading": {
+                "id": 2,
                 "target_per_week": 3,
                 "created_at": "2026-05-02",
                 "archived_at": None,
@@ -188,6 +192,7 @@ def test_save_data_does_not_create_backup_when_file_does_not_exist(tmp_path, mon
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -349,6 +354,7 @@ def test_migrate_data_does_not_change_habits_that_already_have_description():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,

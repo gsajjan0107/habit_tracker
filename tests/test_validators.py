@@ -129,6 +129,7 @@ def test_validate_data_structure_missing_target_per_week():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "created_at": "2026-05-01",
                 "archived_at": None,
                 "description": ""
@@ -149,6 +150,7 @@ def test_validate_data_structure_missing_created_at():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "archived_at": None,
                 "description": ""
@@ -168,6 +170,7 @@ def test_validate_data_structure_missing_log_date():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -192,6 +195,7 @@ def test_validate_data_structure_missing_log_habit():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -216,6 +220,7 @@ def test_validate_data_structure_log_entry_not_dict():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -239,6 +244,7 @@ def test_validate_data_structure_log_after_archive_date():
         "schema_version": 1,
         "habits": {
             "Reading": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2020-05-01",
                 "archived_at": "2020-05-10",
@@ -266,6 +272,7 @@ def test_validate_data_structure_active_habit_log_success():
         "schema_version": 1,
         "habits": {
             "Reading": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2020-05-01",
                 "archived_at": None,
@@ -292,6 +299,7 @@ def test_validate_data_structure_missing_archived_at():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01"
             }
@@ -310,6 +318,7 @@ def test_validate_data_structure_log_references_missing_habit():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -336,6 +345,7 @@ def test_validate_data_structure_habit_with_extra_key_fails():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -357,6 +367,7 @@ def test_validate_data_structure_log_with_extra_key_fails():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -422,6 +433,7 @@ def test_validate_data_structure_missing_description():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -442,6 +454,7 @@ def test_validate_data_structure_description_must_be_string():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
@@ -462,6 +475,7 @@ def test_validate_data_structure_valid_description():
         "schema_version": 1,
         "habits": {
             "Workout": {
+                "id": 1,
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,

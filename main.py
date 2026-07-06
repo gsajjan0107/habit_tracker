@@ -471,6 +471,7 @@ def handle_view_logs(data):
 
                     selected_date = validate_date(date)
                     result = daily_stats(data, selected_date)
+                    print(result)
                     completed = sorted(result["completed"])
                     pending = sorted(result["pending"])
                     day_logs = get_logs_for_date(data, selected_date)
