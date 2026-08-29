@@ -10,14 +10,19 @@ def make_habit(
     target=5,
     created_at="2026-05-01",
     archived_at=None,
-    description=""
+    description="",
+    scheduled_days=None,
 ):
+    if scheduled_days is None:
+        scheduled_days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
     return {
         "id": id,
         "target_per_week": target,
         "created_at": created_at,
         "archived_at": archived_at,
         "description": description,
+        "scheduled_days": scheduled_days.copy(),
     }
 
 
@@ -65,8 +70,9 @@ def run_handle_toggle_archive(monkeypatch, data, user_inputs):
     inputs = iter(user_inputs)
 
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_handle_operation_result(updated_data, result):
         handled_results.append({
@@ -111,6 +117,7 @@ def run_handle_delete(monkeypatch, data, user_inputs):
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
         save_calls.append(copy.deepcopy(updated_data))
@@ -210,6 +217,7 @@ def test_handle_add_can_be_cancelled_at_name_input(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "q")
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("main.save_data", lambda data: save_calls.append(data))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
     main.handle_add(data)
 
@@ -224,12 +232,7 @@ def test_handle_add_adds_new_habit_and_saves_data(monkeypatch):
     messages, save_calls = run_handle_add(
         monkeypatch,
         data,
-        user_inputs=[
-            "Workout",
-            "5",
-            ""
-        ],
-    )
+        user_inputs=["Workout", "5", "", ""])
 
     assert len(save_calls) == 1
     assert "Workout" in data["habits"]
@@ -248,13 +251,7 @@ def test_handle_add_retries_when_habit_already_exists(monkeypatch):
     messages, save_calls = run_handle_add(
         monkeypatch,
         data,
-        user_inputs=[
-            "Workout",
-            "Reading",
-            "3",
-            ""
-        ],
-    )
+        user_inputs=["Workout", "Reading", "3", "", ""])
 
     assert "Habit already exists." in messages
     assert len(save_calls) == 1
@@ -275,13 +272,7 @@ def test_handle_add_retries_when_habit_exists_but_is_archived(monkeypatch):
     messages, save_calls = run_handle_add(
         monkeypatch,
         data,
-        user_inputs=[
-            "Workout",
-            "Reading",
-            "3",
-            ""
-        ],
-    )
+        user_inputs=["Workout", "Reading", "3", "", ""])
 
     assert "Habit exists but is archived. Unarchive it instead." in messages
     assert len(save_calls) == 1
@@ -299,13 +290,7 @@ def test_handle_add_retries_when_target_is_invalid(monkeypatch):
     messages, save_calls = run_handle_add(
         monkeypatch,
         data,
-        user_inputs=[
-            "Workout",
-            "0",
-            "5",
-            ""
-        ],
-    )
+        user_inputs=["Workout", "0", "5", "", ""])
 
     assert "Error: Input number must be >= 1" in messages
     assert len(save_calls) == 1
@@ -321,13 +306,7 @@ def test_handle_add_retries_when_habit_name_is_invalid(monkeypatch):
     messages, save_calls = run_handle_add(
         monkeypatch,
         data,
-        user_inputs=[
-            "ab",
-            "Workout",
-            "5",
-            ""
-        ],
-    )
+        user_inputs=["ab", "Workout", "5", "", ""])
 
     assert "Error: Minimum 3 characters required." in messages
     assert len(save_calls) == 1
@@ -343,14 +322,7 @@ def test_handle_add_saves_only_after_valid_habit_is_added(monkeypatch):
     messages, save_calls = run_handle_add(
         monkeypatch,
         data,
-        user_inputs=[
-            "ab",
-            "Workout",
-            "0",
-            "5",
-            ""
-        ],
-    )
+        user_inputs=["ab", "Workout", "0", "5", "", ""])
 
     assert any("Minimum 3 characters required." in message for message in messages)
     assert any("Input number must be >= 1" in message for message in messages)
@@ -371,13 +343,7 @@ def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch)
     messages, save_calls = run_handle_add(
         monkeypatch,
         data,
-        user_inputs=[
-            "Workout",
-            "Reading",
-            "3",
-            ""
-        ],
-    )
+        user_inputs=["Workout", "Reading", "3", "", ""])
 
     assert "Habit exists but is archived. Unarchive it instead." in messages
 
@@ -394,16 +360,10 @@ def test_handle_add_does_not_save_when_habit_exists_but_is_archived(monkeypatch)
 
 def test_handle_toggle_archive_can_be_cancelled(monkeypatch):
     data = make_data(
-        habits={
-            "Workout": make_habit(),
-        }
-    )
+        habits = {"Workout": make_habit()}
+        )
 
-    messages, handled_results = run_handle_toggle_archive(
-        monkeypatch,
-        data,
-        user_inputs=["q"],
-    )
+    messages, handled_results = run_handle_toggle_archive(monkeypatch, data, user_inputs=["q"])
 
     assert "Archive/unarchive cancelled." in messages
     assert handled_results == []
@@ -1403,7 +1363,7 @@ def test_handle_dashboard_shows_daily_summary_and_todays_focus(monkeypatch):
     assert "\n🎯 Today's Focus" in messages
     assert "- Reading: 3 more needed this week, 3 days available" in messages
     assert "\n📊 Weekly Progress (2 habits):" in messages
-    assert "\n✅ Completed Today" in messages
+    assert "\n✅ Completed habits:" in messages
     assert ["Workout"] in numbered_lists
     assert ["Reading"] in numbered_lists
 
@@ -1596,6 +1556,7 @@ def test_handle_view_habit_details_can_cancel(monkeypatch):
     messages = []
 
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("builtins.input", lambda _: "q")
 
     main.handle_view_habit_details(data)
@@ -1691,8 +1652,8 @@ def test_handle_dashboard_shows_sections_in_decision_focused_order(monkeypatch):
     )
 
     daily_summary_index = messages.index("\n📌 Daily Summary")
-    completed_today_index = messages.index("\n✅ Completed Today")
-    pending_today_index = messages.index("\n⏳ Pending Today")
+    completed_today_index = messages.index("\n✅ Completed habits:")
+    pending_today_index = messages.index("\n⏳ Pending habits:")
     todays_focus_index = messages.index("\n🎯 Today's Focus")
     weekly_progress_index = messages.index("\n📊 Weekly Progress (2 habits):")
 
@@ -1715,6 +1676,7 @@ def test_handle_view_habit_details_can_be_cancelled_at_selection(monkeypatch):
     messages = []
 
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("builtins.input", lambda _: "q")
 
     main.handle_view_habit_details(data)
@@ -1769,9 +1731,9 @@ def test_handle_dashboard_shows_all_habits_completed_message(monkeypatch):
         ],
     )
 
-    assert "\n✅ Completed Today" in messages
-    assert "\n⏳ Pending Today" in messages
-    assert "All active habits completed for today." in messages
+    assert "\n✅ Completed habits:" in messages
+    assert "\n⏳ Pending habits:" in messages
+    assert "All active habits completed for this date." in messages
     assert ["Reading", "Workout"] in numbered_lists
 
 
@@ -1794,8 +1756,8 @@ def test_handle_dashboard_shows_pending_today_habits(monkeypatch):
         ],
     )
 
-    assert "\n✅ Completed Today" in messages
-    assert "\n⏳ Pending Today" in messages
+    assert "\n✅ Completed habits:" in messages
+    assert "\n⏳ Pending habits:" in messages
     assert ["Workout"] in numbered_lists
     assert ["Reading"] in numbered_lists
 
@@ -1819,7 +1781,7 @@ def test_handle_dashboard_shows_completed_today_habits(monkeypatch):
         ],
     )
 
-    assert "\n✅ Completed Today" in messages
+    assert "\n✅ Completed habits:" in messages
     assert ["Workout"] in numbered_lists
 
 
@@ -1840,8 +1802,8 @@ def test_handle_dashboard_shows_no_completed_habits_message(monkeypatch):
         ],
     )
 
-    assert "\n✅ Completed Today" in messages
-    assert "No habits completed yet today." in messages
+    assert "\n✅ Completed habits:" in messages
+    assert "No habits completed." in messages
     assert ["Reading", "Workout"] in numbered_lists
 
 
@@ -2082,6 +2044,7 @@ def test_handle_view_habit_details_can_be_cancelled_at_selection_with_uppercase_
     messages = []
 
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("builtins.input", lambda _: "Q")
 
     main.handle_view_habit_details(data)
@@ -2366,252 +2329,6 @@ def test_handle_view_habit_details_shows_consistency_rating(monkeypatch):
     assert "Consistency: 60.00% - Good" in messages
 
 
-def test_get_habit_detail_reference_date_uses_archived_at_when_present():
-    reference_date = main.get_habit_detail_reference_date("2026-05-10")
-
-    assert reference_date == date(2026, 5, 10)
-
-
-def test_get_habit_detail_reference_date_uses_today_when_not_archived(monkeypatch):
-    monkeypatch.setattr("validators.get_today", lambda: date(2026, 5, 15))
-
-    reference_date = main.get_habit_detail_reference_date(None)
-
-    assert reference_date == date(2026, 5, 15)
-
-
-def test_display_last_logged_info_shows_never_when_no_logs(monkeypatch):
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_last_logged_info(None, date(2026, 5, 10))
-
-    assert "Last logged: Never" in messages
-    assert "Days since last log: N/A" in messages
-
-
-def test_display_last_logged_info_shows_last_logged_date_and_gap(monkeypatch):
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_last_logged_info("2026-05-08", date(2026, 5, 10))
-
-    assert "Last logged: Friday, 08 May 2026" in messages
-    assert "Days since last log: 2 days" in messages
-
-
-def test_display_archived_info_shows_archived_date(monkeypatch):
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_archived_info("2026-05-10")
-
-    assert "Archived: Sunday, 10 May 2026" in messages
-
-
-def test_display_archived_info_shows_nothing_when_not_archived(monkeypatch):
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_archived_info(None)
-
-    assert messages == []
-
-
-def test_display_habit_weekly_info_shows_weekly_progress(monkeypatch):
-    weekly_stats = {
-        "Workout": {
-            "done": 3,
-            "target": 5,
-            "remaining": 2,
-            "percentage": 60.0,
-            "status": "behind",
-            "available_days_left": 4,
-            "is_possible": True
-        }
-    }
-
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_habit_weekly_info("Workout", weekly_stats)
-
-    assert any("This week: 3/5 completed (60.00%)" in message for message in messages)
-    assert "Remaining this week: 2" in messages
-
-
-def test_display_habit_weekly_info_shows_nothing_when_habit_missing(monkeypatch):
-    weekly_stats = {}
-
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_habit_weekly_info("Workout", weekly_stats)
-
-    assert messages == []
-
-
-def test_display_habit_detail_summary_shows_basic_detail_lines(monkeypatch):
-    details = {
-        "name": "Workout",
-        "target_per_week": 5,
-        "total_logs": 10,
-        "description": "",
-    }
-
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_habit_detail_summary(
-        details,
-        created_at="Friday, 01 May 2026",
-        habit_age_display="9 days",
-        habit_status="Archived",
-        average_logs_display="7.00",
-        consistency_display="100.00% - Elite",
-    )
-
-    assert "\n==== HABIT DETAILS ====\n" in messages
-    assert "Habit: Workout" in messages
-    assert "Description: No description provided" in messages
-    assert "Target: 5 per week" in messages
-    assert "Created: Friday, 01 May 2026" in messages
-    assert "Habit age: 9 days" in messages
-    assert "Status: Archived" in messages
-    assert "Total logs: 10" in messages
-    assert "Average logs per week: 7.00" in messages
-    assert "Consistency: 100.00% - Elite" in messages
-
-
-def test_display_streak_info_shows_current_and_best_streak(monkeypatch):
-    streak_display = {
-        "current_streak": "2 days",
-        "longest_streak": "5 days",
-    }
-
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-
-    main.display_streak_info(streak_display)
-
-    assert "Current streak: 2 days" in messages
-    assert "Best streak: 5 days" in messages
-
-
-def test_prepare_habit_detail_display_values_returns_formatted_values():
-    details = {
-        "name": "Workout",
-        "target_per_week": 5,
-        "created_at": "2026-05-01",
-        "archived_at": "2026-05-10",
-        "is_archived": True,
-        "total_logs": 3,
-        "last_logged_at": "2026-05-10",
-        "description": "",
-    }
-
-    habit_streaks = {
-        "Workout": {
-            "current_streak": 2,
-            "longest_streak": 5,
-        }
-    }
-
-    selected_date = date(2026, 5, 10)
-
-    result = main.prepare_habit_detail_display_values(
-        details,
-        "Workout",
-        habit_streaks,
-        selected_date,
-    )
-
-    assert result["habit_status"] == "Archived"
-    assert result["streak_display"] == {
-        "current_streak": "2 days",
-        "longest_streak": "5 days",
-    }
-    assert result["created_at"] == "Friday, 01 May 2026"
-    assert result["habit_age_display"] == "9 days"
-    assert result["average_logs_display"] == "2.10"
-    assert result["consistency_display"] == "30.00% - Weak"
-
-
-def test_select_habit_from_archive_menu_returns_selected_habit(monkeypatch):
-    data = make_data(
-        habits={
-            "Workout": make_habit(),
-            "Reading": make_habit(),
-        },
-        logs=[],
-    )
-
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("builtins.input", lambda _: "2")
-
-    selected_habit = main.select_habit_from_archive_menu(
-        data,
-        "Selection cancelled.",
-    )
-
-    assert selected_habit == "Workout"
-
-
-def test_select_habit_from_archive_menu_returns_none_when_cancelled(monkeypatch):
-    data = make_data(
-        habits={
-            "Workout": make_habit(),
-        },
-        logs=[],
-    )
-
-    messages = []
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("builtins.input", lambda _: "q")
-
-    selected_habit = main.select_habit_from_archive_menu(
-        data,
-        "Selection cancelled.",
-    )
-
-    assert selected_habit is None
-    assert "Selection cancelled." in messages
-
-
-def test_select_habit_from_archive_menu_retries_after_invalid_choice(monkeypatch):
-    data = make_data(
-        habits={
-            "Workout": make_habit(),
-        },
-        logs=[],
-    )
-
-    messages = []
-    inputs = iter(["99", "1"])
-
-    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-
-    selected_habit = main.select_habit_from_archive_menu(
-        data,
-        "Selection cancelled.",
-    )
-
-    assert selected_habit == "Workout"
-    assert any(message.startswith("Error:") for message in messages)
-
-
 def test_get_habit_detail_context_returns_details_dates_streaks_and_weekly_stats():
     data = make_data(
         habits={
@@ -2676,29 +2393,12 @@ def test_display_habit_details_screen_shows_all_detail_sections(monkeypatch):
         }
     }
 
-    display_values = {
-        "created_at": "Friday, 01 May 2026",
-        "habit_age_display": "9 days",
-        "habit_status": "Archived",
-        "average_logs_display": "2.10",
-        "consistency_display": "30.00% - Weak",
-        "streak_display": {
-            "current_streak": "2 days",
-            "longest_streak": "5 days",
-        },
-    }
-
     messages = []
 
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
 
-    main.display_habit_details_screen(
-        "Workout",
-        details,
-        selected_date,
-        weekly_stats,
-        display_values,
-    )
+    main.display_habit_details_screen("Workout", details, selected_date,
+    {"Workout": {"current_streak": 2, "longest_streak": 5}},weekly_stats)
 
     assert "Habit: Workout" in messages
     assert "Description: Strength training" in messages

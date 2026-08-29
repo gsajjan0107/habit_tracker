@@ -1,9 +1,8 @@
-import pytest
 from datetime import date
-
-import helpers
-import habits
+import pytest
 import validators
+import habits
+import helpers
 
 
 @pytest.fixture

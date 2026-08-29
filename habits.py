@@ -1,8 +1,9 @@
-from validators import validate_string, validate_int, validate_date
+from validators import validate_string, validate_int, validate_date, validate_scheduled_days
 from helpers import get_today, habit_exists, is_habit_archived
 from helpers import make_result, habit_has_logs, get_next_habit_id
+from config import DEFAULT_SCHEDULED_DAYS
 
-def add_habit(data, habit_name, target, description=""):
+def add_habit(data, habit_name, target, description="", scheduled_days=None):
     habit_name = validate_string(habit_name, 3, 20)
 
     if habit_exists(data, habit_name):
@@ -11,7 +12,15 @@ def add_habit(data, habit_name, target, description=""):
         else:
             raise ValueError("Habit already exists.")
 
+    if scheduled_days is None:
+        scheduled_days = DEFAULT_SCHEDULED_DAYS.copy()
+
+    scheduled_days = validate_scheduled_days(scheduled_days)
+
     target = validate_int(target, 1)
+    if len(scheduled_days) < target:
+        raise ValueError("No. of scheduled days per week cannot be less than target.")
+    
     created_at = get_today().isoformat()
 
     if not isinstance(description, str):
@@ -25,7 +34,8 @@ def add_habit(data, habit_name, target, description=""):
         "target_per_week": target,
         "created_at": created_at,
         "archived_at": None,
-        "description": description
+        "description": description,
+        "scheduled_days": scheduled_days,
     }
 
     habits = data["habits"]
@@ -207,6 +217,9 @@ def update_habit_target(data, habit_name, target_per_week):
     if not habit_exists(data, habit_name):
         raise ValueError("Habit does not exist.")
 
+    if target > len(data["habits"][habit_name]["scheduled_days"]):
+        raise ValueError("Target cannot be greater than the number of scheduled days.")
+
     data["habits"][habit_name]["target_per_week"] = target
 
     return f"{habit_name} target updated to {target} per week."
@@ -245,3 +258,17 @@ def update_habit_description(data, habit_name, description):
     data["habits"][habit_name]["description"] = description
 
     return f"{habit_name} description updated."
+
+def edit_habit_schedule(data, habit_name, scheduled_days):
+    habit_name = validate_string(habit_name, 3, 20)
+
+    if not habit_exists(data, habit_name):
+        raise ValueError("Habit does not exist.")
+
+    scheduled_days = validate_scheduled_days(scheduled_days)
+
+    if len(scheduled_days) < data["habits"][habit_name]["target_per_week"]:
+        raise ValueError("No. of scheduled days per week cannot be less than target.")
+
+    data["habits"][habit_name]["scheduled_days"] = scheduled_days
+    return f"{habit_name}'s scheduled days updated."

@@ -1,25 +1,34 @@
 from datetime import datetime, date
 from helpers import get_today, display_message
 import re # for validate_string
+from config import VALID_DAYS, DEFAULT_SCHEDULED_DAYS
+
+def validate_keys(dict_data, required_keys, path):
+    actual_keys = set(dict_data)
+
+    missing = set(required_keys) - actual_keys
+    unexpected = actual_keys - set(required_keys)
+
+    if missing:
+        for key in required_keys:
+            if key not in actual_keys:
+                return False, f"{path}.{key} → missing key."
+
+    if unexpected:
+        return False, f"{path} → invalid keys: '{next(iter(unexpected))}'."
+
+    return True, None
 
 def validate_data_structure(data):
 
     if not isinstance(data, dict):
         return False, "data → expected dict, got something else."
 
-    if "schema_version" not in data:
-        return False, "schema_version → missing key."
-
-    if "habits" not in data:
-        return False, "data.habits → missing key."
-
-    if "logs" not in data:
-        return False, "data.logs → missing key."
-
     required_keys = {"schema_version", "habits", "logs"}
+    success, msg = validate_keys(data, required_keys, "data")
 
-    if set(data.keys()) != required_keys:
-        return False, "data → invalid keys."
+    if not success:
+        return False, msg
 
     if not isinstance(data["schema_version"], int):
         return False, "schema_version → expected int."
@@ -53,34 +62,18 @@ def validate_habits_data_structure(data):
         if not isinstance(habit_data, dict):
             return False, f"habits['{habit}'] → expected dict."
 
-        if "id" not in habit_data:
-            return False, f"habits['{habit}'].id → missing key."
+        required_keys = ("id", "target_per_week", "created_at", "archived_at", "description", "scheduled_days")
+        success, msg = validate_keys(habit_data, required_keys, f"habits['{habit}']")
 
-        if "target_per_week" not in habit_data:
-            return False, f"habits['{habit}'].target_per_week → missing key."
-
-        if "created_at" not in habit_data:
-            return False, f"habits['{habit}'].created_at → missing key."
-
-        if "archived_at" not in habit_data:
-            return False, f"habits['{habit}'].archived_at → missing key."
-
-        if "description" not in habit_data:
-            return False, (
-                f"habits['{habit}'].description → missing key."
-            )
-
-        required_keys = {"id", "target_per_week", "created_at", "archived_at", "description"}
-
-        if set(habit_data.keys()) != required_keys:
-            return False, f"habits['{habit}'] → invalid keys."
+        if not success:
+            return False, msg
 
         habit_id = habit_data["id"]
         target = habit_data["target_per_week"]
         created_at = habit_data["created_at"]
         archived_at = habit_data["archived_at"]
         description = habit_data["description"]
-
+        scheduled_days = habit_data["scheduled_days"]
 
         if not isinstance(habit_id, int) or habit_id < 1:
             return False, f"habits['{habit}'].id → expected int >= 1."
@@ -108,10 +101,26 @@ def validate_habits_data_structure(data):
                 return False, f"habits['{habit}'] → archived_at cannot be before created_at."
 
         if not isinstance(description, str):
-            return False, (
-                f"habits['{habit}'].description "
-                "→ expected string."
-            )
+            return False, f"habits['{habit}'].description → expected string."
+
+        if not isinstance(scheduled_days, list):
+            return False, f"habits['{habit}'].scheduled_days → expected list."
+
+        if not scheduled_days:
+            return False, f"habits['{habit}'].scheduled_days → cannot be empty."
+
+        for day in scheduled_days:
+            if not isinstance(day, str):
+                return False, f"habits['{habit}'].scheduled_days contains non-string value."
+
+            if day not in VALID_DAYS:
+                return False, f"habits['{habit}'].scheduled_days → invalid day: '{day}'."
+
+        if len(scheduled_days) != len(set(scheduled_days)):
+            return False, f"habits['{habit}'].scheduled_days cannot have duplicates."
+
+        if len(scheduled_days) < target:
+            return False, f"habits['{habit}'].scheduled_days → cannot be fewer than target_per_week."
 
     return True, None
 
@@ -126,19 +135,11 @@ def validate_logs_data_structure(data):
         if not isinstance(log, dict):
             return False, f"logs[{i}] → expected dict."
 
-        if "habit" not in log:
-            return False, f"logs[{i}].habit → missing key."
+        required_keys = ("habit", "date", "note")
+        success, msg = validate_keys(log, required_keys, f"logs[{i}]")
 
-        if "date" not in log:
-            return False, f"logs[{i}].date → missing key."
-
-        if "note" not in log:
-            return False, f"logs[{i}].note → missing key."
-
-        required_keys = {"habit", "date", "note"}
-
-        if set(log.keys()) != required_keys:
-            return False, f"logs[{i}] → invalid keys."
+        if not success:
+            return False, msg
 
         habit = log["habit"]
 
@@ -180,21 +181,12 @@ def validate_logs_data_structure(data):
 
     return True, None
 
-def get_valid_input(prompt: str, validator):
-    """Prompt user until valid input is entered and return validated result."""
-    while True:
-        value = input(prompt).strip()
-        try:
-            return validator(value)
-        except ValueError as e:
-            display_message(f"Error: {e}")
-
 def validate_int(value: str, min_val=None, max_val=None) -> int:
-    """Convert input to int and enforce optional minimum and maximum limits."""
+    """Convert value to an integer and check its range."""
     try:
         num = int(value)
     except ValueError:
-        raise ValueError(f"Input must be an integer.")
+        raise ValueError("Input must be an integer.")
 
     if min_val is not None and num < min_val:
         raise ValueError(f"Input number must be >= {min_val}")
@@ -222,16 +214,8 @@ def validate_string(value: str, min_len=1, max_len=None) -> str:
 
     return value.title()
 
-def validate_choice(value: str, choices: list[str]) -> str:
-    """Validate input against allowed choices and return normalized value."""
-    value = value.strip().lower()
-
-    if value not in choices:
-        raise ValueError(f"Choose from {choices}")
-
-    return value
-
 def validate_date(value):
+    """Validate a date and return it as a date object."""
     today = get_today()
 
     if value is None:
@@ -253,12 +237,43 @@ def validate_date(value):
             value = datetime.strptime(value, "%Y-%m-%d").date()
 
         except ValueError:
-            raise ValueError("Use format YYYY-MM-DD (e.g., 2026-04-25)")
+            raise ValueError("Use format YYYY-MM-DD format (e.g., 2026-04-25)")
 
     else:
-        raise ValueError("Date must be a string in format YYYY-MM-DD.")
+        raise ValueError("Use format YYYY-MM-DD format (e.g., 2026-04-25)")
 
     if value > today:
         raise ValueError("Cannot accept future date.")
 
     return value
+
+def get_valid_input(prompt: str, validator):
+    """Prompt user until valid input is entered and return validated result."""
+    while True:
+        value = input(prompt).strip()
+        try:
+            return validator(value)
+        except ValueError as e:
+            display_message(f"Error: {e}")
+
+def validate_choice(value: str, choices: list[str]) -> str:
+    """Validate input against allowed choices and return normalized value."""
+    value = value.strip().lower()
+
+    if value not in choices:
+        raise ValueError(f"Choose from {choices}")
+
+    return value
+
+def validate_scheduled_days(scheduled_days):
+
+    if not isinstance(scheduled_days, list):
+        raise ValueError("scheduled_days must be a list.")
+
+    if not scheduled_days:
+        raise ValueError("scheduled_days is empty.")
+
+    if not all(day in VALID_DAYS for day in scheduled_days):
+        raise ValueError("scheduled_days contains an invalid day.")
+
+    return [day for day in DEFAULT_SCHEDULED_DAYS if day in scheduled_days]

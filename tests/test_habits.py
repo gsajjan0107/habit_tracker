@@ -12,6 +12,7 @@ from habits import (
     update_habit_target,
     get_habit_logs,
     update_habit_description,
+    edit_habit_schedule
     )
 
 
@@ -127,10 +128,77 @@ def test_add_habit_uses_empty_description_by_default(sample_data):
     )
 
 
+def test_add_habit_rejects_non_list_scheduled_days(sample_data):
+    with pytest.raises(ValueError, match="scheduled_days must be a list."):
+        add_habit(sample_data, "Workout", 3, scheduled_days="Mon")
+
+
+def test_add_habit_rejects_invalid_scheduled_day(sample_data):
+    with pytest.raises(
+        ValueError,
+        match="scheduled_days contains an invalid day.",
+    ):
+        add_habit(sample_data, "Workout", 3, scheduled_days=["Mon", "Banana"])
+
+
+def test_add_habit_rejects_target_greater_than_scheduled_days(sample_data):
+    with pytest.raises(
+        ValueError,
+        match="No. of scheduled days per week cannot be less than target.",
+    ):
+        add_habit(
+            sample_data,
+            "Workout",
+            5,
+            scheduled_days=["Mon", "Tue", "Wed"],
+        )
+
+
+# edit_habit_schedule tests
+
+def test_edit_habit_schedule_rejects_non_list(sample_data):
+    add_habit(sample_data, "Workout", 3)
+
+    with pytest.raises(ValueError, match="scheduled_days must be a list."):
+        edit_habit_schedule(sample_data, "Workout", "Mon")
+
+
+def test_edit_habit_schedule_rejects_invalid_day(sample_data):
+    add_habit(sample_data, "Workout", 3)
+
+    with pytest.raises(
+        ValueError,
+        match="scheduled_days contains an invalid day.",
+    ):
+        edit_habit_schedule(sample_data, "Workout", ["Mon", "Banana", "Wed"])
+
+
+def test_edit_habit_schedule_success(sample_data):
+    add_habit(
+        sample_data,
+        "Workout",
+        3,
+        scheduled_days=["Mon", "Tue", "Wed"],
+    )
+
+    result = edit_habit_schedule(
+        sample_data,
+        "Workout",
+        ["Thu", "Fri", "Sat"],
+    )
+
+    assert result == "Workout's scheduled days updated."
+    assert sample_data["habits"]["Workout"]["scheduled_days"] == [
+        "Thu",
+        "Fri",
+        "Sat",
+    ]
+
+
 # log_habit tests
 
 def test_log_habit_success(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     result = log_habit(sample_data, "2026-05-10", "Reading")
 
@@ -146,7 +214,7 @@ def test_log_habit_success(sample_data):
 
 
 def test_log_habit_duplicate_same_day(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     log_habit(sample_data, "2026-05-10", "Reading")
 
@@ -157,7 +225,7 @@ def test_log_habit_duplicate_same_day(sample_data):
 
 
 def test_log_habit_different_dates_allowed(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     sample_data["habits"]["Reading"]["created_at"] = "2026-05-01"
 
@@ -168,7 +236,7 @@ def test_log_habit_different_dates_allowed(sample_data):
 
 
 def test_log_multiple_habits_same_date(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
     add_habit(sample_data, "Workout", 7)
 
     log_habit(sample_data, "2026-05-10", "Reading")
@@ -187,7 +255,7 @@ def test_log_habit_nonexistent_habit(sample_data):
 
 
 def test_log_habit_after_archive_date_fails(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     sample_data["habits"]["Reading"]["created_at"] = "2020-05-01"
     sample_data["habits"]["Reading"]["archived_at"] = "2020-05-10"
@@ -199,7 +267,7 @@ def test_log_habit_after_archive_date_fails(sample_data):
 
 
 def test_log_habit_before_archive_date_success(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     sample_data["habits"]["Reading"]["created_at"] = "2020-05-01"
     sample_data["habits"]["Reading"]["archived_at"] = "2020-05-10"
@@ -217,7 +285,7 @@ def test_log_habit_before_archive_date_success(sample_data):
 
 
 def test_log_habit_on_archive_date_success(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     sample_data["habits"]["Reading"]["created_at"] = "2020-05-01"
     sample_data["habits"]["Reading"]["archived_at"] = "2020-05-10"
@@ -228,7 +296,7 @@ def test_log_habit_on_archive_date_success(sample_data):
 
 
 def test_log_habit_before_creation_date(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     sample_data["habits"]["Reading"]["created_at"] = "2026-05-10"
 
@@ -248,7 +316,7 @@ def test_log_habit_no_habits_fails(sample_data):
 
 
 def test_log_habit_on_creation_date(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     result = log_habit(sample_data, "2026-05-10", "Reading")
 
@@ -256,7 +324,7 @@ def test_log_habit_on_creation_date(sample_data):
 
 
 def test_log_habit_invalid_date(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     with pytest.raises(ValueError):
         log_habit(sample_data, "banana", "Reading")
@@ -545,7 +613,7 @@ def test_delete_log_no_habits_fails(sample_data):
 # delete_habit tests
 
 def test_delete_habit_success(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     result = delete_habit(sample_data, "Reading")
 
@@ -573,8 +641,8 @@ def test_delete_archived_habit_without_logs(sample_data):
 
 
 def test_delete_habit_with_existing_logs_raises_error(sample_data):
-    add_habit(sample_data, "Reading", 30)
-    add_habit(sample_data, "Workout", 30)
+    add_habit(sample_data, "Reading", 7)
+    add_habit(sample_data, "Workout", 7)
 
     sample_data["logs"] = [
         {
@@ -604,7 +672,7 @@ def test_delete_habit_with_existing_logs_raises_error(sample_data):
 
 
 def test_delete_archived_habit_with_logs_raises_error(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
     log_habit(sample_data, "2026-05-10", "Reading")
     archive_habit(sample_data, "Reading")
 
@@ -622,7 +690,7 @@ def test_delete_archived_habit_with_logs_raises_error(sample_data):
 
 
 def test_delete_habit_with_multiple_logs_raises_error(sample_data):
-    add_habit(sample_data, "Reading", 30)
+    add_habit(sample_data, "Reading", 7)
 
     sample_data["logs"] = [
         {
@@ -705,6 +773,21 @@ def test_update_habit_target_invalid_target(sample_data):
 def test_update_habit_target_invalid_habit_name(sample_data):
     with pytest.raises(ValueError):
         update_habit_target(sample_data, "A", 5)
+
+
+def test_update_habit_target_rejects_target_greater_than_scheduled_days(sample_data):
+    add_habit(
+        sample_data,
+        "Workout",
+        3,
+        scheduled_days=["Mon", "Tue", "Wed"],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Target cannot be greater than the number of scheduled days.",
+    ):
+        update_habit_target(sample_data, "Workout", 4)
 
 
 # get_habit_logs tests

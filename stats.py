@@ -1,6 +1,7 @@
 from datetime import timedelta
+from config import DEFAULT_SCHEDULED_DAYS
 from validators import validate_date
-from helpers import is_habit_active_on_date
+from helpers import is_habit_active_on_date, get_scheduled_habits
 
 def logs_by_habit(data, date=None):
     logs = data["logs"]
@@ -54,14 +55,14 @@ def current_streak(log_dates, end_date):
 
     return streak
 
-def streaks(data, date=None):
+def streaks(data, date=None) -> dict:
     habits = data["habits"]
 
     if not habits:
         raise ValueError("No habits created.")
 
     date = validate_date(date)
-    habit_logs = logs_by_habit(data, date)
+    habit_logs = logs_by_habit(data, date) # {'habit1': {logs1, log2}, 'habit2': {logs1, log2}}
 
     result = {}
 
@@ -78,7 +79,8 @@ def streaks(data, date=None):
 
     return result
 
-def habit_weekly_completion(data, date=None):
+def habit_weekly_completion(data, date=None) -> dict:
+    """Returns a dict with info of weekly performance of habits."""
     habits = data["habits"]
 
     if not habits:
@@ -127,7 +129,12 @@ def habit_weekly_completion(data, date=None):
 
         available_days_left = 0
         if available_start <= available_end:
-            available_days_left = (available_end - available_start).days + 1
+            for day in range((available_end - available_start).days + 1):
+                current_date = available_start + timedelta(days=day)
+
+                if ("scheduled_days" not in info
+                    or current_date.strftime("%a") in info["scheduled_days"]):
+                    available_days_left += 1
 
         target = min(info["target_per_week"], active_days)
         done = habit_count.get(name, 0)
@@ -158,7 +165,7 @@ def habit_weekly_completion(data, date=None):
 
     return results
 
-def daily_stats(data, date=None):
+def daily_stats(data, date=None) -> dict:
     habits = data["habits"]
 
     if not habits:
@@ -166,8 +173,7 @@ def daily_stats(data, date=None):
 
     date = validate_date(date)
 
-    valid_habits = {name for name, info in habits.items()
-        if is_habit_active_on_date(info, date)}
+    valid_habits = get_scheduled_habits(data, date)
 
     if not valid_habits:
         return {
@@ -187,7 +193,6 @@ def daily_stats(data, date=None):
 
     completed = valid_habits & completed_on_date
     pending = valid_habits - completed
-
     total = len(valid_habits)
 
     return {

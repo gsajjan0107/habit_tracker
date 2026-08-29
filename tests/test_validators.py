@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import patch
 from datetime import datetime, date
-
-from validators import validate_data_structure, get_valid_input, validate_int, validate_string, validate_choice, validate_date
+from config import DEFAULT_SCHEDULED_DAYS
+from validators import validate_data_structure, get_valid_input, validate_int, validate_string, validate_choice, validate_date, validate_habits_data_structure
 
 # validate_int tests
 
@@ -174,7 +174,8 @@ def test_validate_data_structure_missing_log_date():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [
@@ -199,7 +200,8 @@ def test_validate_data_structure_missing_log_habit():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [
@@ -224,7 +226,8 @@ def test_validate_data_structure_log_entry_not_dict():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [
@@ -248,7 +251,8 @@ def test_validate_data_structure_log_after_archive_date():
                 "target_per_week": 5,
                 "created_at": "2020-05-01",
                 "archived_at": "2020-05-10",
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [
@@ -276,7 +280,8 @@ def test_validate_data_structure_active_habit_log_success():
                 "target_per_week": 5,
                 "created_at": "2020-05-01",
                 "archived_at": None,
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [
@@ -322,7 +327,8 @@ def test_validate_data_structure_log_references_missing_habit():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [
@@ -351,6 +357,7 @@ def test_validate_data_structure_habit_with_extra_key_fails():
                 "archived_at": None,
                 "description": "",
                 "wrong_key": None,
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [],
@@ -371,7 +378,8 @@ def test_validate_data_structure_log_with_extra_key_fails():
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [
@@ -459,6 +467,7 @@ def test_validate_data_structure_description_must_be_string():
                 "created_at": "2026-05-01",
                 "archived_at": None,
                 "description": 123,
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [],
@@ -480,6 +489,7 @@ def test_validate_data_structure_valid_description():
                 "created_at": "2026-05-01",
                 "archived_at": None,
                 "description": "Strength training",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
             }
         },
         "logs": [],
@@ -489,3 +499,52 @@ def test_validate_data_structure_valid_description():
 
     assert success is True
     assert msg is None
+
+
+# validate_habits_data_structure tests
+
+def test_validate_habits_data_structure_empty_scheduled_days_fails():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "id": 1,
+                "target_per_week": 3,
+                "created_at": "2026-05-10",
+                "archived_at": None,
+                "description": "",
+                "scheduled_days": [],
+            }
+        },
+        "logs": [],
+    }
+
+    success, msg = validate_habits_data_structure(data)
+
+    assert success is False
+    assert msg == "habits['Workout'].scheduled_days → cannot be empty."
+
+
+def test_validate_habits_data_structure_schedule_less_than_target_fails():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "id": 1,
+                "target_per_week": 5,
+                "created_at": "2026-05-10",
+                "archived_at": None,
+                "description": "",
+                "scheduled_days": ["Mon", "Tue", "Wed"],
+            }
+        },
+        "logs": [],
+    }
+
+    success, msg = validate_habits_data_structure(data)
+
+    assert success is False
+    assert msg == (
+        "habits['Workout'].scheduled_days → "
+        "cannot be fewer than target_per_week."
+    )

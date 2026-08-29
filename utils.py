@@ -3,6 +3,7 @@ from helpers import is_habit_archived, display_message
 from storage import save_data
 
 def get_selected_habits(pending):
+    """Gets input for multiple habits and returns habit names."""
     while True:
         raw = input("\nEnter habit numbers, 'all', or 'q' to cancel: ").strip().lower()
 
@@ -15,24 +16,24 @@ def get_selected_habits(pending):
 
         if raw == "all":
             return pending[:]
-    
+
         raw_choices = raw.split()
 
         # Remove Duplicates while preserving order
-        choices = []
+        habit_nums = []
         seen = set()
         for item in raw_choices:
             if item not in seen:
-                choices.append(item)
+                habit_nums.append(item)
                 seen.add(item)
-            
+
         # Validate inputs
         selected_habits = []
         errors = []
 
-        for choice in choices:
-            try: 
-                habit_num = validate_int(choice, 1, len(pending))
+        for habit_num in habit_nums:
+            try:
+                habit_num = validate_int(habit_num, 1, len(pending))
                 habit_name = pending[habit_num - 1]
                 selected_habits.append(habit_name)
             except ValueError as e:
@@ -42,19 +43,27 @@ def get_selected_habits(pending):
             for error in errors:
                 display_message(f"Error: {error}")
             continue
-        
+
         return selected_habits
 
-def format_habit_label(habit, archived):
-    return f"{habit} ({'archived' if archived else 'unarchived'})"
+def handle_operation_result(data, result):
+    success = result.get("success", False)
+    msg = result.get("msg", "Unknown operation result.")
 
-def build_archive_menu_entries(data, habits):
+    if success:
+        save_data(data)
+
+    display_message(msg)
+
+def get_habit_from_habit_menu(data, cancel_message):
+    """Gets input after showing habit menu. Returns habit name."""
+    habits = sorted(data["habits"])
+
     active_entries = []
     archived_entries = []
 
     for habit in habits:
         archived = is_habit_archived(data, habit)
-
         entry = {"habit": habit, "archived": archived}
 
         if archived:
@@ -67,24 +76,21 @@ def build_archive_menu_entries(data, habits):
 
     menu_entries = active_entries + archived_entries
 
-    return menu_entries
-
-def display_habit_archive_menu(data, habits):
-    menu_entries = build_archive_menu_entries(data, habits)
-
     for i, entry in enumerate(menu_entries, start=1):
         habit = entry["habit"]
         archived = entry["archived"]
-        label = format_habit_label(habit, archived)
+        label = f"{habit} ({'archived' if archived else 'unarchived'})"
         display_message(f"{i}. {label}")
 
-    return menu_entries
-    
-def handle_operation_result(data, result):
-    success = result.get("success", False)
-    msg = result.get("msg", "Unknown operation result.")
+    while True:
+        choice = input("\nSelect a habit number, or 'q' to cancel: ").strip().lower()
 
-    if success:
-        save_data(data)
+        if choice == "q":
+            display_message(cancel_message)
+            return None
 
-    display_message(msg)
+        try:
+            selected_index = validate_int(choice, 1, len(menu_entries))
+            return menu_entries[selected_index - 1]["habit"]
+        except ValueError as e:
+            display_message(f"Error: {e}")

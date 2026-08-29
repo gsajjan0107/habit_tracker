@@ -1,4 +1,6 @@
 import pytest
+from config import DEFAULT_SCHEDULED_DAYS
+from validators import validate_date
 from stats import daily_stats, streaks, habit_weekly_completion
 from habits import add_habit, log_habit
 
@@ -52,7 +54,7 @@ def test_daily_stats_excludes_future_created_habits(sample_data):
         "created_at": "2026-05-10",
         "archived_at": None
     }
-    
+
     result = daily_stats(sample_data, "2026-05-09")
 
     assert result["date"] == "2026-05-09"
@@ -67,7 +69,8 @@ def test_daily_stats_archived_after_date_still_valid(sample_data):
     sample_data["habits"]["Workout"] = {
         "target_per_week": 5,
         "created_at": "2026-05-01",
-        "archived_at": "2026-05-10"
+        "archived_at": "2026-05-10",
+        "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
     }
 
     result = daily_stats(sample_data, "2026-05-08")
@@ -81,7 +84,7 @@ def test_daily_stats_archived_before_date_excluded(sample_data):
         "created_at": "2026-05-01",
         "archived_at": "2026-05-05"
     }
-    
+
     result = daily_stats(sample_data, "2026-05-10")
 
     assert result["date"] == "2026-05-10"
@@ -624,3 +627,22 @@ def test_habit_weekly_completion_available_days_left_respects_created_date(sampl
     assert result["Workout"]["available_days_left"] == 5
 
 
+def test_habit_weekly_completion_counts_only_scheduled_days_left():
+    data = {
+        "schema_version": 1,
+        "habits": {
+            "Workout": {
+                "id": 1,
+                "target_per_week": 3,
+                "created_at": "2026-08-03",
+                "archived_at": None,
+                "description": "",
+                "scheduled_days": ["Mon", "Wed", "Fri"],
+            }
+        },
+        "logs": [],
+    }
+
+    result = habit_weekly_completion(data, validate_date("2026-08-05"))
+
+    assert result["Workout"]["available_days_left"] == 2

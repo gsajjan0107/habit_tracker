@@ -3,19 +3,16 @@ import shutil
 from datetime import datetime
 from typing import Dict, Any
 from validators import validate_data_structure
-from config import DATA_FILE
-
-def create_default_data():
-    return {
-        "schema_version": 1,
-        "habits": {},
-        "logs": [],
-    }
+from config import DATA_FILE, DEFAULT_SCHEDULED_DAYS
 
 HabitData = dict[str, Any]
 
 def create_data_file() -> HabitData:
-    data = create_default_data()
+    data = {
+        "schema_version": 1,
+        "habits": {},
+        "logs": [],
+    }
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
@@ -34,6 +31,7 @@ def migrate_data(data):
 
     habits = data.get("habits")
     if isinstance(habits, dict):
+
         existing_ids = {
             habit_data["id"]
             for habit_data in habits.values()
@@ -41,6 +39,7 @@ def migrate_data(data):
             and isinstance(habit_data.get("id"), int)
         }
         next_id = 1
+
         for habit_data in habits.values():
             if not isinstance(habit_data, dict):
                 continue
@@ -54,6 +53,10 @@ def migrate_data(data):
 
             if "description" not in habit_data:
                 habit_data["description"] = ""
+                was_migrated = True
+
+            if "scheduled_days" not in habit_data:
+                habit_data["scheduled_days"] = DEFAULT_SCHEDULED_DAYS.copy()
                 was_migrated = True
 
     logs = data.get("logs")
