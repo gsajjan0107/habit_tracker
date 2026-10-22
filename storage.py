@@ -9,9 +9,10 @@ HabitData = dict[str, Any]
 
 def create_data_file() -> HabitData:
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {},
         "logs": [],
+        "events": [],
     }
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -24,9 +25,17 @@ def migrate_data(data):
         return data, False
 
     was_migrated = False
+    version = data.get("schema_version", 1)
 
-    if "schema_version" not in data:
-        data["schema_version"] = 1
+    if (not isinstance(version, int)
+        or isinstance(version, bool)
+        or version not in (1, 2)
+    ):
+        return data, False
+
+    if version == 1:
+        data.setdefault("events", [])
+        data["schema_version"] = 2
         was_migrated = True
 
     habits = data.get("habits")
@@ -92,10 +101,20 @@ def load_data() -> HabitData:
             data = json.load(f)
 
         data, was_migrated = migrate_data(data)
+        if not isinstance(data, dict):
+            raise ValueError("Invalid data file: expected a dictionary (JSON object).")
 
-        is_valid, _ = validate_data_structure(data)
+        version = data.get("schema_version", 1)
+
+        if (isinstance(version, bool)
+            or not isinstance(version, int)
+            or version not in (1, 2)
+        ):
+            raise ValueError(f"Unsupported schema version: {version}")
+
+        is_valid, msg = validate_data_structure(data)
         if not is_valid:
-            return backup_and_reset()
+            raise ValueError(f"Invalid data file: {msg}")
 
         if was_migrated:
             save_data(data)

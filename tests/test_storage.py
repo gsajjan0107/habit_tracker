@@ -17,11 +17,13 @@ def test_load_data_creates_file_if_missing(tmp_path, monkeypatch):
     assert test_file.exists()
 
     # structure must be correct
-    assert data["schema_version"] == 1
+    assert data["schema_version"] == 2
     assert "habits" in data
     assert "logs" in data
+    assert "events" in data
     assert isinstance(data["habits"], dict)
     assert isinstance(data["logs"], list)
+    assert isinstance(data["events"], list)
 
 def test_load_data_handles_invalid_json_creates_backup(tmp_path, monkeypatch):
     test_file = tmp_path / "data.json"
@@ -36,9 +38,11 @@ def test_load_data_handles_invalid_json_creates_backup(tmp_path, monkeypatch):
     assert test_file.exists()
 
     # verify system recovered structure
-    assert data["schema_version"] == 1
+    assert data["schema_version"] == 2
     assert "habits" in data
     assert "logs" in data
+    assert "events" in data
+    assert isinstance(data["events"], list)
 
     # now the important part → backup must exist
     backup_files = list(tmp_path.glob("data_backup_*.json"))
@@ -50,7 +54,7 @@ def test_save_data_writes_valid_data(tmp_path, monkeypatch):
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -68,6 +72,7 @@ def test_save_data_writes_valid_data(tmp_path, monkeypatch):
                 "note": ""
             }
         ],
+        "events": [],
     }
 
     storage.save_data(data)
@@ -100,16 +105,19 @@ def test_save_data_does_not_overwrite_existing_file_when_data_is_invalid(tmp_pat
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     existing_data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "target_per_week": 5,
                 "created_at": "2026-05-01",
                 "archived_at": None,
-                "description": ""
+                "description": "",
+                "scheduled_days": DEFAULT_SCHEDULED_DAYS.copy(),
+                "id": 1
             }
         },
         "logs": [],
+        "events": []
     }
 
     test_file.write_text(json.dumps(existing_data, indent=4))
@@ -137,7 +145,7 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     existing_data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -149,10 +157,11 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
             }
         },
         "logs": [],
+        "events": []
     }
 
     new_data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -172,6 +181,7 @@ def test_save_data_creates_backup_before_overwriting_existing_file(tmp_path, mon
             },
         },
         "logs": [],
+        "events": []
     }
 
     test_file.write_text(json.dumps(existing_data, indent=4))
@@ -194,7 +204,7 @@ def test_save_data_does_not_create_backup_when_file_does_not_exist(tmp_path, mon
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -206,6 +216,7 @@ def test_save_data_does_not_create_backup_when_file_does_not_exist(tmp_path, mon
             }
         },
         "logs": [],
+        "events": []
     }
 
     storage.save_data(data)
@@ -225,21 +236,24 @@ def test_migrate_data_adds_schema_version_to_old_data():
 
     result, was_migrated = storage.migrate_data(data)
 
-    assert result["schema_version"] == 1
+    assert result["schema_version"] == 2
+    assert result["events"] == []
     assert was_migrated is True
 
 
-def test_migrate_data_preserves_existing_schema_version():
+
+def test_migrate_data_upgrades_schema_version_1_to_2():
     data = {
         "schema_version": 1,
         "habits": {},
-        "logs": []
+        "logs": [],
     }
 
     result, was_migrated = storage.migrate_data(data)
 
-    assert result["schema_version"] == 1
-    assert was_migrated is False
+    assert result["schema_version"] == 2
+    assert result["events"] == []
+    assert was_migrated is True
 
 
 def test_load_data_accepts_old_data(tmp_path, monkeypatch):
@@ -254,7 +268,8 @@ def test_load_data_accepts_old_data(tmp_path, monkeypatch):
     test_file.write_text(json.dumps(data, indent=4))
     data = storage.load_data()
 
-    assert data["schema_version"] == 1
+    assert data["schema_version"] == 2
+    assert data["events"] == []
 
 
 def test_migrate_data_returns_non_dict_unchanged():
@@ -286,9 +301,12 @@ def test_migrate_data_preserves_old_data_content():
 
     result, was_migrated = storage.migrate_data(data)
 
-    assert result["schema_version"] == 1
-    assert result["habits"] == data["habits"]
-    assert result["logs"] == data["logs"]
+    assert result["schema_version"] == 2
+    assert result["events"] == []
+    assert result["habits"]["Workout"]["target_per_week"] == 5
+    assert result["logs"][0]["habit"] == "Workout"
+    assert result["logs"][0]["date"] == "2026-05-01"
+    assert was_migrated is True
 
 
 def test_load_data_saves_migrated_old_data(tmp_path, monkeypatch):
@@ -305,35 +323,36 @@ def test_load_data_saves_migrated_old_data(tmp_path, monkeypatch):
     data = storage.load_data()
     saved_data = json.loads(test_file.read_text())
 
-    assert data["schema_version"] == 1
-    assert saved_data["schema_version"] == 1
+    assert data["schema_version"] == 2
+    assert saved_data["schema_version"] == 2
+    assert data["events"] == []
+    assert saved_data["events"] == []
 
 
-def test_load_data_handles_invalid_structure_creates_backup(tmp_path, monkeypatch):
+
+def test_load_data_rejects_invalid_structure_without_resetting(tmp_path, monkeypatch):
     test_file = tmp_path / "data.json"
     monkeypatch.setattr(storage, "DATA_FILE", test_file)
 
     invalid_data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": [],
         "logs": [],
+        "events": [],
     }
 
-    test_file.write_text(json.dumps(invalid_data, indent=4))
+    original_content = json.dumps(invalid_data, indent=4)
+    test_file.write_text(original_content)
 
-    data = storage.load_data()
-
-    backup_files = list(tmp_path.glob("data_backup_*.json"))
+    with pytest.raises(ValueError, match="Invalid data file"):
+        storage.load_data()
 
     assert test_file.exists()
-    assert len(backup_files) == 1
+    assert test_file.read_text() == original_content
 
-    assert data["schema_version"] == 1
-    assert data["habits"] == {}
-    assert data["logs"] == []
+    backup_files = list(tmp_path.glob("data_backup_*.json"))
+    assert backup_files == []
 
-    backup_data = json.loads(backup_files[0].read_text())
-    assert backup_data == invalid_data
 
 
 def test_migrate_data_adds_missing_description_to_existing_habits():
@@ -374,7 +393,8 @@ def test_migrate_data_does_not_change_habits_that_already_have_description():
     result, was_migrated = storage.migrate_data(data)
 
     assert result["habits"]["Workout"]["description"] == "Strength training"
-    assert was_migrated is False
+    assert result["schema_version"] == 2
+    assert was_migrated is True
 
 
 def test_migrate_data_adds_missing_scheduled_days_to_existing_habits():

@@ -126,7 +126,7 @@ def test_validate_date_false_input():
 
 def test_validate_data_structure_missing_target_per_week():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -135,7 +135,8 @@ def test_validate_data_structure_missing_target_per_week():
                 "description": ""
             }
         },
-        "logs": []
+        "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -147,7 +148,7 @@ def test_validate_data_structure_missing_target_per_week():
 
 def test_validate_data_structure_missing_created_at():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -156,7 +157,8 @@ def test_validate_data_structure_missing_created_at():
                 "description": ""
             }
         },
-        "logs": []
+        "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -167,7 +169,7 @@ def test_validate_data_structure_missing_created_at():
 
 def test_validate_data_structure_missing_log_date():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -182,7 +184,8 @@ def test_validate_data_structure_missing_log_date():
             {
                 "habit": "Workout"
             }
-        ]
+        ],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -193,7 +196,7 @@ def test_validate_data_structure_missing_log_date():
 
 def test_validate_data_structure_missing_log_habit():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -208,7 +211,8 @@ def test_validate_data_structure_missing_log_habit():
             {
                 "date": "2026-05-01"
             }
-        ]
+        ],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -219,7 +223,7 @@ def test_validate_data_structure_missing_log_habit():
 
 def test_validate_data_structure_log_entry_not_dict():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -232,7 +236,8 @@ def test_validate_data_structure_log_entry_not_dict():
         },
         "logs": [
             "bad-log-entry"
-        ]
+        ],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -244,7 +249,7 @@ def test_validate_data_structure_log_entry_not_dict():
 
 def test_validate_data_structure_log_after_archive_date():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Reading": {
                 "id": 1,
@@ -262,6 +267,7 @@ def test_validate_data_structure_log_after_archive_date():
                 "note": ""
             }
         ],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -273,7 +279,7 @@ def test_validate_data_structure_log_after_archive_date():
 
 def test_validate_data_structure_active_habit_log_success():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Reading": {
                 "id": 1,
@@ -291,6 +297,7 @@ def test_validate_data_structure_active_habit_log_success():
                 "note": ""
             }
         ],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -301,7 +308,7 @@ def test_validate_data_structure_active_habit_log_success():
 
 def test_validate_data_structure_missing_archived_at():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -309,7 +316,8 @@ def test_validate_data_structure_missing_archived_at():
                 "created_at": "2026-05-01"
             }
         },
-        "logs": []
+        "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -320,7 +328,7 @@ def test_validate_data_structure_missing_archived_at():
 
 def test_validate_data_structure_log_references_missing_habit():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -338,6 +346,7 @@ def test_validate_data_structure_log_references_missing_habit():
                 "note": ""
             }
         ],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -348,7 +357,7 @@ def test_validate_data_structure_log_references_missing_habit():
 
 def test_validate_data_structure_habit_with_extra_key_fails():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -361,6 +370,7 @@ def test_validate_data_structure_habit_with_extra_key_fails():
             }
         },
         "logs": [],
+        "events": [],
     }
 
     success, msg = validate_data_structure(data)
@@ -371,7 +381,7 @@ def test_validate_data_structure_habit_with_extra_key_fails():
 
 def test_validate_data_structure_log_with_extra_key_fails():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -390,6 +400,7 @@ def test_validate_data_structure_log_with_extra_key_fails():
                 "wrong_key": "oops",
             }
         ],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -402,6 +413,7 @@ def test_validate_data_structure_missing_schema_version():
     data = {
         "habits": {},
         "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -415,6 +427,21 @@ def test_validate_data_structure_invalid_schema_version_type():
         "schema_version": "1",
         "habits": {},
         "logs": [],
+        "events": []
+    }
+
+    success, msg = validate_data_structure(data)
+
+    assert success is False
+    assert "schema_version" in msg
+
+
+def test_validate_data_structure_rejects_boolean_schema_version():
+    data = {
+        "schema_version": True,
+        "habits": {},
+        "logs": [],
+        "events": [],
     }
 
     success, msg = validate_data_structure(data)
@@ -428,6 +455,7 @@ def test_validate_data_structure_unsupported_schema_version():
         "schema_version": 999,
         "habits": {},
         "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -438,7 +466,7 @@ def test_validate_data_structure_unsupported_schema_version():
 
 def test_validate_data_structure_missing_description():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -448,6 +476,7 @@ def test_validate_data_structure_missing_description():
             }
         },
         "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -459,7 +488,7 @@ def test_validate_data_structure_missing_description():
 
 def test_validate_data_structure_description_must_be_string():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -471,6 +500,7 @@ def test_validate_data_structure_description_must_be_string():
             }
         },
         "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
@@ -481,7 +511,7 @@ def test_validate_data_structure_description_must_be_string():
 
 def test_validate_data_structure_valid_description():
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "habits": {
             "Workout": {
                 "id": 1,
@@ -493,6 +523,7 @@ def test_validate_data_structure_valid_description():
             }
         },
         "logs": [],
+        "events": []
     }
 
     success, msg = validate_data_structure(data)
