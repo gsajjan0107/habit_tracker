@@ -798,7 +798,7 @@ def test_get_habit_logs_success(sample_data):
     log_habit(sample_data, "2026-05-10", "Workout")
     log_habit(sample_data, "2026-05-09", "Workout")
 
-    assert get_habit_logs(sample_data, "Workout") == [{"date": "2026-05-10", "note": ""}, {"date": "2026-05-09", "note": ""}]
+    assert get_habit_logs(sample_data, "Workout") == [{"date": "2026-05-09", "note": ""}, {"date": "2026-05-10", "note": ""}]
 
 
 def test_get_nonexistent_habit_logs(sample_data):

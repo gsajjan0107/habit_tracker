@@ -1732,8 +1732,7 @@ def test_handle_dashboard_shows_all_habits_completed_message(monkeypatch):
     )
 
     assert "\n✅ Completed habits:" in messages
-    assert "\n⏳ Pending habits:" in messages
-    assert "All active habits completed for this date." in messages
+    assert "\nAll active habits completed for this date." in messages
     assert ["Reading", "Workout"] in numbered_lists
 
 

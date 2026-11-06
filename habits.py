@@ -20,7 +20,7 @@ def add_habit(data, habit_name, target, description="", scheduled_days=None):
     target = validate_int(target, 1)
     if len(scheduled_days) < target:
         raise ValueError("No. of scheduled days per week cannot be less than target.")
-    
+
     created_at = get_today().isoformat()
 
     if not isinstance(description, str):
@@ -239,11 +239,7 @@ def get_habit_logs(data, habit_name):
                 "note": log.get("note", "")
                 })
 
-    return sorted(
-        logs,
-        key=lambda log: log["date"],
-        reverse=True
-        )
+    return sorted(logs, key=lambda log: log["date"])
 
 def update_habit_description(data, habit_name, description):
     habit_name = validate_string(habit_name, 3, 20)

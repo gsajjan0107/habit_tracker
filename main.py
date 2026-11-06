@@ -14,8 +14,7 @@ from habits import (
     update_habit_target,
     get_habit_logs,
     update_habit_description,
-    edit_habit_schedule
-)
+    edit_habit_schedule)
 from helpers import (
     show_habits_status,
     get_confirmation,
@@ -37,8 +36,7 @@ from helpers import (
     get_best_performing_habit,
     get_logs_for_date,
     get_scheduled_days,
-    format_scheduled_days,
-)
+    format_scheduled_days,)
 
 commands = {
     "1" : "Add habit",
@@ -640,12 +638,11 @@ def handle_dashboard(data):
     else:
         display_message("No habits completed.")
 
-    display_message("\n⏳ Pending habits:")
     if result["pending"]:
+        display_message("\n⏳ Pending habits:")
         display_numbered_list(result["pending"])
     else:
-        display_message("No pending habits.")
-        display_message("All active habits completed for this date.")
+        display_message("\nAll active habits completed for this date.")
 
     previous_day, missed = get_previous_day_missed_habits(data, selected_date, daily_stats)
 
