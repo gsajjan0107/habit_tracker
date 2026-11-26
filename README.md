@@ -109,7 +109,6 @@ stats.py         - Daily, weekly, and streak calculations
 storage.py       - JSON loading, saving, migration, and backups
 validators.py   - User input and data structure validation
 helpers.py      - Display formatting and dashboard helper functions
-utils.py         - Shared CLI utility functions
 config.py        - Project configuration
 tests/           - pytest test suite
 ```

@@ -72,7 +72,6 @@ def run_handle_toggle_archive(monkeypatch, data, user_inputs):
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_handle_operation_result(updated_data, result):
         handled_results.append({
@@ -96,7 +95,7 @@ def run_handle_delete_log(monkeypatch, data, user_inputs):
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
         save_calls.append(copy.deepcopy(updated_data))
@@ -117,7 +116,7 @@ def run_handle_delete(monkeypatch, data, user_inputs):
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
         save_calls.append(copy.deepcopy(updated_data))
@@ -138,7 +137,7 @@ def run_handle_log(monkeypatch, data, user_inputs):
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     monkeypatch.setattr(main, "display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("helpers.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
 
     def fake_save_data(updated_data):
         save_calls.append(copy.deepcopy(updated_data))
@@ -217,7 +216,7 @@ def test_handle_add_can_be_cancelled_at_name_input(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "q")
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("main.save_data", lambda data: save_calls.append(data))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
 
     main.handle_add(data)
 
@@ -1556,7 +1555,7 @@ def test_handle_view_habit_details_can_cancel(monkeypatch):
     messages = []
 
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("builtins.input", lambda _: "q")
 
     main.handle_view_habit_details(data)
@@ -1676,7 +1675,7 @@ def test_handle_view_habit_details_can_be_cancelled_at_selection(monkeypatch):
     messages = []
 
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("builtins.input", lambda _: "q")
 
     main.handle_view_habit_details(data)
@@ -2043,7 +2042,7 @@ def test_handle_view_habit_details_can_be_cancelled_at_selection_with_uppercase_
     messages = []
 
     monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
-    monkeypatch.setattr("utils.display_message", lambda msg: messages.append(str(msg)))
+    monkeypatch.setattr("main.display_message", lambda msg: messages.append(str(msg)))
     monkeypatch.setattr("builtins.input", lambda _: "Q")
 
     main.handle_view_habit_details(data)
