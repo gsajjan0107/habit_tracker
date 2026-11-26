@@ -2,7 +2,6 @@ import sys
 from config import DEFAULT_SCHEDULED_DAYS
 from storage import load_data, save_data
 from stats import daily_stats, habit_weekly_completion, streaks
-from utils import get_selected_habits, handle_operation_result, get_habit_from_habit_menu
 from validators import get_valid_input, validate_string, validate_int, validate_date, validate_choice
 from habits import (
     add_habit,
@@ -29,14 +28,93 @@ from helpers import (
     format_weekly_status,
     habit_has_logs,
     get_habit_details,
-    get_today_focus_habits,
-    display_weekly_progress_section,
-    get_previous_day_missed_habits,
-    get_most_neglected_habit,
-    get_best_performing_habit,
-    get_logs_for_date,
+    display_weekly_progress_table,
     get_scheduled_days,
     format_scheduled_days,)
+
+def get_selected_habits(pending):
+    """Gets input as numbers for multiple habits and returns habit names."""
+    while True:
+        raw = input("\nEnter habit numbers, 'all', or 'q' to cancel: ").strip().lower()
+
+        if not raw:
+            display_message("Please select at least one habit, 'all', or 'q' to cancel.")
+            continue
+
+        if raw == 'q':
+            return None
+
+        if raw == "all":
+            return pending[:]
+
+        raw_choices = raw.split()
+
+        # Remove Duplicates while preserving order
+        habit_nums = []
+        seen = set()
+        for item in raw_choices:
+            if item not in seen:
+                habit_nums.append(item)
+                seen.add(item)
+
+        # Validate inputs
+        selected_habits = []
+        errors = []
+
+        for habit_num in habit_nums:
+            try:
+                habit_num = validate_int(habit_num, 1, len(pending))
+                habit_name = pending[habit_num - 1]
+                selected_habits.append(habit_name)
+            except ValueError as e:
+                errors.append(str(e))
+
+        if errors:
+            for error in errors:
+                display_message(f"Error: {error}")
+            continue
+
+        return selected_habits
+
+def get_habit_from_habit_menu(data, cancel_message):
+    """Gets input after showing habit menu. Returns habit name."""
+    habits = sorted(data["habits"])
+
+    active_entries = []
+    archived_entries = []
+
+    for habit in habits:
+        archived = is_habit_archived(data, habit)
+        entry = {"habit": habit, "archived": archived}
+
+        if archived:
+            archived_entries.append(entry)
+        else:
+            active_entries.append(entry)
+
+    active_entries.sort(key=lambda entry: entry["habit"])
+    archived_entries.sort(key=lambda entry: entry["habit"])
+
+    menu_entries = active_entries + archived_entries
+
+    for i, entry in enumerate(menu_entries, start=1):
+        habit = entry["habit"]
+        archived = entry["archived"]
+        label = f"{habit} ({'archived' if archived else 'unarchived'})"
+        display_message(f"{i}. {label}")
+
+    while True:
+        choice = input("\nSelect a habit number, or 'q' to cancel: ").strip().lower()
+
+        if choice == "q":
+            display_message(cancel_message)
+            return None
+
+        try:
+            selected_index = validate_int(choice, 1, len(menu_entries))
+            return menu_entries[selected_index - 1]["habit"]
+        except ValueError as e:
+            display_message(f"Error: {e}")
 
 commands = {
     "1" : "Add habit",
@@ -593,7 +671,13 @@ def handle_toggle_archive(data):
         return
 
     result = toggle_archive_habit(data, habit_name)
-    handle_operation_result(data, result)
+    success = result.get("success", False)
+    msg = result.get("msg", "Unknown operation result.")
+
+    if success:
+        save_data(data)
+
+    display_message(msg)
 
 def handle_dashboard(data):
     if not ensure_habits_exist(data):
@@ -608,8 +692,7 @@ def handle_dashboard(data):
                 return
 
             selected_date = validate_date(date)
-            result = daily_stats(data, selected_date)
-            weekly_stats = habit_weekly_completion(data, selected_date)
+            result: dict = daily_stats(data, selected_date)
             habit_streaks = streaks(data, selected_date)
             break
 
@@ -618,90 +701,10 @@ def handle_dashboard(data):
 
     display_message("\n==== DASHBOARD ====")
     formatted_date = format_display_date(result["date"])
-    display_message(f"\n📅 Date: {formatted_date}")
-
-    if result["total_habits"] == 0:
-        display_message(f"No habits were active on {formatted_date}.")
-        return
-
-    display_message("\n📌 Daily Summary")
-
-    habit_word = pluralize(result["total_habits"], "habit")
-    display_message(
-        f"{result['total_completed']}/{result['total_habits']} "
-        f"{habit_word} completed ({result['completion_rate']:.2f}%) "
-        f"on {formatted_date}.")
-
-    display_message("\n✅ Completed habits:")
-    if result["completed"]:
-        display_numbered_list(result["completed"])
-    else:
-        display_message("No habits completed.")
-
-    if result["pending"]:
-        display_message("\n⏳ Pending habits:")
-        display_numbered_list(result["pending"])
-    else:
-        display_message("\nAll active habits completed for this date.")
-
-    previous_day, missed = get_previous_day_missed_habits(data, selected_date, daily_stats)
-
-    if missed:
-        display_message("\n⚠️  Previous Day Missed")
-        previous_day_formatted = format_display_date(previous_day)
-        habit_word = pluralize(len(missed), "habit")
-        display_message(f"Not logged on {previous_day_formatted} ({len(missed)} {habit_word}):")
-        display_numbered_list(missed)
-
-        display_message("")
-        habit_word = pluralize(len(missed), "habit")
-        pronoun = "them" if len(missed) > 1 else "it"
-
-        display_message(
-            f"Recovery hint: Pick the easiest missed {habit_word} "
-            f"and complete {pronoun} first today.")
-
-    focus_habits = get_today_focus_habits(result["pending"], weekly_stats) # Keeps the habits that still have unfinished weekly targets and sorts them by urgency.
-
-    display_message("\n🎯 Today's Focus")
-
-    if focus_habits:
-        for habit, info in focus_habits:
-            day_word = pluralize(info["available_days_left"], "day")
-            risk_note = ""
-
-            if info["remaining"] > info["available_days_left"]:
-                risk_note = " ⚠️  At risk"
-            display_message(
-                f"- {habit}: {info['remaining']} more needed this week, "
-                f"{info['available_days_left']} {day_word} available"
-                f"{risk_note}")
-    else:
-        display_message("All weekly targets are currently on track. Choose any pending habit or recover.")
-
-    display_message("\n💡 Habit Insight:")
-
-    most_neglected = get_most_neglected_habit(data, selected_date)
-    if most_neglected is None:
-        return "Most neglected: None yet"
-    habit, days_since = most_neglected
-    day_word = pluralize(days_since, "day")
-    display_message(f"- Most neglected: {habit} ({days_since} {day_word} since last log)")
-
-    if focus_habits:
-        display_message(f"⚠️  Needs attention: {focus_habits[0][0]}")
-
-    best_performing = get_best_performing_habit(weekly_stats)
-    if best_performing is None:
-        display_message("Best this week: None yet")
-    else:
-        best_habit, best_percentage = best_performing
-        display_message(f"- Best this week: {best_habit} ({best_percentage:.2f}%)")
+    display_message(f"\n📅 {formatted_date}")
 
     active_habits = sorted(set(result["completed"]) | set(result["pending"]))
-    display_weekly_progress_section(active_habits, weekly_stats, habit_streaks)
-
-    display_message("\n✅ Dashboard loaded.")
+    display_weekly_progress_table(data, selected_date, active_habits, habit_streaks)
 
 def handle_exit(data):
     sys.exit()

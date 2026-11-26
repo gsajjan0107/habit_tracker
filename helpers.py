@@ -1,5 +1,10 @@
 from datetime import datetime, date, timedelta
 from config import DEFAULT_SCHEDULED_DAYS
+from tabulate import tabulate
+import random
+from rich.console import Console
+console = Console()
+
 
 def format_display_date(value):
     if isinstance(value, date):
@@ -213,6 +218,64 @@ def display_weekly_progress_section(active_habits, weekly_stats, habit_streaks):
         status = format_weekly_status(info["status"])
         weekly_message = format_weekly_message(info, status)
         display_message(f"\n{habit:<15}\nWeekly : {info['done']:>2}/{info['target']:<2} ({info['percentage']:.2f}%) - {weekly_message}\nStreak : 🔥 {streak_info['current_streak']}\nBest   : 🏆 {streak_info['longest_streak']}")
+
+def display_weekly_progress_table(data, selected_date: date, active_habits: list, habit_streaks):
+    previous_dates = [selected_date - timedelta(i) for i in range(7)]
+    previous_dates.reverse()
+    previous_dates_list = [d.strftime("%d-%b").strip() + "\n" + d.strftime("%a").strip() for d in previous_dates]
+    previous_dates_list.insert(0, "S.no")
+    previous_dates_list.insert(1, "Habits")
+    previous_dates_list.append("Streak")
+    habits_completed_on_previous_dates = {}
+    table_data = [[habit] for habit in active_habits]
+
+    for d in previous_dates: # runs 7 times
+        habits_completed_on_previous_dates[d.isoformat()] = {
+                log["habit"]
+                for log in data["logs"]
+                if log["date"] == d.isoformat()
+            }
+
+        for i in range(len(active_habits)): # runs n times where n is no. of active habits
+            if active_habits[i] in habits_completed_on_previous_dates[d.isoformat()]:
+                table_data[i].append("✔")
+            else:
+                table_data[i].append("✘")
+
+    for i in range(len(active_habits)): # runs n times where n is no. of active habits
+        streak_info = habit_streaks.get(active_habits[i], {"current_streak": 0, "longest_streak": 0})
+        table_data[i].append(f"🔥 {streak_info['current_streak']}")
+
+    table_formats = [
+    "plain",
+    "simple",
+    "github",
+    "grid",
+    "simple_grid",
+    "rounded_grid",
+    "heavy_grid",
+    "mixed_grid",
+    "double_grid",
+    "fancy_grid",
+    "outline",
+    "simple_outline",
+    "rounded_outline",
+    "heavy_outline",
+    "mixed_outline",
+    "double_outline",
+    "fancy_outline",
+    "pipe",
+    "orgtbl",
+    "jira",
+    "presto",
+    "pretty",
+    "psql",
+    "rst",
+]
+    table_format = random.choice(table_formats)
+    print(f"Table Format: {table_format}")
+    print(tabulate(table_data, headers=previous_dates_list, tablefmt=table_format, showindex=range(1, len(table_data)+1), colglobalalign="center", colalign=["center", "left",]))
+    return tabulate(table_data)
 
 def get_most_neglected_habit(data, selected_date):
     from validators import validate_date
